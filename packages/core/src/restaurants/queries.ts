@@ -91,6 +91,14 @@ export async function getMenu(restaurantId: string) {
 export type MenuCategory = Awaited<ReturnType<typeof getMenu>>[number]
 export type MenuDish = MenuCategory["menuItems"][number]
 
+// Every restaurant, for the platform home page (demo restaurants only, for now).
+export async function listRestaurants() {
+  return prisma.restaurant.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, slug: true, theme: true },
+  })
+}
+
 // Restaurants a user works at, with their role, for the account page.
 export async function getStaffRestaurants(userId: string) {
   const memberships = await prisma.membership.findMany({

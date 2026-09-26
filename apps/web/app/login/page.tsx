@@ -1,7 +1,11 @@
+import { getRestaurantBySlug } from "@workspace/core"
 import type { Metadata } from "next"
+import Image from "next/image"
 import { redirect } from "next/navigation"
 
+import { PlatformShell } from "@/components/platform-shell"
 import { getCurrentUser } from "@/lib/auth"
+import { readBrand } from "@/lib/brand"
 import { safeNextPath } from "@/lib/redirect"
 
 import { LoginForm } from "./login-form"
@@ -18,9 +22,38 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   // Already signed in: go straight on.
   if (await getCurrentUser()) redirect(returnTo)
 
+  // Coming from a restaurant (e.g. its checkout)? Sign in in its colours.
+  const slug = returnTo.split("/")[1] ?? ""
+  const restaurant = slug ? await getRestaurantBySlug(slug) : null
+  const brand = restaurant ? readBrand(restaurant.theme) : undefined
+
   return (
-    <main className="flex min-h-svh items-center justify-center p-6">
-      <LoginForm returnTo={returnTo} />
-    </main>
+    <PlatformShell
+      brand={brand}
+      title={restaurant?.name}
+      titleHref={restaurant ? `/${restaurant.slug}` : "/"}
+    >
+      <div className="grid flex-1 lg:grid-cols-2">
+        {brand?.heroImageUrl && (
+          <div className="relative hidden lg:block">
+            <Image
+              src={`${brand.heroImageUrl}?w=1400&q=75&auto=format&fit=crop`}
+              alt=""
+              fill
+              sizes="50vw"
+              className="object-cover"
+            />
+          </div>
+        )}
+        <div
+          className={`flex items-center justify-center px-4 py-16 ${brand?.heroImageUrl ? "" : "lg:col-span-2"}`}
+        >
+          <LoginForm
+            returnTo={returnTo}
+            restaurantName={restaurant?.name ?? null}
+          />
+        </div>
+      </div>
+    </PlatformShell>
   )
 }

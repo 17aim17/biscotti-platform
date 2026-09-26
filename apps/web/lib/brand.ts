@@ -152,3 +152,11 @@ export function brandStyle(brand: Brand): CSSProperties {
     ...(p.displayFont ? { "--font-display": p.displayFont } : {}),
   } as CSSProperties
 }
+
+// Biscotti's own pages (home, sign-in, account): the classic look in ink and
+// brass, so they sit comfortably next to any restaurant's storefront.
+export const PLATFORM_BRAND: Brand = readBrand({
+  preset: "classic",
+  primary: "#1b1612",
+  accent: "#b08d57",
+})

@@ -3,17 +3,7 @@
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-import { Button } from "@workspace/ui/components/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@workspace/ui/components/card"
-import { Input } from "@workspace/ui/components/input"
-import { Label } from "@workspace/ui/components/label"
-
+import { eyebrow, inputClass, solidButton } from "@/components/styles"
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser"
 
 // 10-digit Indian numbers get +91; numbers already starting with + are kept.
@@ -24,7 +14,13 @@ function toE164(input: string): string | null {
   return null
 }
 
-export function LoginForm({ returnTo }: { returnTo: string }) {
+export function LoginForm({
+  returnTo,
+  restaurantName,
+}: {
+  returnTo: string
+  restaurantName: string | null
+}) {
   const router = useRouter()
   const [step, setStep] = useState<"phone" | "code">("phone")
   const [phone, setPhone] = useState("")
@@ -66,68 +62,90 @@ export function LoginForm({ returnTo }: { returnTo: string }) {
   }
 
   return (
-    <Card className="w-full max-w-sm">
-      <CardHeader>
-        <CardTitle>Sign in</CardTitle>
-        <CardDescription>
+    <div className="flex w-full max-w-sm flex-col gap-8">
+      <div className="flex flex-col gap-3">
+        <p className={`${eyebrow} text-(--sf-accent-ink)`}>
+          {restaurantName ? `Order from ${restaurantName}` : "Welcome"}
+        </p>
+        <h1 className="font-display text-5xl leading-none font-medium tracking-tight">
+          Sign in
+        </h1>
+        <p className="text-(--sf-muted)">
           {step === "phone"
-            ? "We'll text you a one-time code."
+            ? "We'll text you a one-time code. No password needed."
             : `Enter the code sent to ${phone}.`}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {step === "phone" ? (
-          <form onSubmit={sendCode} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="phone">Mobile number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                placeholder="98765 43210"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" disabled={pending}>
-              {pending ? "Sending..." : "Send code"}
-            </Button>
-          </form>
-        ) : (
-          <form onSubmit={verifyCode} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="code">Code</Label>
-              <Input
-                id="code"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                required
-              />
-            </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            <Button type="submit" disabled={pending}>
-              {pending ? "Checking..." : "Sign in"}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => {
-                setStep("phone")
-                setCode("")
-                setError(null)
-              }}
-            >
-              Use a different number
-            </Button>
-          </form>
-        )}
-      </CardContent>
-    </Card>
+        </p>
+      </div>
+
+      {step === "phone" ? (
+        <form onSubmit={sendCode} className="flex flex-col gap-5">
+          <label className="flex flex-col gap-2">
+            <span className={`${eyebrow} text-(--sf-muted)`}>
+              Mobile number
+            </span>
+            <input
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="98765 43210"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              className={inputClass}
+            />
+          </label>
+          {error && (
+            <p role="alert" className="text-sm text-(--brand)">
+              {error}
+            </p>
+          )}
+          <button
+            type="submit"
+            disabled={pending}
+            className={`${solidButton} h-12 disabled:opacity-60`}
+          >
+            {pending ? "Sending…" : "Send code"}
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={verifyCode} className="flex flex-col gap-5">
+          <label className="flex flex-col gap-2">
+            <span className={`${eyebrow} text-(--sf-muted)`}>Code</span>
+            <input
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              required
+              className={`${inputClass} text-center text-2xl tracking-[0.5em]`}
+            />
+          </label>
+          {error && (
+            <p role="alert" className="text-sm text-(--brand)">
+              {error}
+            </p>
+          )}
+          <button
+            type="submit"
+            disabled={pending}
+            className={`${solidButton} h-12 disabled:opacity-60`}
+          >
+            {pending ? "Checking…" : "Sign in"}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setStep("phone")
+              setCode("")
+              setError(null)
+            }}
+            className={`${eyebrow} text-(--sf-muted) underline-offset-4 hover:text-(--sf-ink) hover:underline`}
+          >
+            Use a different number
+          </button>
+        </form>
+      )}
+    </div>
   )
 }

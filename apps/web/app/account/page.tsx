@@ -1,74 +1,89 @@
 import { getStaffRestaurants, roleCan } from "@workspace/core"
-import { Button, buttonVariants } from "@workspace/ui/components/button"
 import type { Metadata } from "next"
 import Link from "next/link"
 
+import { PlatformShell } from "@/components/platform-shell"
+import { SectionHeading } from "@/components/section-heading"
+import { eyebrow } from "@/components/styles"
 import { requireUser } from "@/lib/auth"
 
 import { signOut } from "./actions"
 
 export const metadata: Metadata = { title: "Your account" }
 
+const outlineButton = `${eyebrow} inline-flex h-10 items-center rounded-(--sf-radius-control) px-4 text-(--sf-ink) ring-1 ring-(--sf-ink) transition hover:bg-(--sf-ink) hover:text-(--sf-bg)`
+
 export default async function AccountPage() {
   const user = await requireUser("/account")
   const restaurants = await getStaffRestaurants(user.id)
 
   return (
-    <main className="mx-auto flex min-h-svh max-w-2xl flex-col gap-8 px-4 py-10">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Your account</h1>
-          <p className="text-muted-foreground">Signed in as +{user.phone}</p>
-        </div>
-        <form action={signOut}>
-          <Button variant="outline" type="submit">
+    <PlatformShell>
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-14 px-4 py-16">
+        <SectionHeading eyebrow="Your account" title="Welcome back">
+          Signed in as +{user.phone}
+        </SectionHeading>
+
+        {restaurants.length > 0 ? (
+          <section className="flex flex-col gap-4">
+            <h2 className="border-b border-(--sf-ink)/80 pb-3 font-display text-3xl font-medium">
+              Your restaurants
+            </h2>
+            <ul className="divide-y divide-(--sf-line)">
+              {restaurants.map((r) => (
+                <li
+                  key={r.slug}
+                  className="flex flex-wrap items-center justify-between gap-4 py-5"
+                >
+                  <div className="flex flex-col gap-1">
+                    <Link
+                      href={`/${r.slug}`}
+                      className="font-display text-2xl hover:underline hover:underline-offset-4"
+                    >
+                      {r.name}
+                    </Link>
+                    <span className={`${eyebrow} text-(--sf-muted)`}>
+                      {r.role}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Link href={`/${r.slug}/kitchen`} className={outlineButton}>
+                      Kitchen
+                    </Link>
+                    {roleCan(r.role, "orders:view") && (
+                      <Link
+                        href={`/${r.slug}/dashboard`}
+                        className={outlineButton}
+                      >
+                        Dashboard
+                      </Link>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : (
+          <p className="text-center text-(--sf-muted)">
+            Your orders are listed on each restaurant&apos;s page, under Orders.{" "}
+            <Link
+              href="/"
+              className="text-(--sf-ink) underline underline-offset-4"
+            >
+              Browse restaurants
+            </Link>
+          </p>
+        )}
+
+        <form action={signOut} className="flex justify-center">
+          <button
+            type="submit"
+            className={`${eyebrow} text-(--sf-muted) underline-offset-4 hover:text-(--brand) hover:underline`}
+          >
             Sign out
-          </Button>
+          </button>
         </form>
       </div>
-
-      {restaurants.length > 0 && (
-        <section className="flex flex-col gap-3">
-          <h2 className="text-lg font-medium">My restaurants</h2>
-          <ul className="flex flex-col gap-3">
-            {restaurants.map((r) => (
-              <li
-                key={r.slug}
-                className="flex items-center justify-between rounded-lg border p-4"
-              >
-                <div>
-                  <p className="font-medium">{r.name}</p>
-                  <p className="text-sm text-muted-foreground capitalize">
-                    {r.role}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Link
-                    href={`/${r.slug}/kitchen`}
-                    className={buttonVariants({
-                      variant: "outline",
-                      size: "sm",
-                    })}
-                  >
-                    Kitchen
-                  </Link>
-                  {roleCan(r.role, "orders:view") && (
-                    <Link
-                      href={`/${r.slug}/dashboard`}
-                      className={buttonVariants({
-                        variant: "outline",
-                        size: "sm",
-                      })}
-                    >
-                      Dashboard
-                    </Link>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </main>
+    </PlatformShell>
   )
 }

@@ -10,3 +10,7 @@ export const solidButton = `inline-flex items-center justify-center gap-2 rounde
 
 // Small letterspaced label above headings and on facts.
 export const eyebrow = "text-[0.68rem] font-medium tracking-[0.3em] uppercase"
+
+// Text inputs on forms.
+export const inputClass =
+  "h-12 w-full rounded-(--sf-radius-control) bg-(--sf-card) px-4 text-base ring-1 ring-(--sf-line) outline-none transition focus:ring-2 focus:ring-(--sf-ink)"

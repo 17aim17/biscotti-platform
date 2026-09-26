@@ -37,6 +37,7 @@ export {
   getRestaurantBySlug,
   getStaffRestaurants,
   isReservedSlug,
+  listRestaurants,
   type MenuCategory,
   type MenuDish,
   type RestaurantSummary,
