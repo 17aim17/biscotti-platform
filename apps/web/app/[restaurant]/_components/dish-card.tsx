@@ -71,7 +71,7 @@ export function DishCard({
               )}
             />
           )}
-          <span className="absolute top-3 left-3 hidden rounded-lg bg-white/95 p-1 shadow-sm sm:block">
+          <span className="absolute top-3 left-3 hidden size-7 items-center justify-center rounded-lg bg-white/95 shadow-sm sm:flex">
             <DietMark isVeg={dish.isVeg} />
           </span>
           {soldOut && (
