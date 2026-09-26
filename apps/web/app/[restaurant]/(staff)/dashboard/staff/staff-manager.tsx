@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 
 import { eyebrow, inputClass, solidButton } from "@/components/styles"
+import type { ActionResult } from "@/lib/action-result"
+import { callAction } from "@/lib/call-action"
 
 import { FieldLabel } from "../_ui"
 import { addStaffAction, changeRoleAction, removeStaffAction } from "../actions"
@@ -46,12 +48,12 @@ export function StaffManager({
   const [role, setRole] = useState<Role>("staff")
 
   function run(
-    action: () => Promise<{ ok: boolean; error?: string }>,
+    action: () => Promise<ActionResult<unknown>>,
     after?: () => void
   ) {
     setError(null)
     start(async () => {
-      const result = await action()
+      const result = await callAction(action)
       if (!result.ok) setError(result.error ?? "Something went wrong.")
       else after?.()
       router.refresh()

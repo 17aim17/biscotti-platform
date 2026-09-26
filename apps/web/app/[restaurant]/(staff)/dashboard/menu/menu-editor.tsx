@@ -10,6 +10,8 @@ import { type CSSProperties, useState, useTransition } from "react"
 import { DietMark } from "@/components/diet-mark"
 import { eyebrow, inputClass, solidButton } from "@/components/styles"
 import { formatRupees } from "@/lib/money"
+import type { ActionResult } from "@/lib/action-result"
+import { callAction } from "@/lib/call-action"
 
 import { outlineButton, PageTitle } from "../_ui"
 import {
@@ -39,10 +41,10 @@ export function MenuEditor({
   const [editing, setEditing] = useState<Editing>(null)
 
   // Runs an action, shows its error if any, and reloads the page's data.
-  function run(action: () => Promise<{ ok: boolean; error?: string }>) {
+  function run(action: () => Promise<ActionResult<unknown>>) {
     setError(null)
     start(async () => {
-      const result = await action()
+      const result = await callAction(action)
       if (!result.ok) setError(result.error ?? "Something went wrong.")
       router.refresh()
     })

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
+import { callAction } from "@/lib/call-action"
 
 import { outlineButton } from "../_ui"
 import { markRefundedAction } from "../actions"
@@ -26,7 +27,9 @@ export function RefundButton({
           if (!window.confirm("Mark this payment as refunded in Razorpay?"))
             return
           start(async () => {
-            const result = await markRefundedAction(slug, paymentId)
+            const result = await callAction(() =>
+              markRefundedAction(slug, paymentId)
+            )
             if (!result.ok) setError(result.error)
             router.refresh()
           })

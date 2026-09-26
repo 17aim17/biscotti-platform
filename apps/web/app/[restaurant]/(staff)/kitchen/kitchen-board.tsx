@@ -9,6 +9,7 @@ import { useEffect, useRef, useState, useTransition } from "react"
 import { eyebrow, solidButton } from "@/components/styles"
 import { formatRupees } from "@/lib/money"
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser"
+import { callAction } from "@/lib/call-action"
 
 import { moveOrderAction } from "./actions"
 
@@ -240,7 +241,9 @@ function OrderCard({
     }
     setError(null)
     startTransition(async () => {
-      const result = await moveOrderAction({ orderId: order.id, to, reason })
+      const result = await callAction(() =>
+        moveOrderAction({ orderId: order.id, to, reason })
+      )
       if (!result.ok) setError(result.error)
       router.refresh()
     })

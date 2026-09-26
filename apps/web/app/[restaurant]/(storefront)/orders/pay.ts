@@ -1,3 +1,4 @@
+import { callAction } from "@/lib/call-action"
 import { payWithRazorpay, type PaymentStart } from "@/lib/razorpay-checkout"
 
 import { confirmPaymentAction } from "./actions"
@@ -16,6 +17,14 @@ export async function payAndConfirm(
     return { ok: false, error: "Could not open the payment window." }
   }
   if (!response) return { ok: true, paid: false }
-  const confirmed = await confirmPaymentAction(response)
-  return confirmed.ok ? { ok: true, paid: true } : confirmed
+  const confirmed = await callAction(() => confirmPaymentAction(response))
+  if (!confirmed.ok) {
+    // Razorpay took the payment; the webhook records it even if this
+    // confirmation did not get through.
+    return {
+      ok: false,
+      error: `${confirmed.error} If you paid, the order will update shortly.`,
+    }
+  }
+  return { ok: true, paid: true }
 }

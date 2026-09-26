@@ -8,6 +8,7 @@ import { useState, useTransition } from "react"
 
 import { DeliveryMap } from "@/components/delivery-map"
 import { eyebrow, inputClass, solidButton } from "@/components/styles"
+import { callAction } from "@/lib/call-action"
 
 import { FieldLabel } from "../_ui"
 import { saveOutletAction } from "../actions"
@@ -96,20 +97,22 @@ export function OutletForm({
     e.preventDefault()
     setMessage(null)
     begin(async () => {
-      const result = await saveOutletAction(slug, outlet?.id ?? null, {
-        name,
-        address,
-        lat: pin.lat,
-        lng: pin.lng,
-        deliveryRadiusM: Math.round(Number(radiusKm) * 1000),
-        hours: toHours(rows),
-        isOpen,
-        deliveryFeePaise: Math.round(Number(deliveryFee) * 100),
-        packagingFeePaise: Math.round(Number(packagingFee) * 100),
-        taxBps: Math.round(Number(taxPercent) * 100),
-        acceptsCod,
-        acceptsPickup,
-      })
+      const result = await callAction(() =>
+        saveOutletAction(slug, outlet?.id ?? null, {
+          name,
+          address,
+          lat: pin.lat,
+          lng: pin.lng,
+          deliveryRadiusM: Math.round(Number(radiusKm) * 1000),
+          hours: toHours(rows),
+          isOpen,
+          deliveryFeePaise: Math.round(Number(deliveryFee) * 100),
+          packagingFeePaise: Math.round(Number(packagingFee) * 100),
+          taxBps: Math.round(Number(taxPercent) * 100),
+          acceptsCod,
+          acceptsPickup,
+        })
+      )
       setMessage(
         result.ok
           ? { ok: true, text: outlet ? "Saved." : "Outlet added." }

@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useRef, useState } from "react"
 
 import { eyebrow } from "@/components/styles"
+import { callAction } from "@/lib/call-action"
 
 import { uploadImageAction } from "./actions"
 
@@ -32,17 +33,10 @@ export function ImageField({
     setError(null)
     const form = new FormData()
     form.set("file", file)
-    try {
-      const result = await uploadImageAction(slug, form)
-      if (result.ok) onChange(result.data)
-      else setError(result.error)
-    } catch {
-      // The request itself failed (network, or the file was too large for
-      // the server to read). Without this the button would stay busy.
-      setError("Upload failed. Check the connection and try again.")
-    } finally {
-      setBusy(false)
-    }
+    const result = await callAction(() => uploadImageAction(slug, form))
+    setBusy(false)
+    if (result.ok) onChange(result.data)
+    else setError(result.error)
   }
 
   return (

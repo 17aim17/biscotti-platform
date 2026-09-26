@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 
 import { inputClass, solidButton } from "@/components/styles"
+import { callAction } from "@/lib/call-action"
 
 import { ImageField } from "../_image-field"
 import { FieldLabel } from "../_ui"
@@ -73,10 +74,12 @@ export function SettingsForm({
     e.preventDefault()
     setMessage(null)
     start(async () => {
-      const result = await saveSettingsAction(slug, {
-        ...s,
-        theme: { ...s.theme, tagline: s.theme.tagline?.trim() || null },
-      })
+      const result = await callAction(() =>
+        saveSettingsAction(slug, {
+          ...s,
+          theme: { ...s.theme, tagline: s.theme.tagline?.trim() || null },
+        })
+      )
       setMessage(
         result.ok
           ? { ok: true, text: "Saved. The storefront shows the changes now." }

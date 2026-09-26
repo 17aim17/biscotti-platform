@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation"
 import { type CSSProperties, useState, useTransition } from "react"
 
 import { eyebrow, inputClass, solidButton } from "@/components/styles"
+import { callAction } from "@/lib/call-action"
 
 import { ImageField } from "../_image-field"
 import { FieldLabel } from "../_ui"
@@ -70,15 +71,17 @@ function Fields({ slug, dish, categoryId, categories, onClose }: Props) {
     }
     setError(null)
     start(async () => {
-      const result = await saveDishAction(slug, dish?.id ?? null, {
-        categoryId: category,
-        title,
-        description,
-        pricePaise: Math.round(rupees * 100),
-        isVeg,
-        isFeatured,
-        imageUrl,
-      })
+      const result = await callAction(() =>
+        saveDishAction(slug, dish?.id ?? null, {
+          categoryId: category,
+          title,
+          description,
+          pricePaise: Math.round(rupees * 100),
+          isVeg,
+          isFeatured,
+          imageUrl,
+        })
+      )
       if (!result.ok) {
         setError(result.error)
         return
@@ -92,7 +95,7 @@ function Fields({ slug, dish, categoryId, categories, onClose }: Props) {
     if (!dish) return
     if (!window.confirm(`Remove ${dish.title} from the menu?`)) return
     start(async () => {
-      const result = await archiveDishAction(slug, dish.id)
+      const result = await callAction(() => archiveDishAction(slug, dish.id))
       if (!result.ok) {
         setError(result.error)
         return

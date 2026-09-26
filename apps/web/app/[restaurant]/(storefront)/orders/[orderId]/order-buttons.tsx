@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 import { eyebrow, solidButton } from "@/components/styles"
+import { callAction } from "@/lib/call-action"
 import { cancelOrderAction, startPaymentAction } from "../actions"
 import { payAndConfirm } from "../pay"
 
@@ -29,7 +30,7 @@ export function PayNowButton({
   async function pay() {
     setBusy(true)
     setError(null)
-    const start = await startPaymentAction(orderId)
+    const start = await callAction(() => startPaymentAction(orderId))
     if (!start.ok) {
       setError(start.error)
       setBusy(false)
@@ -74,7 +75,7 @@ export function CancelOrderButton({ orderId }: { orderId: string }) {
     if (!window.confirm("Cancel this order?")) return
     setBusy(true)
     setError(null)
-    const result = await cancelOrderAction(orderId)
+    const result = await callAction(() => cancelOrderAction(orderId))
     if (!result.ok) setError(result.error)
     setBusy(false)
     router.refresh()
