@@ -57,8 +57,15 @@ export function CheckoutView({
   const [house, setHouse] = useState("")
   const [landmark, setLandmark] = useState("")
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("online")
-  const [quote, setQuote] = useState<Quote | null>(null)
-  const [quoteError, setQuoteError] = useState<string | null>(null)
+  // The server's latest answer, tagged with the inputs it was priced for.
+  const [quoted, setQuoted] = useState<{
+    key: string
+    quote: Quote | null
+    error: string | null
+  } | null>(null)
+  // Set once the order exists, so a cleared cart does not read as "empty"
+  // while the page moves on to the order.
+  const [placedOrderId, setPlacedOrderId] = useState<string | null>(null)
   const [placing, setPlacing] = useState(false)
   const [placeError, setPlaceError] = useState<string | null>(null)
   const [locating, setLocating] = useState(false)
@@ -96,33 +103,44 @@ export function CheckoutView({
   const cashAllowed = outlet?.acceptsCod ?? false
   const method: PaymentMethod = cashAllowed ? paymentMethod : "online"
 
+  // What the current total depends on. A quote for other inputs (say, the
+  // delivery total just after switching to pickup) is not shown or used.
+  const quoteKey = JSON.stringify([outlet?.id, fulfillment, pin, items])
+  const current = quoted?.key === quoteKey ? quoted : null
+  const quote = current?.quote ?? null
+  const quoteError = current?.error ?? null
+
   // Ask the server for totals whenever the order changes. The request is
   // debounced so dragging the pin does not send one request per frame.
   useEffect(() => {
     if (!outlet || items.length === 0) return
     let stale = false
     const timer = setTimeout(async () => {
-      const result = await quoteAction({
-        restaurantId,
-        locationId: outlet.id,
-        fulfillment,
-        pin: fulfillment === "delivery" && pin ? pin : undefined,
-        items,
-      })
-      if (stale) return
-      if (result.ok) {
-        setQuote(result.data)
-        setQuoteError(null)
-      } else {
-        setQuote(null)
-        setQuoteError(result.error)
+      let next: { quote: Quote | null; error: string | null }
+      try {
+        const result = await quoteAction({
+          restaurantId,
+          locationId: outlet.id,
+          fulfillment,
+          pin: fulfillment === "delivery" && pin ? pin : undefined,
+          items,
+        })
+        next = result.ok
+          ? { quote: result.data, error: null }
+          : { quote: null, error: result.error }
+      } catch {
+        next = {
+          quote: null,
+          error: "Couldn't reach the restaurant. Check the connection.",
+        }
       }
+      if (!stale) setQuoted({ key: quoteKey, ...next })
     }, 300)
     return () => {
       stale = true
       clearTimeout(timer)
     }
-  }, [restaurantId, outlet, fulfillment, pin, items])
+  }, [restaurantId, outlet, fulfillment, pin, items, quoteKey])
 
   // Pin moved on the map (tap, drag, my location): look up its address once
   // it stops moving. Search picks arrive with their address already.
@@ -145,12 +163,49 @@ export function CheckoutView({
     }
   }, [pin, pinAddress])
 
-  if (!outlet || items.length === 0) {
+  if (placedOrderId) {
     return (
       <div className="flex flex-col items-center gap-6 py-24 text-center">
-        <p className="font-display text-4xl font-medium">Your cart is empty</p>
-        <Link href={`/${slug}#menu`} className={`${solidButton} px-8 py-3.5`}>
-          Browse the menu
+        <p className="font-display text-4xl font-medium">Order placed</p>
+        <Link
+          href={`/${slug}/orders/${placedOrderId}`}
+          className={`${solidButton} px-8 py-3.5`}
+        >
+          See your order
+        </Link>
+      </div>
+    )
+  }
+
+  if (!outlet || items.length === 0) {
+    // Tell apart an empty cart, a cart of sold-out dishes, and a restaurant
+    // with no outlets.
+    const [title, text, href, label] = !outlet
+      ? [
+          "Not taking orders",
+          "This restaurant isn't taking online orders yet.",
+          `/${slug}`,
+          "Back to the menu",
+        ]
+      : cart.lines.length > 0
+        ? [
+            "Nothing to order right now",
+            "The dishes in your cart are sold out or no longer on the menu.",
+            `/${slug}/cart`,
+            "Review your cart",
+          ]
+        : [
+            "Your cart is empty",
+            "Add a few dishes from the menu first.",
+            `/${slug}#menu`,
+            "Browse the menu",
+          ]
+    return (
+      <div className="flex flex-col items-center gap-6 py-24 text-center">
+        <p className="font-display text-4xl font-medium">{title}</p>
+        <p className="text-(--sf-muted)">{text}</p>
+        <Link href={href} className={`${solidButton} px-8 py-3.5`}>
+          {label}
         </Link>
       </div>
     )
@@ -200,41 +255,55 @@ export function CheckoutView({
     if (!canPlace || !outlet) return
     setPlacing(true)
     setPlaceError(null)
-    const result = await placeOrderAction({
-      restaurantId,
-      locationId: outlet.id,
-      fulfillment,
-      paymentMethod: method,
-      customerName: name,
-      address:
-        needsAddress && pin && area
-          ? {
-              line1: `${house.trim()}, ${area}`.slice(0, 200),
-              landmark: landmark || undefined,
-              ...pin,
-            }
-          : undefined,
-      items,
-      idempotencyKey,
-    })
-    if (!result.ok) {
-      setPlaceError(result.error)
+    let placed
+    try {
+      placed = await placeOrderAction({
+        restaurantId,
+        locationId: outlet.id,
+        fulfillment,
+        paymentMethod: method,
+        customerName: name,
+        address:
+          needsAddress && pin && area
+            ? {
+                line1: `${house.trim()}, ${area}`.slice(0, 200),
+                landmark: landmark || undefined,
+                ...pin,
+              }
+            : undefined,
+        items,
+        idempotencyKey,
+      })
+    } catch {
+      // No answer: the order may or may not exist. Trying again is safe,
+      // because the same idempotency key cannot create a second order.
+      setPlaceError("Couldn't reach the restaurant. Please try again.")
       setPlacing(false)
       return
     }
-    // The order exists now: the cart has done its job.
-    clear()
-    const { orderId, payment } = result.data
-    if (payment) {
-      // Paid or not, the order page shows where things stand (and offers
-      // "Pay now" if the window was closed).
-      await payAndConfirm(payment, {
-        restaurantName,
-        phone,
-        color: brandColor,
-      })
+    if (!placed.ok) {
+      setPlaceError(placed.error)
+      setPlacing(false)
+      return
     }
-    router.push(`/${slug}/orders/${orderId}`)
+    // The order exists now: the cart has done its job, and whatever happens
+    // with the payment, the order page is where the customer goes next.
+    const { orderId, payment } = placed.data
+    setPlacedOrderId(orderId)
+    clear()
+    try {
+      if (payment) {
+        // Paid or not, the order page shows where things stand (and offers
+        // "Pay now" if the window was closed).
+        await payAndConfirm(payment, {
+          restaurantName,
+          phone,
+          color: brandColor,
+        })
+      }
+    } finally {
+      router.push(`/${slug}/orders/${orderId}`)
+    }
   }
 
   const payLabel =
