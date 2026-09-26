@@ -11,7 +11,7 @@ import { eyebrow, solidButton } from "@/components/styles"
 import { useCart } from "@/lib/cart/store"
 import { formatRupees } from "@/lib/money"
 
-import { DietMark } from "../_components/diet-mark"
+import { DietMark } from "@/components/diet-mark"
 import { QuantityControl } from "../_components/quantity-control"
 
 // The cart: dishes and quantities. Outlet, delivery or pickup, address and

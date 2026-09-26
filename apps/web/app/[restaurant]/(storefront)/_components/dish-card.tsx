@@ -6,7 +6,7 @@ import Image from "next/image"
 
 import { formatRupees } from "@/lib/money"
 
-import { DietMark } from "./diet-mark"
+import { DietMark } from "@/components/diet-mark"
 import { QuantityControl } from "./quantity-control"
 import { eyebrow } from "@/components/styles"
 

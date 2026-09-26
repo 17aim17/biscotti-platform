@@ -14,7 +14,7 @@ import type { CSSProperties } from "react"
 
 import { formatRupees } from "@/lib/money"
 
-import { DietMark } from "./diet-mark"
+import { DietMark } from "@/components/diet-mark"
 import { QuantityControl } from "./quantity-control"
 import { Ornament } from "@/components/section-heading"
 import { eyebrow, solidButton } from "@/components/styles"

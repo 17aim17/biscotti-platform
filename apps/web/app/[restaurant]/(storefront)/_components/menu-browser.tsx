@@ -10,7 +10,7 @@ import { type CSSProperties, useEffect, useMemo, useRef, useState } from "react"
 import { useCart } from "@/lib/cart/store"
 import { formatRupees } from "@/lib/money"
 
-import { DietMark } from "./diet-mark"
+import { DietMark } from "@/components/diet-mark"
 import { DishCard } from "./dish-card"
 import { DishDialog } from "./dish-dialog"
 import { SectionHeading } from "@/components/section-heading"
