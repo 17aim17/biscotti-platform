@@ -45,9 +45,8 @@ export default async function RestaurantLayout({
         slug={restaurant.slug}
         logoUrl={brand.logoUrl}
       />
-      <main className="relative mx-auto w-full max-w-6xl flex-1 px-4 pt-6">
-        {children}
-      </main>
+      {/* Pages set their own width, so the storefront hero can be full-bleed. */}
+      <main className="relative flex-1">{children}</main>
       <SiteFooter restaurant={restaurant} />
     </div>
   )

@@ -8,6 +8,8 @@ import { useEffect, useMemo } from "react"
 import { useCart } from "@/lib/cart/store"
 import { formatRupees } from "@/lib/money"
 
+import { solidButton } from "./styles"
+
 // Floating bar at the bottom of the storefront once the cart has something in it.
 export function CartBar({
   slug,
@@ -58,18 +60,18 @@ export function CartBar({
             </span>
           </span>
           <span className="flex flex-col leading-tight">
-            <span className="text-xs text-white/70">
+            <span className="text-[0.68rem] tracking-[0.2em] text-white/60 uppercase">
               {count === 1 ? "1 item" : `${count} items`}
             </span>
             <span
               key={subtotal}
-              className="animate-in text-lg font-semibold tabular-nums duration-300 fade-in"
+              className="animate-in font-display text-xl font-medium tabular-nums duration-300 fade-in"
             >
               {formatRupees(subtotal)}
             </span>
           </span>
         </span>
-        <span className="flex items-center gap-2 rounded-(--sf-radius-control) bg-(image:--sf-btn) px-5 py-2.5 text-sm font-semibold text-white">
+        <span className={`${solidButton} px-5 py-3`}>
           View cart <ArrowRight className="size-4" />
         </span>
       </Link>

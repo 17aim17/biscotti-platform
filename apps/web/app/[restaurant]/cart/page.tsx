@@ -15,10 +15,12 @@ export default async function CartPage({
   const categories = await getMenu(restaurant.id)
 
   return (
-    <CartView
-      slug={restaurant.slug}
-      categories={categories}
-      locations={restaurant.locations}
-    />
+    <div className="mx-auto w-full max-w-6xl px-4 pt-8">
+      <CartView
+        slug={restaurant.slug}
+        categories={categories}
+        locations={restaurant.locations}
+      />
+    </div>
   )
 }

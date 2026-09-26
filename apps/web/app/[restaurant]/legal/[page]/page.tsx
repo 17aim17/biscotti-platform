@@ -32,7 +32,7 @@ export default async function LegalPageView({
   const text = typeof legal[page] === "string" ? legal[page] : null
 
   return (
-    <article className="mx-auto flex max-w-2xl flex-col gap-6 rounded-(--sf-radius-card) bg-(--sf-card) p-8 shadow-(--sf-shadow-card) ring-1 ring-(--sf-line) sm:p-12">
+    <article className="mx-auto mt-10 flex max-w-2xl flex-col gap-6 rounded-(--sf-radius-card) bg-(--sf-card) p-8 shadow-(--sf-shadow-card) ring-1 ring-(--sf-line) max-sm:mx-4 sm:p-12">
       <h1 className="font-display text-4xl font-semibold tracking-tight">
         {PAGES[page]}
       </h1>
