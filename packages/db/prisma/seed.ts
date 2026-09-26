@@ -57,6 +57,12 @@ const restaurants = [
       },
     ],
     dishes: menu,
+    featured: [
+      "Butter Chicken with Bone",
+      "Dal Makhni",
+      "Achari Paneer Tikka",
+      "Mutton Biryani",
+    ],
   },
   {
     // Second tenant, used to check that restaurants cannot see each other's data.
@@ -90,6 +96,12 @@ const restaurants = [
         "Schezwan Fried Rice",
       ].includes(d.title)
     ),
+    featured: [
+      "Chicken Momos",
+      "Chilli Chicken Boneless",
+      "Hakka Noodles",
+      "Veg Spring Roll",
+    ],
   },
 ]
 
@@ -155,6 +167,7 @@ async function seedRestaurant(r: (typeof restaurants)[number]) {
       pricePaise: d.pricePaise,
       isVeg: d.isVeg,
       imageUrl: d.imageUrl,
+      isFeatured: r.featured.includes(d.title),
     })),
   })
 

@@ -77,6 +77,7 @@ export async function getMenu(restaurantId: string) {
           isVeg: true,
           isAvailable: true,
           imageUrl: true,
+          isFeatured: true,
         },
       },
     },
