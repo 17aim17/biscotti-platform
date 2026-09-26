@@ -47,9 +47,37 @@ export function DeliveryMap({
         maxZoom: 19,
         attribution: "&copy; OpenStreetMap contributors",
       }).addTo(m)
-      m.on("click", (e: LeafletMouseEvent) =>
-        onChange.current({ lat: e.latlng.lat, lng: e.latlng.lng })
-      )
+      // A tap places the pin, a double tap zooms. Every double tap starts
+      // with a single tap, so the pin waits briefly and a second tap cancels
+      // it; otherwise zooming in would also move the pin.
+      let pending: ReturnType<typeof setTimeout> | undefined
+      m.on("click", (e: LeafletMouseEvent) => {
+        clearTimeout(pending)
+        pending = setTimeout(
+          () => onChange.current({ lat: e.latlng.lat, lng: e.latlng.lng }),
+          250
+        )
+      })
+      m.on("dblclick", () => clearTimeout(pending))
+
+      // Trackpad pinch arrives as a wheel event with ctrlKey set. Zoom on
+      // that, but leave plain scrolling to the page so the map never traps
+      // it (touch-screen pinch is handled by Leaflet itself).
+      let pinch = 0
+      const onWheel = (e: WheelEvent) => {
+        if (!e.ctrlKey) return
+        e.preventDefault()
+        pinch -= e.deltaY / 50
+        // Zoom in the map's half steps once the gesture adds up to one.
+        const step = Math.trunc(pinch * 2) / 2
+        if (step === 0) return
+        pinch -= step
+        m.setZoomAround(m.mouseEventToContainerPoint(e), m.getZoom() + step)
+      }
+      const el = container.current
+      el.addEventListener("wheel", onWheel, { passive: false })
+      // map.remove() fires "unload"; the listener goes with the map.
+      m.on("unload", () => el.removeEventListener("wheel", onWheel))
       map.current = m
       // Draw the outlet and pin now that the map exists.
       container.current.dispatchEvent(new Event("map-ready"))

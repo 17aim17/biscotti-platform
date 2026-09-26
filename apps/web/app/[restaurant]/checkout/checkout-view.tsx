@@ -14,6 +14,7 @@ import { eyebrow, solidButton } from "../_components/styles"
 import { payAndConfirm } from "../orders/pay"
 import { placeOrderAction, quoteAction } from "./actions"
 import { DeliveryMap, type Pin } from "./delivery-map"
+import { LocationSearch } from "./location-search"
 
 type Location = RestaurantSummary["locations"][number]
 type Quote = Extract<
@@ -54,6 +55,7 @@ export function CheckoutView({
   const [placing, setPlacing] = useState(false)
   const [placeError, setPlaceError] = useState<string | null>(null)
   const [locating, setLocating] = useState(false)
+  const [locateError, setLocateError] = useState<string | null>(null)
   // One key per checkout attempt: a double click or a retried request cannot
   // create a second order.
   const [idempotencyKey] = useState(() => crypto.randomUUID())
@@ -135,8 +137,14 @@ export function CheckoutView({
   const canPlace = !placing && quote !== null && missing.length === 0
 
   function locateMe() {
-    if (!navigator.geolocation) return
+    const unavailable =
+      "Couldn't get your location. Search for it or tap the map instead."
+    if (!navigator.geolocation) {
+      setLocateError(unavailable)
+      return
+    }
     setLocating(true)
+    setLocateError(null)
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setPin({
@@ -145,7 +153,11 @@ export function CheckoutView({
         })
         setLocating(false)
       },
-      () => setLocating(false),
+      // Permission denied, no signal, or timed out.
+      () => {
+        setLocating(false)
+        setLocateError(unavailable)
+      },
       { enableHighAccuracy: true, timeout: 10000 }
     )
   }
@@ -268,8 +280,8 @@ export function CheckoutView({
             <Step number="03" title="Delivery address">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-sm text-(--sf-muted)">
-                  Tap the map or drag the pin to your door. We deliver inside
-                  the circle.
+                  Search, tap the map or drag the pin to your door. We deliver
+                  inside the circle.
                 </p>
                 <button
                   type="button"
@@ -285,6 +297,24 @@ export function CheckoutView({
                   Use my location
                 </button>
               </div>
+              <LocationSearch
+                near={{ lat: outlet.lat, lng: outlet.lng }}
+                onPick={(place) => {
+                  setPin(place.pin)
+                  // A starting point for the address; the customer adds the
+                  // house number.
+                  if (!line1.trim()) {
+                    setLine1(
+                      place.label.split(",").slice(0, 3).join(",").trim()
+                    )
+                  }
+                }}
+              />
+              {locateError && (
+                <p role="alert" className="-mt-2 text-sm text-(--brand)">
+                  {locateError}
+                </p>
+              )}
               <DeliveryMap
                 outlet={{
                   name: outlet.name,
