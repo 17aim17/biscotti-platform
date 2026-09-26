@@ -54,15 +54,23 @@ pnpm dev          # http://localhost:3000
 
 ### Pages
 
-| URL                      | Who                   | What                                            |
-| ------------------------ | --------------------- | ----------------------------------------------- |
-| `/casa-spezia`           | anyone                | Storefront (placeholder until the menu lands)   |
-| `/login`                 | anyone                | Phone OTP sign in                               |
-| `/account`               | signed in             | Phone number, restaurants you work at, sign out |
-| `/casa-spezia/kitchen`   | staff, manager, owner | Kitchen (placeholder)                           |
-| `/casa-spezia/dashboard` | manager, owner        | Dashboard (placeholder)                         |
+| URL                               | Who                   | What                                                      |
+| --------------------------------- | --------------------- | --------------------------------------------------------- |
+| `/`                               | anyone                | Demo restaurants                                          |
+| `/casa-spezia`                    | anyone                | Storefront: menu, dish details, cart                      |
+| `/casa-spezia/checkout`           | signed in             | Delivery or pickup, map pin, cash or Razorpay (test mode) |
+| `/casa-spezia/orders`             | signed in             | Your orders; each order page updates live                 |
+| `/casa-spezia/kitchen`            | staff, manager, owner | Live order board                                          |
+| `/casa-spezia/dashboard/orders`   | manager, owner        | Orders, refunds to handle                                 |
+| `/casa-spezia/dashboard/menu`     | manager, owner        | Categories, dishes, photos, sold out                      |
+| `/casa-spezia/dashboard/outlets`  | manager, owner        | Address, map, delivery area, hours, fees                  |
+| `/casa-spezia/dashboard/staff`    | owner                 | Add people by phone, roles                                |
+| `/casa-spezia/dashboard/settings` | owner                 | Name, look, photos, legal pages, GSTIN/FSSAI              |
+| `/login`, `/account`              | anyone / signed in    | Phone sign-in; your account and restaurants               |
 
-Staff pages check access in the page itself: visitors are sent to `/login` and back, and users without a role at that restaurant see a "no access" message.
+Every staff page and action checks the role at that restaurant. Visitors are sent to `/login` and back; users without the role see a "no access" message.
+
+Online payments use Razorpay test mode: pay with the Indian test card `4100 2800 0000 1007` (any future expiry, any CVV, any 4-10 digit OTP).
 
 ### Database changes
 
