@@ -214,6 +214,26 @@ for (let i = 0; i < 5; i++) {
   )
 }
 
+// 8. Webhooks for payments that are not ours: acknowledged, not errors.
+const foreign = webhook("order_from_a_payment_link", "pay_foreign", 50000)
+await show("webhook for an unknown Razorpay order", () =>
+  handleRazorpayWebhook(foreign.body, foreign.sig)
+)
+const noOrderBody = JSON.stringify({
+  event: "payment.captured",
+  payload: {
+    payment: { entity: { id: "pay_no_order", order_id: null, amount: 50000 } },
+  },
+})
+await show("webhook for a payment with no order", () =>
+  handleRazorpayWebhook(
+    noOrderBody,
+    createHmac("sha256", "test_webhook_secret")
+      .update(noOrderBody)
+      .digest("hex")
+  )
+)
+
 // 5. Paid order rejected by the kitchen.
 await show(
   `#${a.order.number} kitchen rejects the paid order`,

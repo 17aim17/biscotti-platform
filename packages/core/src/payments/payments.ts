@@ -163,7 +163,9 @@ export async function confirmCheckoutPayment(params: {
 type WebhookEvent = {
   event: string
   payload?: {
-    payment?: { entity?: { id: string; order_id: string; amount: number } }
+    payment?: {
+      entity?: { id: string; order_id: string | null; amount: number }
+    }
   }
 }
 
@@ -185,9 +187,20 @@ export async function handleRazorpayWebhook(
   const payment = event.payload?.payment?.entity
   if (!payment) return { handled: false }
 
+  // The same Razorpay account can have payments that are not ours (payment
+  // links, other apps) or have no order at all. Acknowledge and ignore them:
+  // an error response makes Razorpay retry and eventually disable the webhook.
+  const razorpayOrderId = payment.order_id
+  if (!razorpayOrderId) return { handled: false }
+  const known = await prisma.payment.findUnique({
+    where: { razorpayOrderId },
+    select: { id: true },
+  })
+  if (!known) return { handled: false }
+
   if (event.event === RazorpayEvent.paymentCaptured) {
     const result = await markPaid({
-      razorpayOrderId: payment.order_id,
+      razorpayOrderId,
       razorpayPaymentId: payment.id,
       amountPaise: payment.amount,
     })
@@ -195,10 +208,7 @@ export async function handleRazorpayWebhook(
   }
   if (event.event === RazorpayEvent.paymentFailed) {
     await prisma.payment.updateMany({
-      where: {
-        razorpayOrderId: payment.order_id,
-        status: PaymentStatus.created,
-      },
+      where: { razorpayOrderId, status: PaymentStatus.created },
       data: { status: PaymentStatus.failed },
     })
     return { handled: true, result: PaymentStatus.failed }
