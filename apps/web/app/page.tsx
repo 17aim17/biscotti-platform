@@ -2,6 +2,7 @@ import { listRestaurants } from "@workspace/core"
 import { ArrowUpRight } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { connection } from "next/server"
 
 import { PlatformShell } from "@/components/platform-shell"
 import { SectionHeading } from "@/components/section-heading"
@@ -10,6 +11,9 @@ import { readBrand } from "@/lib/brand"
 
 // Platform home: what Biscotti is, and the demo restaurants to try.
 export default async function HomePage() {
+  // Render per request, not once at build time: the list comes from the
+  // database, which the build (CI) does not have.
+  await connection()
   const restaurants = await listRestaurants()
 
   return (
