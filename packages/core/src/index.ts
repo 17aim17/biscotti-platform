@@ -66,6 +66,7 @@ export {
   type CustomerOrder,
 } from "./orders/queries"
 export { updateOrderStatus, type StatusChangeBy } from "./orders/update-status"
+export { listKitchenOrders, type KitchenOrder } from "./orders/kitchen"
 
 // markPaid and the signature helpers stay internal: callers go through these.
 export {
