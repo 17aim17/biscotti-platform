@@ -1,17 +1,20 @@
-// Only follow ?next= paths on this site. Anything else ("https://evil.example",
-// "//evil.example") falls back to the home page, so a crafted login link
-// cannot send someone to another site after they sign in.
+// Only follow ?next= paths on this site, so a crafted login link cannot send
+// someone to another site after they sign in. The value is resolved the way a
+// browser would resolve it: checking only the first characters misses tricks
+// like "/\t/evil.example", which browsers read as "//evil.example".
+const BASE = "http://this-site.invalid"
+
 export function safeNextPath(
   next: string | undefined | null,
   fallback = "/"
 ): string {
-  if (
-    !next ||
-    !next.startsWith("/") ||
-    next.startsWith("//") ||
-    next.startsWith("/\\")
-  ) {
+  if (!next || !next.startsWith("/")) return fallback
+  let url: URL
+  try {
+    url = new URL(next, BASE)
+  } catch {
     return fallback
   }
-  return next
+  if (url.origin !== BASE) return fallback
+  return `${url.pathname}${url.search}${url.hash}`
 }
