@@ -127,7 +127,10 @@ export async function placeOrder(
     where: { id: customerId },
   })
   if (!customer?.phone)
-    throw new DomainError("NOT_FOUND", "Customer profile not found.")
+    throw new DomainError(
+      "NOT_FOUND",
+      "Your account could not be found. Please sign in again."
+    )
 
   let order
   try {

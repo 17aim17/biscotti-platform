@@ -1,5 +1,6 @@
-import { getMenu, getProfileName } from "@workspace/core"
+import { getMenu, getProfile } from "@workspace/core"
 import type { Metadata } from "next"
+import { redirect } from "next/navigation"
 
 import { readBrand } from "@/lib/brand"
 import { requireUser } from "@/lib/auth"
@@ -17,10 +18,14 @@ export default async function CheckoutPage({
   const { restaurant: slug } = await params
   const user = await requireUser(`/${slug}/checkout`)
   const restaurant = await getRestaurantOr404(slug)
-  const [categories, name] = await Promise.all([
+  const [categories, profile] = await Promise.all([
     getMenu(restaurant.id),
-    getProfileName(user.id),
+    getProfile(user.id),
   ])
+  // Signed in, but the account is gone: end that session and sign in again.
+  if (!profile) {
+    redirect(`/auth/sign-out?next=${encodeURIComponent(`/${slug}/checkout`)}`)
+  }
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pt-10">
@@ -31,7 +36,7 @@ export default async function CheckoutPage({
         brandColor={readBrand(restaurant.theme).primary}
         locations={restaurant.locations}
         categories={categories}
-        defaultName={name ?? ""}
+        defaultName={profile.name ?? ""}
         phone={user.phone}
       />
     </div>

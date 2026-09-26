@@ -70,11 +70,11 @@ export async function listCustomerOrders(
   })
 }
 
-// The name to prefill at checkout.
-export async function getProfileName(userId: string) {
-  const profile = await prisma.profile.findUnique({
+// The signed-in user's profile, or null if the account no longer exists
+// (deleted, or a local database reset while the browser kept its login).
+export async function getProfile(userId: string) {
+  return prisma.profile.findUnique({
     where: { id: userId },
-    select: { name: true },
+    select: { name: true, phone: true },
   })
-  return profile?.name ?? null
 }

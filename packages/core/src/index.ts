@@ -60,7 +60,7 @@ export {
 } from "./orders/place-order"
 export {
   getCustomerOrder,
-  getProfileName,
+  getProfile,
   listCustomerOrders,
   type CustomerOrder,
 } from "./orders/queries"
