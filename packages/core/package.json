@@ -8,7 +8,11 @@
   },
   "scripts": {
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check:place-order": "node --conditions=react-server --import tsx scripts/check-place-order.ts",
+    "check:order-status": "node --conditions=react-server --import tsx scripts/check-order-status.ts",
+    "check:payments": "node --conditions=react-server --import tsx scripts/check-payments.ts",
+    "check": "pnpm check:place-order && pnpm check:order-status && pnpm check:payments"
   },
   "dependencies": {
     "@workspace/db": "workspace:*",

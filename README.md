@@ -34,6 +34,7 @@ pnpm db:start     # Postgres, Auth, Storage, Realtime in Docker
 cp .env.example .env
 pnpm db:status    # copy the publishable and secret keys into .env
 pnpm db:reset     # wipe the local database, apply migrations, seed demo data
+pnpm check        # run the order and payment checks against the local database
 pnpm dev          # http://localhost:3000
 ```
 
