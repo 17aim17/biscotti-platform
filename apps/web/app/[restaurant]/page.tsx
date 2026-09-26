@@ -4,7 +4,6 @@ import { readBrand } from "@/lib/brand"
 import { getRestaurantOr404 } from "@/lib/restaurant"
 
 import { CartBar } from "./_components/cart-bar"
-import { CategoryTiles } from "./_components/category-tiles"
 import { Hero } from "./_components/hero"
 import { MenuBrowser } from "./_components/menu-browser"
 
@@ -20,13 +19,12 @@ export default async function StorefrontPage({
   )
 
   return (
-    <div className="flex flex-col gap-12 pb-28">
+    <div className="flex flex-col gap-8 pb-28">
       <Hero
         restaurant={restaurant}
         brand={readBrand(restaurant.theme)}
         vegCount={vegCount}
       />
-      <CategoryTiles categories={categories} />
       <MenuBrowser slug={restaurant.slug} categories={categories} />
       <CartBar slug={restaurant.slug} categories={categories} />
     </div>
