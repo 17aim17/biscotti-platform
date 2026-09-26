@@ -2,7 +2,7 @@
   {
     "category": "Appetizers",
     "title": "Achari Paneer Tikka",
-    "description": "An all time favorite - stuffed,paneer marinated with homemade achari masala slow cooked in the tandoor: Served with Mouthwatering minth chutney and tandoori salad.",
+    "description": "Paneer marinated in our homemade achari (pickling) masala and slow cooked in the tandoor. Served with mint chutney and tandoori salad.",
     "pricePaise": 24900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1666001120694-3ebe8fd207be"
@@ -10,7 +10,7 @@
   {
     "category": "Appetizers",
     "title": "Chicken Seekh Kabab",
-    "description": "A PERFECT DISH OF chefs exellence : chargrilled chicken mins blended with mace and black cardamom",
+    "description": "Minced chicken blended with mace and black cardamom, shaped on skewers and chargrilled.",
     "pricePaise": 39900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0"
@@ -18,7 +18,7 @@
   {
     "category": "Appetizers",
     "title": "Chicken Tikka",
-    "description": "Morsels of chicken draped in a yoghurt marinade, spiced with green cardamom and infused fenugreek flavour",
+    "description": "Chicken marinated in yoghurt with green cardamom and fenugreek, roasted in the tandoor.",
     "pricePaise": 39900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1727280376746-b89107a5b0df"
@@ -26,7 +26,7 @@
   {
     "category": "Appetizers",
     "title": "Chilli Chicken Boneless",
-    "description": "Succulent dices of boneless chicken tossed in a chilli and Soya sauce & Stir fried with diced onion and capsicum & spring onion.",
+    "description": "Boneless chicken tossed in chilli and soy sauce, stir fried with onion, capsicum and spring onion.",
     "pricePaise": 35900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1710508774177-7ac2f3492675"
@@ -34,7 +34,7 @@
   {
     "category": "Appetizers",
     "title": "Khumbi Vegetable Seekh Kabab",
-    "description": "Chargrilled coarsely minced mushroom & vegetables, blended with fenugreek leaves & herbs roasted on iron skillet & garnished it with freshly chopped coriander",
+    "description": "Coarsely minced mushroom and vegetables with fenugreek leaves and herbs, roasted on an iron skillet and finished with fresh coriander.",
     "pricePaise": 24900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1781332143834-19a40f746cd9"
@@ -42,7 +42,7 @@
   {
     "category": "Appetizers",
     "title": "Murg Kalmi Kabab",
-    "description": "Murg Kalami Kababa marinated with yogurt, cream, cashew nut paste ,Tossing of mixture of cheese,cream and black pepper mildly spices and cooked on charcoal oven.",
+    "description": "Chicken marinated in yoghurt, cream and cashew paste, coated in cheese, cream and black pepper, and cooked in the charcoal oven. Mildly spiced.",
     "pricePaise": 39900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1727280376746-b89107a5b0df"
@@ -50,7 +50,7 @@
   {
     "category": "Appetizers",
     "title": "Mutton Seekh Kabab",
-    "description": "A masterpiece of culinary excellence- chargrilled lamb mince smoked & blended with fried onion in-house spices cooked over seekh; finished with sprinkled black peppers, & a blend of mace & cardamom powder.",
+    "description": "Minced lamb blended with fried onion and house spices, cooked on skewers over the coals and finished with black pepper, mace and cardamom.",
     "pricePaise": 49900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0"
@@ -58,7 +58,7 @@
   {
     "category": "Appetizers",
     "title": "Non Veg Platter",
-    "description": "Non Veg Platter savoury specials include varities of delicious veg starters paneer tikka, soya tikka chaap, mushroom tikka, paneer malai tikka and veg seekh kebab, roasted over tandoor, and served in a spicy mix, with green chutney salad",
+    "description": "A selection of our tandoori kababs and tikkas, roasted in the clay oven and served with green chutney and salad.",
     "pricePaise": 69900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0"
@@ -66,7 +66,7 @@
   {
     "category": "Appetizers",
     "title": "Paneer Haryali Tikka",
-    "description": "chunks of paneer cube marinated in a delicious green masala cooked over tandoor : A Chefs Specialty",
+    "description": "Paneer marinated in a green masala of fresh herbs and cooked in the tandoor. A chef's specialty.",
     "pricePaise": 24900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1666001120694-3ebe8fd207be"
@@ -74,7 +74,7 @@
   {
     "category": "Appetizers",
     "title": "Paneer Malai Seekh",
-    "description": "smoked & char-grilled coarsely minced paneer and vegetables blended With fenugreek leaves And herbs : A must try for vegetarians.",
+    "description": "Coarsely minced paneer and vegetables with fenugreek leaves and herbs, smoked and chargrilled on skewers.",
     "pricePaise": 24900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1781332143834-19a40f746cd9"
@@ -82,7 +82,7 @@
   {
     "category": "Appetizers",
     "title": "Roasted Mushroom",
-    "description": "Roasted Mushroom marinated with flavourful spices and glazed golden in tandoor coated in a savory mixture of garlic, butter, oil and herbs, and then they go into the clay oven to roast.",
+    "description": "Mushrooms marinated in spices, coated in garlic butter and herbs, and roasted golden in the clay oven.",
     "pricePaise": 24900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1631292784640-2b24be784d5d"
@@ -90,7 +90,7 @@
   {
     "category": "Appetizers",
     "title": "Roasted Paneer Malai Tikka",
-    "description": "slices Of cottage cheese with robust flavor of spices, glazed golden In tandoor : garnished with a dollap of fresh cream",
+    "description": "Paneer in a mildly spiced cream marinade, glazed golden in the tandoor and finished with fresh cream.",
     "pricePaise": 24900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1666001120694-3ebe8fd207be"
@@ -98,7 +98,7 @@
   {
     "category": "Appetizers",
     "title": "Roasted Paneer Tikka",
-    "description": "Cottage cheese cubes flavored with roasted besan along with mustard oil & turmeric, cooked In clay tandoor with dices of onions, bell-pepers & tomatoes.",
+    "description": "Paneer marinated with roasted gram flour, mustard oil and turmeric, cooked in the tandoor with onion, bell pepper and tomato.",
     "pricePaise": 24900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1666001120694-3ebe8fd207be"
@@ -106,7 +106,7 @@
   {
     "category": "Appetizers",
     "title": "Tandoori Soya Chaap",
-    "description": "Pickled soya chap tossed with cherry chilies, broiled cumin and dry mango powder with double cream slowly cooked over tandoor : serves with fresh green chutney & salad.",
+    "description": "Soya chaap tossed with red chillies, roasted cumin, dry mango powder and cream, slow cooked in the tandoor. Served with green chutney and salad.",
     "pricePaise": 24900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8"
@@ -114,7 +114,7 @@
   {
     "category": "Appetizers",
     "title": "Tandoori Soya Malai Chaap",
-    "description": "Pickled soya chap tossed with thick cream, broiled cumin and dry mango powder with butter slowly cooked over tandoor : serves with fresh green chutney & salad.",
+    "description": "Soya chaap in a rich marinade of cream, butter, roasted cumin and dry mango powder, slow cooked in the tandoor. Served with green chutney and salad.",
     "pricePaise": 24900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8"
@@ -122,7 +122,7 @@
   {
     "category": "Appetizers",
     "title": "Tangri Kabab",
-    "description": "chicken drumsticks stuffed with mince meat marinated with hung curd spiced with Indian herbs, cooked In Indian Clay Oven.",
+    "description": "Chicken drumsticks stuffed with spiced mince, marinated in hung curd and Indian spices, cooked in the clay oven.",
     "pricePaise": 39900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1652545296821-09a023a9fd08"
@@ -130,7 +130,7 @@
   {
     "category": "Appetizers",
     "title": "Veg Platter",
-    "description": "Veg Platter savoury specials include varities of delicious veg starters paneer tikka, soya tikka chaap, mushroom tikka, paneer malai tikka and veg seekh kebab, roasted over tandoor, and served in a spicy mix, with green chutney salad.",
+    "description": "Paneer tikka, soya tikka chaap, mushroom tikka, paneer malai tikka and veg seekh kabab, roasted in the tandoor. Served with green chutney and salad.",
     "pricePaise": 44900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8"
@@ -138,7 +138,7 @@
   {
     "category": "Soups",
     "title": "Chicken Hot & Sour Soup",
-    "description": "Thick soup with shredded carrot, cabbage ,mushroom & chicken spiced with Soya sauce & a touch of chill oil & vinegar: Garnished with egg drop.",
+    "description": "A thick soup of chicken, carrot, cabbage and mushroom, sharpened with soy sauce, chilli oil and vinegar, finished with egg drop.",
     "pricePaise": 10900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1527976746453-f363eac4d889"
@@ -146,7 +146,7 @@
   {
     "category": "Soups",
     "title": "Chicken Lemon Coriander Soup",
-    "description": "tangy thick soup with chopped vegetable chichen cubes carrot cabbage mushroom coriander with a touch of lemon juice.",
+    "description": "A light, tangy soup with chicken, carrot, cabbage, mushroom and fresh coriander, lifted with lemon.",
     "pricePaise": 10900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1705088294904-c17a2205c1e3"
@@ -154,7 +154,7 @@
   {
     "category": "Soups",
     "title": "Chicken Manchow Soup",
-    "description": "A thick spicy soup with shreeded chicken Sweet corn mushroom touch of chilies , garlic & coriander: Garnished with deep fried noodles.",
+    "description": "A thick, spicy soup of shredded chicken, sweet corn and mushroom with chilli, garlic and coriander, topped with crispy fried noodles.",
     "pricePaise": 10900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1527976746453-f363eac4d889"
@@ -162,7 +162,7 @@
   {
     "category": "Soups",
     "title": "Chicken Soup",
-    "description": "Clear soup with sliced chicken ,carrot, mushroom, spinach & cabbage garnished with freshly chopped corriander.",
+    "description": "A clear broth with sliced chicken, carrot, mushroom, spinach and cabbage, finished with fresh coriander.",
     "pricePaise": 10900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1705088294904-c17a2205c1e3"
@@ -170,7 +170,7 @@
   {
     "category": "Soups",
     "title": "Clear Soup",
-    "description": "Clear soup with shredded cabbage carrot , spinach & button mushroom simmered on slow fire.",
+    "description": "A clear broth of cabbage, carrot, spinach and button mushroom, simmered slowly.",
     "pricePaise": 7900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1613844237701-8f3664fc2eff"
@@ -178,7 +178,7 @@
   {
     "category": "Soups",
     "title": "Lemon Coriander Soup",
-    "description": "Tangy thick soup with chopped vegetable carrot cabbage mushroom coriander with a touch of lemon juice.",
+    "description": "A light, tangy soup with carrot, cabbage, mushroom and fresh coriander, lifted with lemon.",
     "pricePaise": 7900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1613844237701-8f3664fc2eff"
@@ -186,7 +186,7 @@
   {
     "category": "Soups",
     "title": "Manchow Soup",
-    "description": "Clear soup with carrot cabbage & mushrooms dumpling with soya sauce & flavoured wiyh a touch of chili oil & vinegar.",
+    "description": "Carrot, cabbage and mushroom in a spicy broth with soy sauce, chilli oil and vinegar, topped with crispy fried noodles.",
     "pricePaise": 8100,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1527976746453-f363eac4d889"
@@ -194,7 +194,7 @@
   {
     "category": "Soups",
     "title": "Sweet Corn Soup",
-    "description": "Thick non spicy of sweet corn cream garnished with chopped veg. & mushroom: A in-house specialty.",
+    "description": "A creamy, mild sweet corn soup with vegetables and mushroom. A house specialty.",
     "pricePaise": 7900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1665594051407-7385d281ad76"
@@ -202,7 +202,7 @@
   {
     "category": "Soups",
     "title": "Veg Soup",
-    "description": "Thin soup with an amalgamation of starchy vegetables & Celery, Carrots and leafy greens flavoured with freshly grounded Pepper.",
+    "description": "A light broth of root vegetables, celery, carrot and leafy greens, seasoned with freshly ground pepper.",
     "pricePaise": 7900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1613844237701-8f3664fc2eff"
@@ -210,7 +210,7 @@
   {
     "category": "Indian",
     "title": "Aloo Gobhi",
-    "description": "Baby potatoes & caulflowers florates cooked with flavour,such as asafoetida, cumin, yoghurt onion tomato gravy; garnished with freshly chopped coriander",
+    "description": "Baby potatoes and cauliflower cooked with asafoetida and cumin in an onion, tomato and yoghurt masala, finished with fresh coriander.",
     "pricePaise": 20900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1652545296893-ff9227b3512e"
@@ -218,7 +218,7 @@
   {
     "category": "Indian",
     "title": "Aloo Jeera",
-    "description": "Diced & boiled potatoes flavoured with asafotida & cumin cooked in a onion tomato masala spiked with ginger.",
+    "description": "Potatoes tempered with cumin and asafoetida, cooked in an onion and tomato masala with ginger.",
     "pricePaise": 20900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1652545296893-ff9227b3512e"
@@ -226,7 +226,7 @@
   {
     "category": "Indian",
     "title": "Butter Chicken with Bone",
-    "description": "Succulent chicken of roasted chicken simmered in a smoked tomato and onion gravy; finished with a spoon of honey Our chef’s specialty.",
+    "description": "Roasted chicken on the bone, simmered in a smoky tomato and onion gravy and finished with a spoon of honey. Our chef's specialty.",
     "pricePaise": 37900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398"
@@ -234,7 +234,7 @@
   {
     "category": "Indian",
     "title": "Channa Masala",
-    "description": "A Specialty From Punjab: Soaked Chickpeas Cooked On Slow Fire in a traditional tomato gravy.",
+    "description": "A Punjabi classic: chickpeas soaked overnight and slow cooked in a traditional tomato gravy.",
     "pricePaise": 23900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1736680056470-948527554276"
@@ -242,7 +242,7 @@
   {
     "category": "Indian",
     "title": "Channa Pindi",
-    "description": "Outstanding work of culinary art: Soaked Chickpeas Cooked On Slow Fire simmered in an onion and tomato gravy, flavoured with pomogranate powder.",
+    "description": "Chickpeas slow cooked in an onion and tomato gravy, sharpened with dried pomegranate seed powder.",
     "pricePaise": 23900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1736680056470-948527554276"
@@ -250,7 +250,7 @@
   {
     "category": "Indian",
     "title": "Chicken Rara",
-    "description": "Marinated Chicken And Chicken Mins With Red Chili Cooked In Brown Onion Gravy : a speciality of Amritsar",
+    "description": "An Amritsari specialty: chicken and chicken mince cooked with red chillies in a brown onion gravy.",
     "pricePaise": 39900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1565557623262-b51c2513a641"
@@ -258,7 +258,7 @@
   {
     "category": "Indian",
     "title": "Dal Makhni",
-    "description": "Black lentils, simmered overnight on slow fire and enriched with butter - a traditional delicacy.",
+    "description": "Black lentils simmered overnight on a slow fire and finished with butter and cream.",
     "pricePaise": 19900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1789983665266-f1a6ea13b311"
@@ -266,7 +266,7 @@
   {
     "category": "Indian",
     "title": "Fish Masala (Seasonal Basa)",
-    "description": "",
+    "description": "Basa fillets cooked in a spiced onion and tomato masala. Available in season.",
     "pricePaise": 40900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1682622110397-37f6e928f890"
@@ -274,7 +274,7 @@
   {
     "category": "Indian",
     "title": "Homestyle Rajma",
-    "description": "Red kidney beans cooked to a tender consistency, with tomatoes & onion,predominantly flavoured with garlic.",
+    "description": "Red kidney beans cooked until tender with tomato, onion and plenty of garlic, the way it's made at home.",
     "pricePaise": 26900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1668236534990-73c4ed23043c"
@@ -282,7 +282,7 @@
   {
     "category": "Indian",
     "title": "Kadhai Chicken with Bone",
-    "description": "Chicken with Capsicum, Onion & Tomato Cooked In Tomato Gravy; infused with our inhouse kadahi masala.",
+    "description": "Chicken on the bone with capsicum, onion and tomato, cooked in our house kadhai masala.",
     "pricePaise": 37900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1565557623262-b51c2513a641"
@@ -290,7 +290,7 @@
   {
     "category": "Indian",
     "title": "Kadhai Paneer",
-    "description": "Cottage Cheese Batons & Capsicum, Onion & Tomato Cooked In Tomato Gravy; infused with our inhouse kadhai masala",
+    "description": "Paneer batons with capsicum, onion and tomato, cooked in our house kadhai masala.",
     "pricePaise": 27900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7"
@@ -298,7 +298,7 @@
   {
     "category": "Indian",
     "title": "Malai Kofta",
-    "description": "Small dumplings of cottage cheese with stuffed nuts flavoured garlic in a rich cashew almond gravy.",
+    "description": "Paneer dumplings stuffed with nuts, in a rich cashew and almond gravy.",
     "pricePaise": 26900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1708782342102-ee13e9ac16f4"
@@ -306,7 +306,7 @@
   {
     "category": "Indian",
     "title": "Matar Aloo",
-    "description": "Baby potatoes & green peas cooked with flavour,such as asafoetida, cumin, yoghurt onion tomato gravy; garnished with freshly chopped coriander",
+    "description": "Baby potatoes and green peas cooked with asafoetida and cumin in an onion, tomato and yoghurt gravy, finished with fresh coriander.",
     "pricePaise": 20900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1652545296893-ff9227b3512e"
@@ -314,7 +314,7 @@
   {
     "category": "Indian",
     "title": "Mix Veg",
-    "description": "A Local Specialty: Seasonal Vegetables cut into a baton shape Cooked In Smooth Onion Tomato Gravy ; garnished with cream & chopped corriander",
+    "description": "Seasonal vegetables cooked in a smooth onion and tomato gravy, finished with cream and fresh coriander.",
     "pricePaise": 27900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1652545296893-ff9227b3512e"
@@ -322,7 +322,7 @@
   {
     "category": "Indian",
     "title": "Moong Dal Tadke Wali",
-    "description": "A specialty from brij region : Yellow moong lentils tempered with cumin seeds & asafoetida.",
+    "description": "Yellow moong lentils tempered with cumin and asafoetida, in the style of the Braj region.",
     "pricePaise": 18900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1736680056444-02b10f16a245"
@@ -330,7 +330,7 @@
   {
     "category": "Indian",
     "title": "Mushroom Corn Masala",
-    "description": "The Indian penchant for vegetable finds an intuitive balance in this perennial favourite of mushroom & corn tempered with garlic.",
+    "description": "Mushroom and sweet corn tempered with garlic in a spiced masala.",
     "pricePaise": 27900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1596797038530-2c107229654b"
@@ -338,7 +338,7 @@
   {
     "category": "Indian",
     "title": "Mushroom Do Pyaza",
-    "description": "Quarters of button mushroom & diced onion cooked with a mixture of onion tomato masala & traditional spices, a mouthwatering preparation",
+    "description": "Button mushrooms and chunky onions cooked in an onion and tomato masala with traditional spices.",
     "pricePaise": 24500,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1516714435131-44d6b64dc6a2"
@@ -346,7 +346,7 @@
   {
     "category": "Indian",
     "title": "Mutton Rara",
-    "description": "Marinated Mutton & mince marinated red chillies cooked in brown onion gravy.",
+    "description": "Mutton and mutton mince marinated with red chillies and cooked in a brown onion gravy.",
     "pricePaise": 44900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1606843046080-45bf7a23c39f"
@@ -354,7 +354,7 @@
   {
     "category": "Indian",
     "title": "Mutton Rogan Josh",
-    "description": "Mutton Pieces With Bone In A Traditional Spiced Red Gravy Of Perfectly Balanced Flavors.",
+    "description": "Mutton on the bone in a traditional, deeply spiced red gravy.",
     "pricePaise": 44900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1545247181-516773cae754"
@@ -362,7 +362,7 @@
   {
     "category": "Indian",
     "title": "Palak Kofta",
-    "description": "Small dumplings of cottage cheese with stuffed nuts flavoured garlic in a rich spinach & tomato gravy.",
+    "description": "Paneer dumplings stuffed with nuts, in a spinach and tomato gravy with garlic.",
     "pricePaise": 26900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1767114915936-745dd372f1d8"
@@ -370,7 +370,7 @@
   {
     "category": "Indian",
     "title": "Palak Paneer",
-    "description": "Cottage cheese cubes cooked with Fenugreek flavoured creamed spinach infused with garlic. A local specialty.",
+    "description": "Paneer in creamed spinach flavoured with fenugreek and garlic.",
     "pricePaise": 27900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1589647363585-f4a7d3877b10"
@@ -378,7 +378,7 @@
   {
     "category": "Indian",
     "title": "Paneer Butter Masala",
-    "description": "Dices of cottage cheese, simmered in an onion and tomato gravy, flavoured with fenugreek; infused with honey",
+    "description": "Paneer simmered in an onion and tomato gravy with fenugreek and a touch of honey.",
     "pricePaise": 27900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1742599361539-f096753d1100"
@@ -386,7 +386,7 @@
   {
     "category": "Indian",
     "title": "Paneer Kali Mirch",
-    "description": "Malai paneer with cracked black pepper flavoured fenugreek cooked in slow fire with Indian spices & green chilies.",
+    "description": "Paneer with cracked black pepper, fenugreek and green chillies, slow cooked with Indian spices.",
     "pricePaise": 27900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398"
@@ -394,7 +394,7 @@
   {
     "category": "Indian",
     "title": "Paneer Lababdar",
-    "description": "Cubes Of Cottage Cheese Simmered In Buttered Tomato Gravy along with freshly chopped onion; garnished with julliens of ginger and freshly chopped coriander.",
+    "description": "Paneer in a buttery tomato gravy with fresh onion, finished with ginger and coriander.",
     "pricePaise": 27900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1631452180539-96aca7d48617"
@@ -402,7 +402,7 @@
   {
     "category": "Indian",
     "title": "Paneer Tikka Butter Masala",
-    "description": "Dices of char-grilled cottage cheese, simmered in an onion and tomato gravy, flavoured with fenugreek; A must try",
+    "description": "Chargrilled paneer tikka simmered in an onion and tomato gravy with fenugreek.",
     "pricePaise": 27900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1742599361539-f096753d1100"
@@ -410,7 +410,7 @@
   {
     "category": "Indian",
     "title": "Shahi Paneer",
-    "description": "Creamed cottage cheese, chopped capsicum & onion tempered with cumin, ginger & green chilies- cooked in a rich cashew almond gravy",
+    "description": "Paneer with capsicum and onion, tempered with cumin, ginger and green chilli, in a rich cashew and almond gravy.",
     "pricePaise": 27900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398"
@@ -418,7 +418,7 @@
   {
     "category": "Indian",
     "title": "Soya Masala Chaap",
-    "description": "Pickled soya chap tossed with thick cream, broiled cumin and dry mango powder with butter slowly cooked over pan : serves with fresh green chutney & salad.",
+    "description": "Soya chaap cooked on the pan with cream, butter, roasted cumin and dry mango powder. Served with green chutney and salad.",
     "pricePaise": 27900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1631452180519-c014fe946bc7"
@@ -426,7 +426,7 @@
   {
     "category": "Indian",
     "title": "Tawa Mutton",
-    "description": "Home-style mutton preparation cooked on a indian skillet, mildly spiced with local spices and herbs.",
+    "description": "Home-style mutton cooked on the tawa, mildly spiced with local spices and herbs.",
     "pricePaise": 44900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1710091691802-7dedb8af9a77"
@@ -434,7 +434,7 @@
   {
     "category": "Indian",
     "title": "Veg Kofta",
-    "description": "Small dumplings of cottage cheese with stuffed nuts flavoured garlic in a rich onion tomato gravy; finished with a dollop of cream",
+    "description": "Vegetable and paneer dumplings stuffed with nuts, in an onion and tomato gravy, finished with cream.",
     "pricePaise": 27900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1675062521103-2163d664643d"
@@ -442,7 +442,7 @@
   {
     "category": "Chinese",
     "title": "American Chopsuey",
-    "description": "",
+    "description": "Crispy fried noodles topped with vegetables in a sweet and tangy sauce.",
     "pricePaise": 24900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1601565960311-8a7f4e1ab709"
@@ -450,7 +450,7 @@
   {
     "category": "Chinese",
     "title": "Cheese Chilli Dry",
-    "description": "cottage cheese cubes dusted with corn flour, deep fried & tossed in chilli soya sauce served on a bed of shredded onion",
+    "description": "Paneer dusted in cornflour, fried and tossed in chilli soy sauce, served on shredded onion.",
     "pricePaise": 26900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1690401767645-595de0e0e5f8"
@@ -458,7 +458,7 @@
   {
     "category": "Chinese",
     "title": "Cheese Chilli Gravy",
-    "description": "cottage cheese cubes dusted with corn flour, deep fried & tossed in chilli soya sauce served with of shredded spring onion",
+    "description": "Paneer dusted in cornflour, fried and tossed in a chilli soy gravy with spring onion.",
     "pricePaise": 26900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1716535232842-d10da4eb33d5"
@@ -466,7 +466,7 @@
   {
     "category": "Chinese",
     "title": "Chicken Lollipop",
-    "description": "Chicken wings dusted with corn flour, deep fried and tossed in a soya garlic based sauce with shredded onion and chillies.",
+    "description": "Chicken wings dusted in cornflour, fried and tossed in a soy and garlic sauce with onion and chillies.",
     "pricePaise": 34900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1696950171387-dc808171711e"
@@ -474,7 +474,7 @@
   {
     "category": "Chinese",
     "title": "Chicken Momos",
-    "description": "Chef Special Tasty Chinese, \"Non- Veg Momos Stuffed With Minced Chicken Cottage Cheese And Coriander\" steamed in a bamboo basket served with our homemade red chutney & mayonnaise.",
+    "description": "Dumplings filled with minced chicken, paneer and coriander, steamed in a bamboo basket. Served with our red chutney and mayonnaise.",
     "pricePaise": 15900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9"
@@ -482,7 +482,7 @@
   {
     "category": "Chinese",
     "title": "Chicken Salt & Pepper",
-    "description": "Chicken cubes, corn, vegetable and freshly chopped chillies deep fried to a crispy texture and tossed with spring onion & green.chili",
+    "description": "Chicken, corn and vegetables fried crisp with fresh chillies, tossed with spring onion and green chilli.",
     "pricePaise": 36900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1710508774177-7ac2f3492675"
@@ -490,7 +490,7 @@
   {
     "category": "Chinese",
     "title": "Chilli Chicken with Bone",
-    "description": "Succulent dices of chicken pieces tossed in a chilli and Soya sauce & Stir fried with diced onion and capsicum & spring onion.",
+    "description": "Chicken on the bone tossed in chilli and soy sauce, stir fried with onion, capsicum and spring onion.",
     "pricePaise": 34900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1710508774177-7ac2f3492675"
@@ -498,7 +498,7 @@
   {
     "category": "Chinese",
     "title": "Chilli Mushroom",
-    "description": "mushroom dusted with corn flour, deep fried & tossed in chilli sauce and tomato ketchup cooked in spicy hot garlic sauce",
+    "description": "Mushrooms dusted in cornflour, fried and tossed in a hot garlic chilli sauce.",
     "pricePaise": 23900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1682622110433-65513a55d7da"
@@ -506,7 +506,7 @@
   {
     "category": "Chinese",
     "title": "Corn Salt & Pepper",
-    "description": "corn, vegetable and freshly chopped chillies deep fried to a crispy texture and tossed with spring onion & green chili",
+    "description": "Sweet corn and vegetables fried crisp with fresh chillies, tossed with spring onion and green chilli.",
     "pricePaise": 23900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1682622110433-65513a55d7da"
@@ -514,7 +514,7 @@
   {
     "category": "Chinese",
     "title": "Crispy Vegetables",
-    "description": "Crispy fried seasoned vegetables tossed with chilies and spring onions; cooked in sweet and sour sauce.",
+    "description": "Seasoned vegetables fried crisp and tossed in sweet and sour sauce with chillies and spring onion.",
     "pricePaise": 23900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1682622110433-65513a55d7da"
@@ -522,7 +522,7 @@
   {
     "category": "Chinese",
     "title": "Honey Cauliflower",
-    "description": "Crispy fried cauliflower florets tossed with chilies and spring onions; cooked in honey chili sauce.",
+    "description": "Crispy cauliflower florets tossed in honey chilli sauce with spring onion.",
     "pricePaise": 23900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1682622110433-65513a55d7da"
@@ -530,7 +530,7 @@
   {
     "category": "Chinese",
     "title": "Honey Crispy Chilli Chicken",
-    "description": "Succulent dices of boneless chicken tossed in a honey and Soya sauce & Stir fried with diced onion and capsicum & spring onion.",
+    "description": "Boneless chicken tossed in honey and soy sauce, stir fried with onion, capsicum and spring onion.",
     "pricePaise": 34900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1710508774177-7ac2f3492675"
@@ -538,7 +538,7 @@
   {
     "category": "Chinese",
     "title": "Honey Crispy Potato",
-    "description": "Shredded potato dusted with corn flour, deep fried and tossed in soya bean sauce, chili sauce and tomato ketchup infused with a tinge of honey",
+    "description": "Shredded potato fried crisp and tossed in a chilli soy sauce with a touch of honey.",
     "pricePaise": 23900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1682622110433-65513a55d7da"
@@ -546,7 +546,7 @@
   {
     "category": "Chinese",
     "title": "Schezwan Chicken Dry",
-    "description": "Baby chicken cubes dusted with corn flour, deep fried and tossed in schezwan sauce soya bean sauce, chili sauce and tomato ketchup",
+    "description": "Chicken dusted in cornflour, fried and tossed in a spicy Schezwan sauce.",
     "pricePaise": 32000,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1710508774177-7ac2f3492675"
@@ -554,7 +554,7 @@
   {
     "category": "Chinese",
     "title": "Schezwan Paneer Dry",
-    "description": "Cottage chesse cubes dusted with corn flour, deep fried and tossed in schezwan sauce soya bean sauce, chili sauce and tomato ketchup",
+    "description": "Paneer dusted in cornflour, fried and tossed in a spicy Schezwan sauce.",
     "pricePaise": 24900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1690401767645-595de0e0e5f8"
@@ -562,7 +562,7 @@
   {
     "category": "Chinese",
     "title": "Veg Chopsuey",
-    "description": "",
+    "description": "Stir fried vegetables in a light soy sauce over crispy noodles.",
     "pricePaise": 23900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1601565960311-8a7f4e1ab709"
@@ -570,7 +570,7 @@
   {
     "category": "Chinese",
     "title": "Veg Manchurian Dry",
-    "description": "Fried dumplings of chop vegetables topped with chef special light soya & sesame in a tongue tingling sauce ; A must try",
+    "description": "Fried vegetable dumplings tossed in a light soy and sesame sauce with a kick of chilli.",
     "pricePaise": 20900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1682622110433-65513a55d7da"
@@ -578,7 +578,7 @@
   {
     "category": "Chinese",
     "title": "Veg Manchurian Gravy",
-    "description": "Fried dumplings of chop vegetables topped with chef special light soya & sesame in a tongue tingling sauce ; A must try",
+    "description": "Fried vegetable dumplings in a light soy and sesame gravy with a kick of chilli.",
     "pricePaise": 20900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1716535232842-d10da4eb33d5"
@@ -586,7 +586,7 @@
   {
     "category": "Chinese",
     "title": "Veg Momos",
-    "description": "Chef Special :Dumplings Stuffed With Carrot, Cabbage And Cottage Cheese And Coriander\" steamed in a bamboo basket served with our homemade red chutney & mayonnaise.",
+    "description": "Dumplings filled with carrot, cabbage, paneer and coriander, steamed in a bamboo basket. Served with our red chutney and mayonnaise.",
     "pricePaise": 11900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1664138218128-2dcf791a9d27"
@@ -594,7 +594,7 @@
   {
     "category": "Chinese",
     "title": "Veg Spring Roll",
-    "description": "Spring Roll sheet stuffed With wok tossed vegetables along with soya sauce; hand rolled & deep fried",
+    "description": "Wok tossed vegetables with soy sauce, rolled by hand and fried crisp.",
     "pricePaise": 15900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1679310290259-78d9eaa32700"
@@ -602,7 +602,7 @@
   {
     "category": "Noodles & Rice",
     "title": "Chicken Fried Rice",
-    "description": "Celia basmati par boiled & stir fried rice with diced chicken carrots, capsicum & onion along with peas.",
+    "description": "Basmati rice stir fried with chicken, carrot, capsicum, onion and peas.",
     "pricePaise": 21900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1603133872878-684f208fb84b"
@@ -610,7 +610,7 @@
   {
     "category": "Noodles & Rice",
     "title": "Chicken Garlic Fried Rice",
-    "description": "Celia basmati par boiled & stir fried rice with diced chicken carrots, capsicum & onion along with peas ; infused with burnt garlic.",
+    "description": "Basmati rice stir fried with chicken, carrot, capsicum, onion and peas, finished with burnt garlic.",
     "pricePaise": 21900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1603133872878-684f208fb84b"
@@ -618,7 +618,7 @@
   {
     "category": "Noodles & Rice",
     "title": "Chicken Garlic Noodles",
-    "description": "Noodles tossed with carrot, cabbage, onion, egg and chicken flavoured with chilli flakes,garlic and soy garnished with spring onion.",
+    "description": "Noodles tossed with chicken, egg, carrot, cabbage and onion, with garlic, chilli flakes and soy. Topped with spring onion.",
     "pricePaise": 21900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1789990661701-ae2fa303021f"
@@ -626,7 +626,7 @@
   {
     "category": "Noodles & Rice",
     "title": "Chicken Hakka Noodles",
-    "description": "Hand-made Noodles boiled & tossed with shredded baby chicken chinese cabbage, carrots, capsicum, & spring Onion; infused with a pinch of soya sauce",
+    "description": "Noodles tossed with chicken, Chinese cabbage, carrot, capsicum and spring onion, with a dash of soy sauce.",
     "pricePaise": 21900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1617622141675-d3005b9067c5"
@@ -634,7 +634,7 @@
   {
     "category": "Noodles & Rice",
     "title": "Chicken Schezwan Fried Rice",
-    "description": "A house specialty: Stir fried rice with diced chicken burnt red chili ginger and garlic flavored with schezwan sauce",
+    "description": "A house specialty: rice stir fried with chicken, red chilli, ginger and garlic in Schezwan sauce.",
     "pricePaise": 21900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1723691802798-fa6efc67b2c9"
@@ -642,7 +642,7 @@
   {
     "category": "Noodles & Rice",
     "title": "Garlic Fried Rice",
-    "description": "Celia basmati par boiled & stir fried rice with chopped carrots, capsicum & onion along with peas ; infused with burnt garlic.",
+    "description": "Basmati rice stir fried with carrot, capsicum, onion and peas, finished with burnt garlic.",
     "pricePaise": 16900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1603133872878-684f208fb84b"
@@ -650,7 +650,7 @@
   {
     "category": "Noodles & Rice",
     "title": "Garlic Noodles",
-    "description": "Hand-made Noodles boiled & tossed with shredded chinese cabbage, carrots, capsicum, & spring Onion.",
+    "description": "Noodles tossed with Chinese cabbage, carrot, capsicum and spring onion, with plenty of garlic.",
     "pricePaise": 16900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1789990661701-ae2fa303021f"
@@ -658,7 +658,7 @@
   {
     "category": "Noodles & Rice",
     "title": "Hakka Noodles",
-    "description": "Hand-made Noodles boiled & tossed with shredded chinese cabbage, carrots, capsicum, & spring Onion; infused with a pinch of soya sauce",
+    "description": "Noodles tossed with Chinese cabbage, carrot, capsicum and spring onion, with a dash of soy sauce.",
     "pricePaise": 16900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1617622141675-d3005b9067c5"
@@ -666,7 +666,7 @@
   {
     "category": "Noodles & Rice",
     "title": "Schezwan Fried Rice",
-    "description": "A house specialty: Stir fried rice with burnt red chili ginger and garlic flavored with schezwan sauce",
+    "description": "A house specialty: rice stir fried with red chilli, ginger and garlic in Schezwan sauce.",
     "pricePaise": 16900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1723691802798-fa6efc67b2c9"
@@ -674,7 +674,7 @@
   {
     "category": "Noodles & Rice",
     "title": "Veg Fried Rice",
-    "description": "Celia basmati par boiled & stir fried rice with chopped carrots, capsicum & onion along with peas.",
+    "description": "Basmati rice stir fried with carrot, capsicum, onion and peas.",
     "pricePaise": 16900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1664717698774-84f62382613b"
@@ -682,7 +682,7 @@
   {
     "category": "Noodles & Rice",
     "title": "Veg Noodles",
-    "description": "Hand-made Noodles boiled & tossed with shredded chinese cabbage, carrots, capsicum, & spring Onion.",
+    "description": "Noodles tossed with Chinese cabbage, carrot, capsicum and spring onion.",
     "pricePaise": 16900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1617622141675-d3005b9067c5"
@@ -690,7 +690,7 @@
   {
     "category": "Rice",
     "title": "Chicken Biryani",
-    "description": "Basmati rice cooked with chicken & exotic Indian spices and garnish with brown onion and mint.",
+    "description": "Basmati rice cooked with chicken and whole spices, finished with fried onion and mint.",
     "pricePaise": 37900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1589302168068-964664d93dc0"
@@ -698,7 +698,7 @@
   {
     "category": "Rice",
     "title": "Jeera Rice",
-    "description": "Basmati rice tempered with cumin seeds",
+    "description": "Basmati rice tempered with cumin.",
     "pricePaise": 17900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1789991184293-224a84e41900"
@@ -706,7 +706,7 @@
   {
     "category": "Rice",
     "title": "Mutton Biryani",
-    "description": "Saffron flavored basmati rice, layered with yoghurt marinated lamb, Indian herbs and spices.",
+    "description": "Saffron basmati rice layered with yoghurt-marinated lamb, herbs and spices.",
     "pricePaise": 39900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1716550781939-beb7d7247aae"
@@ -722,7 +722,7 @@
   {
     "category": "Rice",
     "title": "Steamed Rice",
-    "description": "Aromatic long lush basmati rice steamed nicely.",
+    "description": "Long grain basmati rice, steamed.",
     "pricePaise": 12900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1789991184293-224a84e41900"
@@ -730,7 +730,7 @@
   {
     "category": "Rice",
     "title": "Veg Biryani",
-    "description": "Basmati Rice Cooked With Selected Vegetable's & Exotic Indian Spices And Garnish With Brown Onion And Mint.",
+    "description": "Basmati rice cooked with vegetables and whole spices, finished with fried onion and mint.",
     "pricePaise": 29900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8"
@@ -738,7 +738,7 @@
   {
     "category": "Rice",
     "title": "Veg Pulao",
-    "description": "Basmati rice cooked with a choice of vegetables, cumin seeds & green peas.",
+    "description": "Basmati rice cooked with vegetables, cumin and green peas.",
     "pricePaise": 16900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1630409346824-4f0e7b080087"
@@ -746,7 +746,7 @@
   {
     "category": "Bread",
     "title": "Punjabi Lachcha Parantha",
-    "description": "Multi Layered Wheat Flour Flaky Bread flavored with dried mint dust Baked In Tandoor .",
+    "description": "Flaky, many-layered wheat bread dusted with dried mint and baked in the tandoor.",
     "pricePaise": 4500,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1586524068358-77d2196875e7"
@@ -754,7 +754,7 @@
   {
     "category": "Bread",
     "title": "Rumali Roti",
-    "description": "Rumali Roti is as Skillfully Den Wafer Thin Whole Wheat Indian Bread Cooked On A Dome Griddle.",
+    "description": "Paper-thin wheat bread cooked on an upturned griddle.",
     "pricePaise": 3500,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1600935926387-12d9b03066f0"
@@ -762,7 +762,7 @@
   {
     "category": "Bread",
     "title": "Stuffed Cheese Kulcha",
-    "description": "A local delicay : Cheese Kulcha, Which Is Made Of Yogurt, Wheat Flour And Baking Powder And Cheese Cubes And Served With Veg Gravy",
+    "description": "Soft leavened bread stuffed with cheese, baked in the tandoor and served with a vegetable gravy.",
     "pricePaise": 16900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1683533761804-5fc12be0f684"
@@ -770,7 +770,7 @@
   {
     "category": "Bread",
     "title": "Stuffed Keema Kulcha",
-    "description": "Keema Kulcha Made With Loads Of Minced Meat (Mutton) Chopped Green Chilies Served With Gravy",
+    "description": "Leavened bread stuffed with spiced mutton mince and green chillies, served with gravy.",
     "pricePaise": 29900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1683533761804-5fc12be0f684"
@@ -778,7 +778,7 @@
   {
     "category": "Fish (Seasonal)",
     "title": "Chilli Fish Dry (Basa)",
-    "description": "Chilli Fish dry is marinated with ginger garlic paste, kaju paste Indian herbs salt, lemon juice and fish as a whole Marinated with yoghurt grilled to perfection.",
+    "description": "Basa marinated in ginger, garlic, cashew paste, lemon and yoghurt, grilled and tossed with chilli.",
     "pricePaise": 39900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1654863404432-cac67587e25d"
@@ -786,7 +786,7 @@
   {
     "category": "Fish (Seasonal)",
     "title": "Fish Curry (Basa)",
-    "description": "",
+    "description": "Basa simmered in a spiced curry. Available in season.",
     "pricePaise": 39900,
     "isVeg": false,
     "imageUrl": "https://images.unsplash.com/photo-1626508035297-0cd27c397d67"
@@ -794,7 +794,7 @@
   {
     "category": "Raita",
     "title": "Mix Raita",
-    "description": "Cumin flavored beaten yoghurt with a choice of plain, mélange of vegetables.",
+    "description": "Whisked yoghurt with cumin and mixed vegetables.",
     "pricePaise": 8000,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1752673508949-f4aeeaef75f0"
@@ -802,7 +802,7 @@
   {
     "category": "Desserts",
     "title": "Gulab Jamun",
-    "description": "Deep fried cheese dumplings served hot in flavored sugar syrup.",
+    "description": "Soft milk dumplings, fried and served warm in fragrant sugar syrup.",
     "pricePaise": 9900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1666190092159-3171cf0fbb12"
@@ -810,7 +810,7 @@
   {
     "category": "Desserts",
     "title": "Kheer",
-    "description": "Rice cooked in milk & sugar syrup and served chilled with flavored condensed milk & khoya.",
+    "description": "Rice slow cooked in sweetened milk with khoya, served chilled.",
     "pricePaise": 15000,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1591353692625-9b49f8fac18d"
@@ -818,7 +818,7 @@
   {
     "category": "Desserts",
     "title": "Moong Dal Halwa",
-    "description": "Yellow Lentil Pudding with dry fruits & saffron cooked on slow fire in homemade ghee.",
+    "description": "Yellow lentil pudding slow cooked in ghee with saffron and dry fruits.",
     "pricePaise": 16900,
     "isVeg": true,
     "imageUrl": "https://images.unsplash.com/photo-1645432524603-2a5172479006"
