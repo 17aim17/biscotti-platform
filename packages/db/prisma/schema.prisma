@@ -28,9 +28,10 @@ model Restaurant {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  locations  Location[]
-  categories Category[]
-  menuItems  MenuItem[]
+  locations   Location[]
+  categories  Category[]
+  menuItems   MenuItem[]
+  memberships Membership[]
 
   @@map("restaurants")
 }
@@ -97,4 +98,40 @@ model MenuItem {
 
   @@index([restaurantId, categoryId])
   @@map("menu_items")
+}
+
+// One row per Supabase Auth user (id = auth.users.id), created by a trigger on sign-up.
+model Profile {
+  id        String   @id @db.Uuid
+  name      String?
+  phone     String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  memberships Membership[]
+
+  @@map("profiles")
+}
+
+enum MembershipRole {
+  owner
+  manager
+  staff
+
+  @@map("membership_role")
+}
+
+// Who works at which restaurant, and in what role. Customers have no rows here.
+model Membership {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String         @map("user_id") @db.Uuid
+  restaurantId String         @map("restaurant_id") @db.Uuid
+  role         MembershipRole
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user       Profile    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, restaurantId])
+  @@index([restaurantId])
+  @@map("memberships")
 }
