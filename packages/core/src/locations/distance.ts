@@ -15,6 +15,10 @@ export function distanceInMeters(a: Coordinates, b: Coordinates): number {
   return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(h))
 }
 
-export function isWithinRadius(outlet: Coordinates, customer: Coordinates, radiusM: number): boolean {
+export function isWithinRadius(
+  outlet: Coordinates,
+  customer: Coordinates,
+  radiusM: number
+): boolean {
   return distanceInMeters(outlet, customer) <= radiusM
 }
