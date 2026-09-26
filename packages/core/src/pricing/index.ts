@@ -1,9 +1,13 @@
 // Order pricing. All amounts are integer paise (₹1 = 100 paise), so there is no
 // floating point rounding on money. Inputs come from the database, never from
 // the browser: the browser only says which items and how many.
-import { Fulfillment } from "@workspace/db"
+import { Fulfillment } from "@workspace/db/enums"
 
-import { BASIS_POINTS_PER_UNIT, MAX_QTY_PER_LINE } from "../constants"
+import {
+  BASIS_POINTS_PER_UNIT,
+  MAX_ORDER_TOTAL_PAISE,
+  MAX_QTY_PER_LINE,
+} from "../constants"
 import { DomainError } from "../errors"
 
 export type LineInput = {
@@ -67,11 +71,20 @@ export function calculateTotals(
     (taxable * charges.taxBps) / BASIS_POINTS_PER_UNIT
   )
 
+  const totalPaise = taxable + taxPaise
+  // Keeps totals far below Postgres int4 (about ₹2.1 crore) and inside
+  // Razorpay's per-order limit.
+  if (totalPaise > MAX_ORDER_TOTAL_PAISE) {
+    throw new DomainError(
+      "INVALID_INPUT",
+      `Orders above ₹${(MAX_ORDER_TOTAL_PAISE / 100).toLocaleString("en-IN")} cannot be placed online. Please contact the restaurant.`
+    )
+  }
   return {
     subtotalPaise,
     deliveryFeePaise,
     packagingFeePaise,
     taxPaise,
-    totalPaise: taxable + taxPaise,
+    totalPaise,
   }
 }
