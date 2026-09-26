@@ -94,8 +94,12 @@ export function useCart(slug: string) {
     () => EMPTY_CART
   )
 
-  const update = (change: (current: Cart) => Cart) =>
-    writeCart(slug, change(readCart(slug)))
+  // Only writes (and re-renders) when something actually changed.
+  const update = (change: (current: Cart) => Cart) => {
+    const current = readCart(slug)
+    const next = change(current)
+    if (next !== current) writeCart(slug, next)
+  }
 
   const setQty = (menuItemId: string, qty: number) =>
     update((c) => {
@@ -128,5 +132,13 @@ export function useCart(slug: string) {
     setFulfillment: (fulfillment: Fulfillment) =>
       update((c) => ({ ...c, fulfillment })),
     clear: () => update(() => EMPTY_CART),
+    // Drop dishes that are no longer on the menu (deleted or re-created), so
+    // counts and totals only include what can actually be ordered.
+    prune: (validIds: ReadonlySet<string>) =>
+      update((c) =>
+        c.lines.every((l) => validIds.has(l.menuItemId))
+          ? c
+          : { ...c, lines: c.lines.filter((l) => validIds.has(l.menuItemId)) }
+      ),
   }
 }

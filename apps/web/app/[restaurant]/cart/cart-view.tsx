@@ -36,19 +36,19 @@ export function CartView({
 
   if (count === 0) {
     return (
-      <section className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-[2rem] bg-white px-6 py-16 text-center shadow-sm ring-1 ring-orange-950/5">
-        <span className="flex size-16 items-center justify-center rounded-full bg-orange-50 text-(--brand)">
+      <section className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-(--sf-radius-card) bg-(--sf-card) px-6 py-16 text-center shadow-(--sf-shadow-card) ring-1 ring-(--sf-line)">
+        <span className="flex size-16 items-center justify-center rounded-full bg-(--sf-soft) text-(--brand)">
           <ShoppingBag className="size-8" />
         </span>
         <h1 className="font-display text-3xl font-semibold">
           Your cart is empty
         </h1>
-        <p className="text-stone-500">
+        <p className="text-(--sf-muted)">
           Add a few dishes from the menu to get started.
         </p>
         <Link
           href={`/${slug}#menu`}
-          className="rounded-full bg-linear-to-r from-(--brand) to-amber-500 px-6 py-3 font-semibold text-white shadow-(--brand)/30 shadow-lg transition hover:scale-105"
+          className="rounded-(--sf-radius-control) bg-(image:--sf-btn) px-6 py-3 font-semibold text-white shadow-(--sf-btn-shadow) transition hover:scale-105"
         >
           Browse the menu
         </Link>
@@ -87,7 +87,7 @@ export function CartView({
         <Link
           href={`/${slug}`}
           aria-label="Back to the menu"
-          className="flex size-10 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-orange-950/5 transition hover:scale-105"
+          className="flex size-10 items-center justify-center rounded-full bg-(--sf-card) shadow-(--sf-shadow-card) ring-1 ring-(--sf-line) transition hover:scale-105"
         >
           <ArrowLeft className="size-5" />
         </Link>
@@ -99,13 +99,13 @@ export function CartView({
       <div className="grid items-start gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="flex flex-col gap-6">
           <Panel title={`${count} ${count === 1 ? "item" : "items"}`}>
-            <ul className="divide-y divide-orange-950/5">
+            <ul className="divide-y divide-(--sf-line)">
               {lines.map(({ line, dish }) => (
                 <li
                   key={line.menuItemId}
                   className="flex items-center gap-4 py-4 first:pt-0 last:pb-0"
                 >
-                  <span className="relative size-16 shrink-0 overflow-hidden rounded-2xl bg-orange-50">
+                  <span className="relative size-16 shrink-0 overflow-hidden rounded-[calc(var(--sf-radius-card)-0.5rem)] bg-(--sf-soft)">
                     {dish?.imageUrl && (
                       <Image
                         src={`${dish.imageUrl}?w=160&h=160&q=70&auto=format&fit=crop`}
@@ -126,14 +126,14 @@ export function CartView({
                           <DietMark isVeg={dish.isVeg} />
                           <span className="truncate">{dish.title}</span>
                         </span>
-                        <span className="text-sm text-stone-500 tabular-nums">
+                        <span className="text-sm text-(--sf-muted) tabular-nums">
                           {dish.isAvailable
                             ? formatRupees(dish.pricePaise * line.qty)
                             : "Sold out right now"}
                         </span>
                       </>
                     ) : (
-                      <span className="text-sm text-stone-500">
+                      <span className="text-sm text-(--sf-muted)">
                         This dish is no longer on the menu.
                       </span>
                     )}
@@ -151,7 +151,7 @@ export function CartView({
                       type="button"
                       onClick={() => setQty(line.menuItemId, 0)}
                       aria-label="Remove from cart"
-                      className="flex size-9 items-center justify-center rounded-full text-stone-500 transition hover:bg-red-50 hover:text-red-600"
+                      className="flex size-9 items-center justify-center rounded-full text-(--sf-muted) transition hover:bg-red-50 hover:text-red-600"
                     >
                       <Trash2 className="size-4" />
                     </button>
@@ -162,7 +162,7 @@ export function CartView({
           </Panel>
 
           <Panel title="How do you want it?">
-            <div className="grid grid-cols-2 gap-1 rounded-full bg-orange-50 p-1">
+            <div className="grid grid-cols-2 gap-1 rounded-(--sf-radius-control) bg-(--sf-soft) p-1">
               {(["delivery", "pickup"] as const).map((option) => {
                 const active = fulfillment === option
                 const disabled = option === "pickup" && !pickupAllowed
@@ -174,10 +174,10 @@ export function CartView({
                     disabled={disabled}
                     onClick={() => setFulfillment(option)}
                     className={cn(
-                      "flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold transition",
+                      "flex items-center justify-center gap-2 rounded-(--sf-radius-control) py-2.5 text-sm font-semibold transition",
                       active
-                        ? "bg-white text-(--brand) shadow-sm"
-                        : "text-stone-600 hover:text-stone-900",
+                        ? "bg-(--sf-card) text-(--brand) shadow-sm"
+                        : "text-(--sf-muted) hover:text-(--sf-ink)",
                       disabled && "cursor-not-allowed opacity-40"
                     )}
                   >
@@ -203,8 +203,8 @@ export function CartView({
                     className={cn(
                       "flex cursor-pointer flex-col gap-2 rounded-2xl p-4 ring-1 transition",
                       active
-                        ? "bg-orange-50/70 ring-2 ring-(--brand)"
-                        : "ring-orange-950/10 hover:bg-orange-50/40"
+                        ? "bg-(--sf-soft) ring-2 ring-(--brand)"
+                        : "ring-(--sf-line) hover:bg-(--sf-soft)"
                     )}
                   >
                     <input
@@ -225,13 +225,13 @@ export function CartView({
                           "rounded-full px-2 py-0.5 text-xs font-semibold",
                           location.openNow
                             ? "bg-emerald-100 text-emerald-700"
-                            : "bg-stone-100 text-stone-500"
+                            : "bg-(--sf-soft) text-(--sf-muted)"
                         )}
                       >
                         {location.openNow ? "Open" : "Closed"}
                       </span>
                     </span>
-                    <span className="text-sm text-stone-500">
+                    <span className="text-sm text-(--sf-muted)">
                       {location.address}
                     </span>
                   </label>
@@ -241,15 +241,15 @@ export function CartView({
           </Panel>
         </div>
 
-        <aside className="flex flex-col gap-4 rounded-[2rem] bg-white p-6 shadow-xl ring-1 shadow-orange-900/5 ring-orange-950/5 lg:sticky lg:top-24">
+        <aside className="flex flex-col gap-4 rounded-(--sf-radius-card) bg-(--sf-card) p-6 shadow-(--sf-shadow-card) ring-1 ring-(--sf-line) lg:sticky lg:top-24">
           <h2 className="font-display text-2xl font-semibold">Order summary</h2>
           <div className="flex items-center justify-between text-sm">
-            <span className="text-stone-500">Subtotal</span>
+            <span className="text-(--sf-muted)">Subtotal</span>
             <span className="font-semibold tabular-nums">
               {formatRupees(subtotal)}
             </span>
           </div>
-          <p className="text-sm text-stone-500">
+          <p className="text-sm text-(--sf-muted)">
             {fulfillment === "delivery"
               ? "Delivery fee, packaging"
               : "Packaging"}{" "}
@@ -258,12 +258,12 @@ export function CartView({
           <button
             type="button"
             disabled={!canCheckout}
-            className="rounded-full bg-linear-to-r from-(--brand) to-amber-500 py-3.5 text-base font-bold text-white shadow-(--brand)/30 shadow-lg transition enabled:hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-(--sf-radius-control) bg-(image:--sf-btn) py-3.5 text-base font-bold text-white shadow-(--sf-btn-shadow) transition enabled:hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Checkout (coming soon)
           </button>
           {selected && !selected.openNow && (
-            <p className="text-center text-sm text-stone-500">
+            <p className="text-center text-sm text-(--sf-muted)">
               {selected.name} is closed right now.
             </p>
           )}
@@ -281,7 +281,7 @@ function Panel({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-orange-950/5 sm:p-6">
+    <section className="rounded-(--sf-radius-card) bg-(--sf-card) p-5 shadow-(--sf-shadow-card) ring-1 ring-(--sf-line) sm:p-6">
       <h2 className="mb-4 text-lg font-semibold">{title}</h2>
       {children}
     </section>

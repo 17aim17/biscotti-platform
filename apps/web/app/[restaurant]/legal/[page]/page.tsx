@@ -32,21 +32,21 @@ export default async function LegalPageView({
   const text = typeof legal[page] === "string" ? legal[page] : null
 
   return (
-    <article className="mx-auto flex max-w-2xl flex-col gap-6 rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-orange-950/5 sm:p-12">
+    <article className="mx-auto flex max-w-2xl flex-col gap-6 rounded-(--sf-radius-card) bg-(--sf-card) p-8 shadow-(--sf-shadow-card) ring-1 ring-(--sf-line) sm:p-12">
       <h1 className="font-display text-4xl font-semibold tracking-tight">
         {PAGES[page]}
       </h1>
-      <p className="leading-relaxed whitespace-pre-line text-stone-600">
+      <p className="leading-relaxed whitespace-pre-line text-(--sf-muted)">
         {text ?? `${restaurant.name} has not published this page yet.`}
       </p>
-      <nav className="flex flex-wrap gap-2 border-t border-orange-950/5 pt-6">
+      <nav className="flex flex-wrap gap-2 border-t border-(--sf-line) pt-6">
         {(Object.keys(PAGES) as LegalPage[])
           .filter((p) => p !== page)
           .map((p) => (
             <Link
               key={p}
               href={`/${restaurant.slug}/legal/${p}`}
-              className="rounded-full bg-orange-50 px-4 py-1.5 text-sm font-medium text-stone-700 transition hover:bg-orange-100"
+              className="rounded-(--sf-radius-control) bg-(--sf-soft) px-4 py-1.5 text-sm font-medium text-(--sf-ink) transition hover:brightness-95"
             >
               {PAGES[p]}
             </Link>
