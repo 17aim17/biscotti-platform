@@ -1,8 +1,9 @@
 "use client"
 
 import type { MenuCategory, RestaurantSummary } from "@workspace/core"
-import { Button, buttonVariants } from "@workspace/ui/components/button"
 import { cn } from "@workspace/ui/lib/utils"
+import { ArrowLeft, Bike, MapPin, ShoppingBag, Trash2 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useMemo } from "react"
 
@@ -10,7 +11,7 @@ import { useCart, type Fulfillment } from "@/lib/cart/store"
 import { formatRupees } from "@/lib/money"
 
 import { DietMark } from "../_components/diet-mark"
-import { QtyStepper } from "../_components/qty-stepper"
+import { QuantityControl } from "../_components/quantity-control"
 
 type Location = RestaurantSummary["locations"][number]
 
@@ -35,11 +36,19 @@ export function CartView({
 
   if (count === 0) {
     return (
-      <section className="flex flex-col items-start gap-3">
-        <h1 className="text-2xl font-semibold">Your cart is empty</h1>
+      <section className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-[2rem] bg-white px-6 py-16 text-center shadow-sm ring-1 ring-orange-950/5">
+        <span className="flex size-16 items-center justify-center rounded-full bg-orange-50 text-(--brand)">
+          <ShoppingBag className="size-8" />
+        </span>
+        <h1 className="font-display text-3xl font-semibold">
+          Your cart is empty
+        </h1>
+        <p className="text-stone-500">
+          Add a few dishes from the menu to get started.
+        </p>
         <Link
-          href={`/${slug}`}
-          className={buttonVariants({ variant: "outline" })}
+          href={`/${slug}#menu`}
+          className="rounded-full bg-linear-to-r from-(--brand) to-amber-500 px-6 py-3 font-semibold text-white shadow-(--brand)/30 shadow-lg transition hover:scale-105"
         >
           Browse the menu
         </Link>
@@ -66,133 +75,215 @@ export function CartView({
   const pickupAllowed = selected?.acceptsPickup ?? false
   const fulfillment: Fulfillment =
     cart.fulfillment === "pickup" && pickupAllowed ? "pickup" : "delivery"
+  // Checkout (address, totals, payment) lands in the next phase; until then the
+  // button stays disabled even when an order would be possible.
+  const checkoutAvailable = false
+  const canCheckout =
+    checkoutAvailable && Boolean(selected?.openNow) && orderable.length > 0
 
   return (
-    <div className="flex flex-col gap-8 pb-10">
-      <h1 className="text-2xl font-semibold">Your cart</h1>
+    <div className="flex flex-col gap-6 pb-16">
+      <div className="flex items-center gap-3">
+        <Link
+          href={`/${slug}`}
+          aria-label="Back to the menu"
+          className="flex size-10 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-orange-950/5 transition hover:scale-105"
+        >
+          <ArrowLeft className="size-5" />
+        </Link>
+        <h1 className="font-display text-4xl font-semibold tracking-tight">
+          Your cart
+        </h1>
+      </div>
 
-      <ul className="divide-y rounded-lg border">
-        {lines.map(({ line, dish }) => (
-          <li
-            key={line.menuItemId}
-            className="flex items-center justify-between gap-4 p-4"
-          >
-            {dish ? (
-              <div className="flex min-w-0 flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <DietMark isVeg={dish.isVeg} />
-                  <span className="font-medium">{dish.title}</span>
-                </div>
-                <span className="text-sm text-muted-foreground tabular-nums">
-                  {dish.isAvailable
-                    ? `${formatRupees(dish.pricePaise)} × ${line.qty} = ${formatRupees(dish.pricePaise * line.qty)}`
-                    : "Sold out right now"}
-                </span>
-              </div>
-            ) : (
-              <span className="text-sm text-muted-foreground">
-                This dish is no longer on the menu.
-              </span>
-            )}
-            {dish?.isAvailable ? (
-              <QtyStepper
-                label={dish.title}
-                qty={line.qty}
-                onDecrement={() => decrement(line.menuItemId)}
-                onIncrement={() => add(line.menuItemId)}
-              />
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setQty(line.menuItemId, 0)}
-              >
-                Remove
-              </Button>
-            )}
-          </li>
-        ))}
-      </ul>
+      <div className="grid items-start gap-6 lg:grid-cols-[1fr_22rem]">
+        <div className="flex flex-col gap-6">
+          <Panel title={`${count} ${count === 1 ? "item" : "items"}`}>
+            <ul className="divide-y divide-orange-950/5">
+              {lines.map(({ line, dish }) => (
+                <li
+                  key={line.menuItemId}
+                  className="flex items-center gap-4 py-4 first:pt-0 last:pb-0"
+                >
+                  <span className="relative size-16 shrink-0 overflow-hidden rounded-2xl bg-orange-50">
+                    {dish?.imageUrl && (
+                      <Image
+                        src={`${dish.imageUrl}?w=160&h=160&q=70&auto=format&fit=crop`}
+                        alt=""
+                        fill
+                        sizes="64px"
+                        className={cn(
+                          "object-cover",
+                          !dish.isAvailable && "grayscale"
+                        )}
+                      />
+                    )}
+                  </span>
+                  <div className="flex min-w-0 flex-1 flex-col gap-1">
+                    {dish ? (
+                      <>
+                        <span className="flex items-center gap-2 font-semibold">
+                          <DietMark isVeg={dish.isVeg} />
+                          <span className="truncate">{dish.title}</span>
+                        </span>
+                        <span className="text-sm text-stone-500 tabular-nums">
+                          {dish.isAvailable
+                            ? formatRupees(dish.pricePaise * line.qty)
+                            : "Sold out right now"}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-sm text-stone-500">
+                        This dish is no longer on the menu.
+                      </span>
+                    )}
+                  </div>
+                  {dish?.isAvailable ? (
+                    <QuantityControl
+                      soldOut={false}
+                      qty={line.qty}
+                      title={dish.title}
+                      onAdd={() => add(line.menuItemId)}
+                      onRemove={() => decrement(line.menuItemId)}
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setQty(line.menuItemId, 0)}
+                      aria-label="Remove from cart"
+                      className="flex size-9 items-center justify-center rounded-full text-stone-500 transition hover:bg-red-50 hover:text-red-600"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </Panel>
 
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-2 text-lg font-medium">Order from</legend>
-        {locations.map((location) => (
-          <label
-            key={location.id}
-            className={cn(
-              "flex cursor-pointer items-center justify-between gap-4 rounded-lg border p-4",
-              selected?.id === location.id &&
-                "border-primary ring-1 ring-primary"
-            )}
-          >
-            <span className="flex items-center gap-3">
-              <input
-                type="radio"
-                name="location"
-                value={location.id}
-                checked={selected?.id === location.id}
-                onChange={() => setLocation(location.id)}
-                className="accent-primary"
-              />
-              <span className="flex flex-col">
-                <span className="font-medium">{location.name}</span>
-                <span className="text-sm text-muted-foreground">
-                  {location.address}
-                </span>
-              </span>
-            </span>
-            <span
-              className={cn(
-                "text-sm",
-                location.openNow ? "text-green-700" : "text-muted-foreground"
-              )}
-            >
-              {location.openNow ? "Open now" : "Closed"}
-            </span>
-          </label>
-        ))}
-      </fieldset>
+          <Panel title="How do you want it?">
+            <div className="grid grid-cols-2 gap-1 rounded-full bg-orange-50 p-1">
+              {(["delivery", "pickup"] as const).map((option) => {
+                const active = fulfillment === option
+                const disabled = option === "pickup" && !pickupAllowed
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    aria-pressed={active}
+                    disabled={disabled}
+                    onClick={() => setFulfillment(option)}
+                    className={cn(
+                      "flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-semibold transition",
+                      active
+                        ? "bg-white text-(--brand) shadow-sm"
+                        : "text-stone-600 hover:text-stone-900",
+                      disabled && "cursor-not-allowed opacity-40"
+                    )}
+                  >
+                    {option === "delivery" ? (
+                      <Bike className="size-4" />
+                    ) : (
+                      <ShoppingBag className="size-4" />
+                    )}
+                    {option === "delivery" ? "Delivery" : "Pickup"}
+                  </button>
+                )
+              })}
+            </div>
+          </Panel>
 
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-2 text-lg font-medium">
-          How do you want it?
-        </legend>
-        <div className="flex gap-2">
-          {(["delivery", "pickup"] as const).map((option) => (
-            <Button
-              key={option}
-              type="button"
-              variant={fulfillment === option ? "default" : "outline"}
-              aria-pressed={fulfillment === option}
-              disabled={option === "pickup" && !pickupAllowed}
-              onClick={() => setFulfillment(option)}
-            >
-              {option === "delivery" ? "Delivery" : "Pickup"}
-            </Button>
-          ))}
+          <Panel title="Order from">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {locations.map((location) => {
+                const active = selected?.id === location.id
+                return (
+                  <label
+                    key={location.id}
+                    className={cn(
+                      "flex cursor-pointer flex-col gap-2 rounded-2xl p-4 ring-1 transition",
+                      active
+                        ? "bg-orange-50/70 ring-2 ring-(--brand)"
+                        : "ring-orange-950/10 hover:bg-orange-50/40"
+                    )}
+                  >
+                    <input
+                      type="radio"
+                      name="location"
+                      value={location.id}
+                      checked={active}
+                      onChange={() => setLocation(location.id)}
+                      className="sr-only"
+                    />
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="flex items-center gap-2 font-semibold">
+                        <MapPin className="size-4 text-(--brand)" />
+                        {location.name}
+                      </span>
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-xs font-semibold",
+                          location.openNow
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-stone-100 text-stone-500"
+                        )}
+                      >
+                        {location.openNow ? "Open" : "Closed"}
+                      </span>
+                    </span>
+                    <span className="text-sm text-stone-500">
+                      {location.address}
+                    </span>
+                  </label>
+                )
+              })}
+            </div>
+          </Panel>
         </div>
-      </fieldset>
 
-      <div className="flex flex-col gap-3 border-t pt-6">
-        <div className="flex items-center justify-between">
-          <span>Subtotal</span>
-          <span className="font-medium tabular-nums">
-            {formatRupees(subtotal)}
-          </span>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          {fulfillment === "delivery" ? "Delivery fee, packaging" : "Packaging"}{" "}
-          and GST are added at checkout.
-        </p>
-        <Button disabled={!selected?.openNow || orderable.length === 0}>
-          Checkout (coming soon)
-        </Button>
-        {selected && !selected.openNow && (
-          <p className="text-sm text-muted-foreground">
-            {selected.name} is closed right now.
+        <aside className="flex flex-col gap-4 rounded-[2rem] bg-white p-6 shadow-xl ring-1 shadow-orange-900/5 ring-orange-950/5 lg:sticky lg:top-24">
+          <h2 className="font-display text-2xl font-semibold">Order summary</h2>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-stone-500">Subtotal</span>
+            <span className="font-semibold tabular-nums">
+              {formatRupees(subtotal)}
+            </span>
+          </div>
+          <p className="text-sm text-stone-500">
+            {fulfillment === "delivery"
+              ? "Delivery fee, packaging"
+              : "Packaging"}{" "}
+            and GST are added at checkout.
           </p>
-        )}
+          <button
+            type="button"
+            disabled={!canCheckout}
+            className="rounded-full bg-linear-to-r from-(--brand) to-amber-500 py-3.5 text-base font-bold text-white shadow-(--brand)/30 shadow-lg transition enabled:hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Checkout (coming soon)
+          </button>
+          {selected && !selected.openNow && (
+            <p className="text-center text-sm text-stone-500">
+              {selected.name} is closed right now.
+            </p>
+          )}
+        </aside>
       </div>
     </div>
+  )
+}
+
+function Panel({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <section className="rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-orange-950/5 sm:p-6">
+      <h2 className="mb-4 text-lg font-semibold">{title}</h2>
+      {children}
+    </section>
   )
 }
