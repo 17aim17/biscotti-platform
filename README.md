@@ -33,12 +33,33 @@ pnpm install
 pnpm db:start     # Postgres, Auth, Storage, Realtime in Docker
 cp .env.example .env
 pnpm db:status    # copy the publishable and secret keys into .env
+pnpm db:reset     # wipe the local database, apply migrations, seed demo data
 pnpm dev          # http://localhost:3000
 ```
 
 - Supabase Studio: http://127.0.0.1:54323
-- Phone login uses fixed test numbers and sends no SMS. The numbers and codes are in `supabase/config.toml` under `[auth.sms.test_otp]` (for example `+91 99999 00001`, code `123456`).
 - `pnpm db:stop` stops the containers.
+
+### Demo data
+
+`pnpm db:reset` seeds two restaurants and four users. Phone login uses fixed test numbers (set in `supabase/config.toml`) and sends no SMS. The code is `123456` for all of them.
+
+| Phone           | User                               |
+| --------------- | ---------------------------------- |
+| +91 99999 00001 | Customer                           |
+| +91 99999 00002 | Casa Spezia owner                  |
+| +91 99999 00003 | Casa Spezia staff                  |
+| +91 99999 00004 | Osteria Sole owner (second tenant) |
+
+### Database changes
+
+The schema lives in `packages/db/prisma/schema.prisma`. To change it:
+
+```bash
+pnpm --filter @workspace/db db:migrate:dev --name <change>
+```
+
+Things Prisma's schema cannot express (row level security, policies, triggers, check constraints) go into a migration created with `--create-only` and edited by hand. Every new table needs `enable row level security`.
 
 Other commands:
 
