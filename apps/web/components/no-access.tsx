@@ -10,8 +10,8 @@ export function NoAccess({ restaurantName }: { restaurantName: string }) {
         You don&apos;t have access
       </h1>
       <p className="text-(--sf-muted)">
-        This page is for {restaurantName} staff. If you work here, ask the owner
-        to add your phone number.
+        This page needs a role at {restaurantName} that your account does not
+        have. If you work here, ask an owner for access.
       </p>
       <Link href="/account" className={`${solidButton} px-8 py-3.5`}>
         Go to your account

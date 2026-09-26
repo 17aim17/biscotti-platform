@@ -7,11 +7,19 @@ import { usePathname } from "next/navigation"
 import { eyebrow } from "@/components/styles"
 
 // Kitchen / Dashboard tabs; the current one is underlined.
-export function StaffNav({ slug }: { slug: string }) {
+export function StaffNav({
+  slug,
+  showDashboard,
+}: {
+  slug: string
+  showDashboard: boolean
+}) {
   const pathname = usePathname()
   const tabs = [
     { href: `/${slug}/kitchen`, label: "Kitchen" },
-    { href: `/${slug}/dashboard`, label: "Dashboard" },
+    ...(showDashboard
+      ? [{ href: `/${slug}/dashboard`, label: "Dashboard" }]
+      : []),
   ]
   return (
     <nav className="flex gap-6">

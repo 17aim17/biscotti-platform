@@ -1,7 +1,9 @@
+import { getMembership, roleCan } from "@workspace/core"
 import { ExternalLink, UserRound } from "lucide-react"
 import Link from "next/link"
 
 import { eyebrow } from "@/components/styles"
+import { getCurrentUser } from "@/lib/auth"
 import { getRestaurantOr404 } from "@/lib/restaurant"
 
 import { StaffNav } from "./_components/staff-nav"
@@ -14,6 +16,11 @@ export default async function StaffLayout({
 }: LayoutProps<"/[restaurant]">) {
   const { restaurant: slug } = await params
   const restaurant = await getRestaurantOr404(slug)
+  // Kitchen staff do not see the Dashboard tab (the page checks it anyway).
+  const user = await getCurrentUser()
+  const membership = user ? await getMembership(user.id, restaurant.id) : null
+  const showDashboard =
+    membership !== null && roleCan(membership.role, "orders:view")
 
   return (
     <>
@@ -29,7 +36,7 @@ export default async function StaffLayout({
               Staff
             </span>
           </div>
-          <StaffNav slug={restaurant.slug} />
+          <StaffNav slug={restaurant.slug} showDashboard={showDashboard} />
           <div className="flex items-center gap-1">
             <Link
               href={`/${restaurant.slug}`}
