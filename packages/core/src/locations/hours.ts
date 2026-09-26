@@ -1,5 +1,7 @@
 import { z } from "zod"
 
+import { RESTAURANT_TIME_ZONE } from "../constants"
+
 // Weekly opening hours stored on each location, in the restaurant's local time:
 //   { "mon": [["10:00", "22:30"]], "sat": [["12:00", "15:00"], ["18:00", "02:00"]] }
 // A span that ends at or before it starts runs past midnight into the next day.
@@ -16,7 +18,6 @@ export type OpeningHours = z.infer<typeof openingHoursSchema>
 type Day = z.infer<typeof day>
 
 const DAYS: Day[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]
-export const RESTAURANT_TIME_ZONE = "Asia/Kolkata"
 
 const toMinutes = (hhmm: string) => {
   const [h, m] = hhmm.split(":").map(Number)

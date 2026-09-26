@@ -1,4 +1,4 @@
-import type { Fulfillment, OrderStatus } from "@workspace/db"
+import { Fulfillment, OrderStatus } from "@workspace/db"
 
 import { sendSms } from "./sms"
 
@@ -15,19 +15,19 @@ export function orderStatusMessage(
 ): string | null {
   const ref = `${restaurantName} order #${order.number}`
   switch (order.status) {
-    case "PLACED":
+    case OrderStatus.PLACED:
       return `${ref} received. We'll let you know when it's accepted.`
-    case "ACCEPTED":
+    case OrderStatus.ACCEPTED:
       return `${ref} accepted and will be prepared shortly.`
-    case "READY":
-      return order.fulfillment === "pickup"
+    case OrderStatus.READY:
+      return order.fulfillment === Fulfillment.pickup
         ? `${ref} is ready for pickup.`
         : null
-    case "OUT_FOR_DELIVERY":
+    case OrderStatus.OUT_FOR_DELIVERY:
       return `${ref} is on the way.`
-    case "REJECTED":
+    case OrderStatus.REJECTED:
       return `Sorry, ${ref} could not be accepted. Any online payment will be refunded.`
-    case "CANCELLED":
+    case OrderStatus.CANCELLED:
       return `${ref} was cancelled. Any online payment will be refunded.`
     default:
       return null

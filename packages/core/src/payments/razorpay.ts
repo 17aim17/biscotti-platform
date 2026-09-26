@@ -1,17 +1,9 @@
 // Minimal Razorpay REST client. Only what checkout needs: creating an order.
 // Docs: https://razorpay.com/docs/api/orders/create/
-const API = "https://api.razorpay.com/v1"
+import { CURRENCY } from "../constants"
+import { env } from "../env"
 
-function credentials() {
-  const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
-  const keySecret = process.env.RAZORPAY_KEY_SECRET
-  if (!keyId || !keySecret) {
-    throw new Error(
-      "NEXT_PUBLIC_RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET must be set."
-    )
-  }
-  return { keyId, keySecret }
-}
+const API = "https://api.razorpay.com/v1"
 
 export type RazorpayOrder = {
   id: string
@@ -25,7 +17,8 @@ export async function createRazorpayOrder(params: {
   receipt: string
   notes?: Record<string, string>
 }): Promise<RazorpayOrder> {
-  const { keyId, keySecret } = credentials()
+  const keyId = env.razorpayKeyId()
+  const keySecret = env.razorpayKeySecret()
   const res = await fetch(`${API}/orders`, {
     method: "POST",
     headers: {
@@ -34,7 +27,7 @@ export async function createRazorpayOrder(params: {
     },
     body: JSON.stringify({
       amount: params.amountPaise,
-      currency: "INR",
+      currency: CURRENCY,
       receipt: params.receipt,
       notes: params.notes,
     }),
@@ -45,8 +38,4 @@ export async function createRazorpayOrder(params: {
     )
   }
   return (await res.json()) as RazorpayOrder
-}
-
-export function razorpayKeyId() {
-  return credentials().keyId
 }

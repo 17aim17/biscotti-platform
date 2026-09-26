@@ -1,14 +1,19 @@
-import { prisma, type OrderStatus } from "@workspace/db"
+import { PaymentStatus, prisma, type OrderStatus } from "@workspace/db"
 
 import { requirePermission } from "../auth/permissions"
 import { DomainError } from "../errors"
 import { notifyOrderStatus } from "../notifications/order-status"
-import { canTransition, timestampFor } from "./status"
+import {
+  Actor,
+  canTransition,
+  NOT_FULFILLED_STATUSES,
+  timestampFor,
+} from "./status"
 
 export type StatusChangeBy =
-  | { kind: "staff"; userId: string }
-  | { kind: "customer"; userId: string }
-  | { kind: "system" }
+  | { kind: typeof Actor.staff; userId: string }
+  | { kind: typeof Actor.customer; userId: string }
+  | { kind: typeof Actor.system }
 
 export async function updateOrderStatus(params: {
   orderId: string
@@ -23,9 +28,9 @@ export async function updateOrderStatus(params: {
   })
   if (!order) throw new DomainError("NOT_FOUND", "Order not found.")
 
-  if (by.kind === "staff") {
+  if (by.kind === Actor.staff) {
     await requirePermission(by.userId, order.restaurantId, "kitchen:use")
-  } else if (by.kind === "customer" && order.customerId !== by.userId) {
+  } else if (by.kind === Actor.customer && order.customerId !== by.userId) {
     throw new DomainError("NOT_FOUND", "Order not found.")
   }
 
@@ -49,11 +54,11 @@ export async function updateOrderStatus(params: {
     }),
     // A paid order that will not be fulfilled needs a refund (done by the owner
     // in Razorpay for now). No-op for unpaid and cash orders.
-    ...(to === "REJECTED" || to === "CANCELLED"
+    ...(NOT_FULFILLED_STATUSES.includes(to)
       ? [
           prisma.payment.updateMany({
-            where: { orderId, status: "captured" },
-            data: { status: "needs_refund" },
+            where: { orderId, status: PaymentStatus.captured },
+            data: { status: PaymentStatus.needs_refund },
           }),
         ]
       : []),

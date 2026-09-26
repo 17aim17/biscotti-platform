@@ -1,9 +1,10 @@
 // Order pricing. All amounts are integer paise (₹1 = 100 paise), so there is no
 // floating point rounding on money. Inputs come from the database, never from
 // the browser: the browser only says which items and how many.
-import { DomainError } from "../errors"
+import { Fulfillment } from "@workspace/db"
 
-export const MAX_QTY_PER_LINE = 50
+import { BASIS_POINTS_PER_UNIT, MAX_QTY_PER_LINE } from "../constants"
+import { DomainError } from "../errors"
 
 export type LineInput = {
   menuItemId: string
@@ -51,7 +52,7 @@ export function priceLines(lines: LineInput[]): PricedLine[] {
 // Tax applies to food and fees. Rounded once, on the order, to the nearest paisa.
 export function calculateTotals(
   lines: PricedLine[],
-  fulfillment: "delivery" | "pickup",
+  fulfillment: Fulfillment,
   charges: LocationCharges
 ): OrderTotals {
   const subtotalPaise = lines.reduce(
@@ -59,10 +60,12 @@ export function calculateTotals(
     0
   )
   const deliveryFeePaise =
-    fulfillment === "delivery" ? charges.deliveryFeePaise : 0
+    fulfillment === Fulfillment.delivery ? charges.deliveryFeePaise : 0
   const packagingFeePaise = charges.packagingFeePaise
   const taxable = subtotalPaise + deliveryFeePaise + packagingFeePaise
-  const taxPaise = Math.round((taxable * charges.taxBps) / 10_000)
+  const taxPaise = Math.round(
+    (taxable * charges.taxBps) / BASIS_POINTS_PER_UNIT
+  )
 
   return {
     subtotalPaise,

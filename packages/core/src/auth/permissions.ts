@@ -1,6 +1,6 @@
 // Who may do what at a restaurant. Roles come from the memberships table;
 // customers have no membership and therefore no staff permissions.
-import { prisma, type MembershipRole } from "@workspace/db"
+import { MembershipRole, prisma } from "@workspace/db"
 
 import { DomainError } from "../errors"
 
@@ -13,9 +13,14 @@ export type Permission =
   | "restaurant:manage" // branding, legal pages, GSTIN/FSSAI
 
 const ROLE_PERMISSIONS: Record<MembershipRole, Permission[]> = {
-  staff: ["kitchen:use"],
-  manager: ["kitchen:use", "orders:view", "menu:manage", "locations:manage"],
-  owner: [
+  [MembershipRole.staff]: ["kitchen:use"],
+  [MembershipRole.manager]: [
+    "kitchen:use",
+    "orders:view",
+    "menu:manage",
+    "locations:manage",
+  ],
+  [MembershipRole.owner]: [
     "kitchen:use",
     "orders:view",
     "menu:manage",

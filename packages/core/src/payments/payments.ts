@@ -1,8 +1,14 @@
-import { prisma } from "@workspace/db"
+import {
+  OrderStatus,
+  PaymentMethod,
+  PaymentStatus,
+  prisma,
+} from "@workspace/db"
 
 import { DomainError } from "../errors"
 import { notifyOrderStatus } from "../notifications/order-status"
-import { createRazorpayOrder, razorpayKeyId } from "./razorpay"
+import { env } from "../env"
+import { createRazorpayOrder } from "./razorpay"
 import { isValidCheckoutSignature, isValidWebhookSignature } from "./signatures"
 
 // Creates a Razorpay order for an unpaid order and records it. Also used for
@@ -12,7 +18,10 @@ export async function startOnlinePayment(customerId: string, orderId: string) {
     where: { id: orderId, customerId },
   })
   if (!order) throw new DomainError("NOT_FOUND", "Order not found.")
-  if (order.paymentMethod !== "online" || order.status !== "PENDING_PAYMENT") {
+  if (
+    order.paymentMethod !== PaymentMethod.online ||
+    order.status !== OrderStatus.PENDING_PAYMENT
+  ) {
     throw new DomainError(
       "INVALID_STATUS_CHANGE",
       "This order is not waiting for payment."
@@ -36,17 +45,29 @@ export async function startOnlinePayment(customerId: string, orderId: string) {
 
   // What the browser needs to open Razorpay Checkout.
   return {
-    keyId: razorpayKeyId(),
+    keyId: env.razorpayKeyId(),
     razorpayOrderId: razorpayOrder.id,
     amountPaise: order.totalPaise,
     orderNumber: order.number,
   }
 }
 
+export const MarkPaidResult = {
+  // Payment recorded, order moved to PLACED.
+  placed: "placed",
+  // Callback and webhook both arrived; the second is a no-op.
+  alreadyRecorded: "already_recorded",
+  // Paid, but the order was already rejected or cancelled.
+  needsRefund: "needs_refund",
+} as const
 export type MarkPaidResult =
-  | "placed" // payment recorded, order moved to PLACED
-  | "already_recorded" // callback and webhook both arrived; the second is a no-op
-  | "needs_refund" // paid, but the order was already rejected or cancelled
+  (typeof MarkPaidResult)[keyof typeof MarkPaidResult]
+
+// Razorpay webhook events we act on.
+const RazorpayEvent = {
+  paymentCaptured: "payment.captured",
+  paymentFailed: "payment.failed",
+} as const
 
 // Records a captured payment. Safe to call more than once for the same payment.
 export async function markPaid(params: {
@@ -72,26 +93,29 @@ export async function markPaid(params: {
 
     // Guarded: only the first caller moves the payment out of "created".
     const recorded = await tx.payment.updateMany({
-      where: { id: payment.id, status: "created" },
-      data: { status: "captured", razorpayPaymentId: params.razorpayPaymentId },
+      where: { id: payment.id, status: PaymentStatus.created },
+      data: {
+        status: PaymentStatus.captured,
+        razorpayPaymentId: params.razorpayPaymentId,
+      },
     })
-    if (recorded.count === 0) return "already_recorded" as const
+    if (recorded.count === 0) return MarkPaidResult.alreadyRecorded
 
     const placed = await tx.order.updateMany({
-      where: { id: payment.orderId, status: "PENDING_PAYMENT" },
-      data: { status: "PLACED" },
+      where: { id: payment.orderId, status: OrderStatus.PENDING_PAYMENT },
+      data: { status: OrderStatus.PLACED },
     })
-    if (placed.count === 1) return "placed" as const
+    if (placed.count === 1) return MarkPaidResult.placed
 
     // Money arrived for an order that was cancelled or rejected meanwhile.
     await tx.payment.update({
       where: { id: payment.id },
-      data: { status: "needs_refund" },
+      data: { status: PaymentStatus.needs_refund },
     })
-    return "needs_refund" as const
+    return MarkPaidResult.needsRefund
   })
 
-  if (result === "placed") {
+  if (result === MarkPaidResult.placed) {
     const order = await prisma.order.findFirstOrThrow({
       where: {
         payments: { some: { razorpayOrderId: params.razorpayOrderId } },
@@ -110,8 +134,7 @@ export async function confirmCheckoutPayment(params: {
   razorpayPaymentId: string
   signature: string
 }) {
-  const keySecret = process.env.RAZORPAY_KEY_SECRET
-  if (!keySecret) throw new Error("RAZORPAY_KEY_SECRET must be set.")
+  const keySecret = env.razorpayKeySecret()
   if (!isValidCheckoutSignature({ ...params, keySecret })) {
     throw new DomainError("INVALID_SIGNATURE", "Payment could not be verified.")
   }
@@ -131,8 +154,7 @@ export async function handleRazorpayWebhook(
   rawBody: string,
   signature: string | null
 ) {
-  const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET
-  if (!webhookSecret) throw new Error("RAZORPAY_WEBHOOK_SECRET must be set.")
+  const webhookSecret = env.razorpayWebhookSecret()
   if (
     !signature ||
     !isValidWebhookSignature({ rawBody, signature, webhookSecret })
@@ -144,7 +166,7 @@ export async function handleRazorpayWebhook(
   const payment = event.payload?.payment?.entity
   if (!payment) return { handled: false }
 
-  if (event.event === "payment.captured") {
+  if (event.event === RazorpayEvent.paymentCaptured) {
     const result = await markPaid({
       razorpayOrderId: payment.order_id,
       razorpayPaymentId: payment.id,
@@ -152,12 +174,15 @@ export async function handleRazorpayWebhook(
     })
     return { handled: true, result }
   }
-  if (event.event === "payment.failed") {
+  if (event.event === RazorpayEvent.paymentFailed) {
     await prisma.payment.updateMany({
-      where: { razorpayOrderId: payment.order_id, status: "created" },
-      data: { status: "failed" },
+      where: {
+        razorpayOrderId: payment.order_id,
+        status: PaymentStatus.created,
+      },
+      data: { status: PaymentStatus.failed },
     })
-    return { handled: true, result: "failed" }
+    return { handled: true, result: PaymentStatus.failed }
   }
   return { handled: false }
 }
