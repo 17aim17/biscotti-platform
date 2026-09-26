@@ -11,6 +11,7 @@ import { z } from "zod"
 import {
   MAX_LINES_PER_ORDER,
   MAX_QTY_PER_LINE,
+  MIN_ONLINE_PAYMENT_PAISE,
   TEXT_LIMITS,
 } from "../constants"
 import { DomainError } from "../errors"
@@ -151,6 +152,16 @@ export async function placeOrder(
     }))
   )
   const totals = calculateTotals(lines, input.fulfillment, location)
+  if (
+    input.paymentMethod === PaymentMethod.online &&
+    totals.totalPaise < MIN_ONLINE_PAYMENT_PAISE
+  ) {
+    // Razorpay cannot take payments below ₹1.
+    throw new DomainError(
+      "INVALID_INPUT",
+      "Online payment needs an order of at least ₹1."
+    )
+  }
 
   const customer = await prisma.profile.findUnique({
     where: { id: customerId },
