@@ -26,10 +26,11 @@ const customerOrderSelect = {
     orderBy: { title: "asc" },
     select: { id: true, title: true, qty: true, lineTotalPaise: true },
   },
-  // Latest attempt first, to tell "not paid yet" from "payment failed".
+  // Every attempt, latest first: any successful one means paid (a customer
+  // can open "Pay now" again while an earlier attempt is still settling);
+  // the latest one tells "not paid yet" from "payment failed".
   payments: {
     orderBy: { createdAt: "desc" },
-    take: 1,
     select: { status: true },
   },
 } as const

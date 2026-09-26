@@ -51,11 +51,12 @@ export default async function OrderPage({
   const { status, fulfillment } = order
   const stopped = status === "REJECTED" || status === "CANCELLED"
   const unpaid = status === "PENDING_PAYMENT"
-  const paymentFailed = unpaid && order.payments[0]?.status === "failed"
-  const address = order.deliveryAddress as Address | null
-  const paid = ["captured", "needs_refund", "refunded"].includes(
-    order.payments[0]?.status ?? ""
+  const paid = order.payments.some((p) =>
+    ["captured", "needs_refund", "refunded"].includes(p.status)
   )
+  const paymentFailed =
+    unpaid && !paid && order.payments[0]?.status === "failed"
+  const address = order.deliveryAddress as Address | null
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-12 px-4 pt-12 pb-24">
