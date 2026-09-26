@@ -30,6 +30,10 @@ export async function getRestaurantBySlug(slug: string, now = new Date()) {
           id: true,
           name: true,
           address: true,
+          // Public outlet position and delivery area, for the checkout map.
+          lat: true,
+          lng: true,
+          deliveryRadiusM: true,
           isOpen: true,
           hours: true,
           acceptsPickup: true,
