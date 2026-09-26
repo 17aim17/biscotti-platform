@@ -1,4 +1,4 @@
-import { MembershipRole, prisma } from "@workspace/db"
+import { MembershipRole, Prisma, prisma } from "@workspace/db"
 import { z } from "zod"
 
 import { requirePermission } from "../auth/permissions"
@@ -71,7 +71,7 @@ export async function changeStaffRole(
 ) {
   await requirePermission(actorId, restaurantId, "staff:manage")
   const newRole = parseInput(role, rawRole)
-  await prisma.$transaction(async (tx) => {
+  await teamTransaction(async (tx) => {
     const member = await tx.membership.findFirst({
       where: { id: membershipId, restaurantId },
     })
@@ -96,7 +96,7 @@ export async function removeStaffMember(
   membershipId: string
 ) {
   await requirePermission(actorId, restaurantId, "staff:manage")
-  await prisma.$transaction(async (tx) => {
+  await teamTransaction(async (tx) => {
     const member = await tx.membership.findFirst({
       where: { id: membershipId, restaurantId },
     })
@@ -110,6 +110,29 @@ export async function removeStaffMember(
 }
 
 type Tx = Parameters<Parameters<typeof prisma.$transaction>[0]>[0]
+
+// Changes that must keep "at least one owner" true. Serializable, so two
+// owners demoting or removing each other at the same moment cannot both pass
+// the check (read committed would let both see "one other owner left").
+// Postgres aborts one of them instead.
+async function teamTransaction(run: (tx: Tx) => Promise<void>) {
+  try {
+    await prisma.$transaction(run, {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+    })
+  } catch (error) {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2034"
+    ) {
+      throw new DomainError(
+        "STATUS_CONFLICT",
+        "Someone else changed the team at the same time. Try again."
+      )
+    }
+    throw error
+  }
+}
 
 async function ensureAnotherOwner(
   tx: Tx,
