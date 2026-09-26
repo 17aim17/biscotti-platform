@@ -33,9 +33,12 @@ export {
   type Permission,
 } from "./auth/permissions"
 export {
+  getMenu,
   getRestaurantBySlug,
   getStaffRestaurants,
   isReservedSlug,
+  type MenuCategory,
+  type MenuDish,
   type RestaurantSummary,
 } from "./restaurants/queries"
 

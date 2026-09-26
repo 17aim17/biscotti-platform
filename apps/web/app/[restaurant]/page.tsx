@@ -17,7 +17,7 @@ export default async function StorefrontPage({
             <p className="font-medium">{location.name}</p>
             <p className="text-sm text-muted-foreground">{location.address}</p>
             <p className="mt-2 text-sm">
-              {location.isOpen ? "Taking orders" : "Closed"}
+              {location.openNow ? "Open now" : "Closed"}
             </p>
           </li>
         ))}
