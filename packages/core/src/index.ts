@@ -75,3 +75,48 @@ export {
   MarkPaidResult,
   startOnlinePayment,
 } from "./payments/payments"
+
+// Dashboard: every function checks the caller's permission first.
+export {
+  countOrdersNeedingRefund,
+  listRestaurantOrders,
+  markPaymentRefunded,
+  type OrderFilter,
+} from "./dashboard/orders"
+export {
+  archiveCategory,
+  archiveDish,
+  createCategory,
+  createDish,
+  getMenuForEditing,
+  moveCategory,
+  renameCategory,
+  setDishAvailable,
+  updateDish,
+  type DishInput,
+  type EditableCategory,
+  type EditableDish,
+} from "./dashboard/menu"
+export {
+  createOutlet,
+  getOutletsForEditing,
+  updateOutlet,
+  type EditableOutlet,
+  type OutletInput,
+} from "./dashboard/outlets"
+export {
+  addStaffMember,
+  changeStaffRole,
+  findUserIdByPhone,
+  listStaff,
+  removeStaffMember,
+  staffPhone,
+} from "./dashboard/staff"
+export {
+  getSettingsForEditing,
+  THEME_PRESETS,
+  updateSettings,
+  type SettingsInput,
+  type ThemePreset,
+} from "./dashboard/settings"
+export { parseInput } from "./validation"

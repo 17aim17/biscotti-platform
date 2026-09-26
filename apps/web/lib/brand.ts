@@ -1,3 +1,4 @@
+import { THEME_PRESETS, type ThemePreset } from "@workspace/core"
 import type { CSSProperties } from "react"
 
 // Restaurant branding, stored in restaurants.theme (JSON):
@@ -7,8 +8,10 @@ import type { CSSProperties } from "react"
 // combination still looks good. Components never use fixed colors; they read
 // the --sf-* variables produced here.
 
-export const PRESETS = ["classic", "modern", "vibrant"] as const
-export type Preset = (typeof PRESETS)[number]
+// The preset names and the stored format belong to core; this file decides
+// how each preset looks.
+export const PRESETS = THEME_PRESETS
+export type Preset = ThemePreset
 
 export type Brand = {
   preset: Preset
