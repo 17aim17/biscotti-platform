@@ -10,10 +10,11 @@ import {
   timestampFor,
 } from "./status"
 
+// Staff and customers only. The system transition (PENDING_PAYMENT -> PLACED)
+// happens in markPaid, after the payment is verified, never through here.
 export type StatusChangeBy =
   | { kind: typeof Actor.staff; userId: string }
   | { kind: typeof Actor.customer; userId: string }
-  | { kind: typeof Actor.system }
 
 export async function updateOrderStatus(params: {
   orderId: string
@@ -30,7 +31,7 @@ export async function updateOrderStatus(params: {
 
   if (by.kind === Actor.staff) {
     await requirePermission(by.userId, order.restaurantId, "kitchen:use")
-  } else if (by.kind === Actor.customer && order.customerId !== by.userId) {
+  } else if (order.customerId !== by.userId) {
     throw new DomainError("NOT_FOUND", "Order not found.")
   }
 

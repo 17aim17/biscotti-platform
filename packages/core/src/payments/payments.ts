@@ -7,6 +7,7 @@ import {
 
 import { DomainError } from "../errors"
 import { notifyOrderStatus } from "../notifications/order-status"
+import { Actor, canTransition } from "../orders/status"
 import { env } from "../env"
 import { createRazorpayOrder } from "./razorpay"
 import { isValidCheckoutSignature, isValidWebhookSignature } from "./signatures"
@@ -120,6 +121,24 @@ export async function markPaid(params: {
       return MarkPaidResult.alreadyRecorded
     }
 
+    // This is the only way an online order becomes PLACED: the status map
+    // allows PENDING_PAYMENT -> PLACED for the system, i.e. here.
+    const { fulfillment } = await tx.order.findUniqueOrThrow({
+      where: { id: payment.orderId },
+      select: { fulfillment: true },
+    })
+    if (
+      !canTransition(
+        OrderStatus.PENDING_PAYMENT,
+        OrderStatus.PLACED,
+        fulfillment,
+        Actor.system
+      )
+    ) {
+      throw new Error(
+        "Status map no longer allows PENDING_PAYMENT -> PLACED for payments."
+      )
+    }
     const placed = await tx.order.updateMany({
       where: { id: payment.orderId, status: OrderStatus.PENDING_PAYMENT },
       data: { status: OrderStatus.PLACED },
