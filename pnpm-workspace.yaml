@@ -23,3 +23,9 @@ minimumReleaseAgeExclude:
   - "@supabase/cli-windows-x64@2.118.0"
   - supabase@2.118.0
   - dotenv@18.0.4
+  - "@supabase/auth-js@2.117.2"
+  - "@supabase/functions-js@2.117.2"
+  - "@supabase/postgrest-js@2.117.2"
+  - "@supabase/realtime-js@2.117.2"
+  - "@supabase/storage-js@2.117.2"
+  - "@supabase/supabase-js@2.117.2"
