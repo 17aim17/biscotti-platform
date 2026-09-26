@@ -16,8 +16,8 @@ import { formatRupees } from "@/lib/money"
 
 import { DietMark } from "./diet-mark"
 import { QuantityControl } from "./quantity-control"
-import { Ornament } from "./section-heading"
-import { eyebrow, solidButton } from "./styles"
+import { Ornament } from "@/components/section-heading"
+import { eyebrow, solidButton } from "@/components/styles"
 
 // Dish details: large photo and the full description. The dialog renders
 // outside the restaurant's layout (in a portal), so it gets the theme

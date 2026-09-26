@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useCart, type Fulfillment } from "@/lib/cart/store"
 import { formatRupees } from "@/lib/money"
 
-import { eyebrow, solidButton } from "../_components/styles"
+import { eyebrow, solidButton } from "@/components/styles"
 import { payAndConfirm } from "../orders/pay"
 import { placeOrderAction, quoteAction } from "./actions"
 import { DeliveryMap, type Pin } from "./delivery-map"

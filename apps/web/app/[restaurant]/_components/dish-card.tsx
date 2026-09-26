@@ -8,7 +8,7 @@ import { formatRupees } from "@/lib/money"
 
 import { DietMark } from "./diet-mark"
 import { QuantityControl } from "./quantity-control"
-import { eyebrow } from "./styles"
+import { eyebrow } from "@/components/styles"
 
 // One dish, laid out like a printed menu entry.
 // Phones: text on the left, a square photo on the right with Add over it.

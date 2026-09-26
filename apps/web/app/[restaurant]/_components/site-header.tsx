@@ -3,7 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { CartButton } from "./cart-button"
-import { eyebrow } from "./styles"
+import { eyebrow } from "@/components/styles"
 
 // Full-width bar with the restaurant's wordmark in the middle.
 export function SiteHeader({

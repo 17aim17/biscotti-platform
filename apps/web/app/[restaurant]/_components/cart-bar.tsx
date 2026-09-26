@@ -8,7 +8,7 @@ import { useEffect, useMemo } from "react"
 import { useCart } from "@/lib/cart/store"
 import { formatRupees } from "@/lib/money"
 
-import { solidButton } from "./styles"
+import { solidButton } from "@/components/styles"
 
 // Floating bar at the bottom of the storefront once the cart has something in it.
 export function CartBar({

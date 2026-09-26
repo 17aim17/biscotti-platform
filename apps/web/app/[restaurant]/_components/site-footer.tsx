@@ -1,8 +1,8 @@
 import type { RestaurantSummary } from "@workspace/core"
 import Link from "next/link"
 
-import { Ornament } from "./section-heading"
-import { eyebrow } from "./styles"
+import { Ornament } from "@/components/section-heading"
+import { eyebrow } from "@/components/styles"
 
 const LEGAL = [
   ["about", "About"],

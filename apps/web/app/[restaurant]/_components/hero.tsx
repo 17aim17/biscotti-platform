@@ -3,7 +3,7 @@ import Image from "next/image"
 
 import type { Brand } from "@/lib/brand"
 
-import { eyebrow, solidButton } from "./styles"
+import { eyebrow, solidButton } from "@/components/styles"
 
 // Full-width photo with the restaurant's name set large, then a row of facts.
 export function Hero({

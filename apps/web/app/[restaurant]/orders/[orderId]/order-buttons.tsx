@@ -4,7 +4,7 @@ import { LoaderCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
-import { eyebrow, solidButton } from "../../_components/styles"
+import { eyebrow, solidButton } from "@/components/styles"
 import { cancelOrderAction, startPaymentAction } from "../actions"
 import { payAndConfirm } from "../pay"
 

@@ -17,7 +17,7 @@ import {
 } from "@/lib/order-status"
 import { getRestaurantOr404 } from "@/lib/restaurant"
 
-import { eyebrow } from "../../_components/styles"
+import { eyebrow } from "@/components/styles"
 import { CancelOrderButton, PayNowButton } from "./order-buttons"
 import { OrderLive } from "./order-live"
 

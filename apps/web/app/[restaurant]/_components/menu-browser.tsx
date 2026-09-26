@@ -13,8 +13,8 @@ import { formatRupees } from "@/lib/money"
 import { DietMark } from "./diet-mark"
 import { DishCard } from "./dish-card"
 import { DishDialog } from "./dish-dialog"
-import { SectionHeading } from "./section-heading"
-import { eyebrow } from "./styles"
+import { SectionHeading } from "@/components/section-heading"
+import { eyebrow } from "@/components/styles"
 
 // The restaurant's signature dishes, then the full menu with search and a
 // veg-only filter. Categories are a sticky list on wide screens and tabs under

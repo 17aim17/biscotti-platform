@@ -12,7 +12,7 @@ import { formatRupees } from "@/lib/money"
 
 import { DietMark } from "../_components/diet-mark"
 import { QuantityControl } from "../_components/quantity-control"
-import { solidButton } from "../_components/styles"
+import { solidButton } from "@/components/styles"
 
 type Location = RestaurantSummary["locations"][number]
 

@@ -1,4 +1,4 @@
-import { eyebrow } from "./styles"
+import { eyebrow } from "@/components/styles"
 
 // Centered section title: small label, large serif heading, a thin ornament.
 export function SectionHeading({

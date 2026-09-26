@@ -8,8 +8,8 @@ import { formatRupees } from "@/lib/money"
 import { FINAL_STATUSES, statusLabel } from "@/lib/order-status"
 import { getRestaurantOr404 } from "@/lib/restaurant"
 
-import { SectionHeading } from "../_components/section-heading"
-import { eyebrow, solidButton } from "../_components/styles"
+import { SectionHeading } from "@/components/section-heading"
+import { eyebrow, solidButton } from "@/components/styles"
 
 export const metadata: Metadata = { title: "Your orders" }
 

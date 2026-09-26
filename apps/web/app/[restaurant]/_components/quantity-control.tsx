@@ -5,7 +5,7 @@ import { Minus, Plus } from "lucide-react"
 
 import { MAX_QTY_PER_LINE } from "@/lib/cart/store"
 
-import { buttonText } from "./styles"
+import { buttonText } from "@/components/styles"
 
 // The Add button, which becomes a - qty + stepper once the dish is in the cart.
 // Used on dish cards, the dish details dialog and the cart. Colors, corners
