@@ -1,5 +1,5 @@
 import { getStaffRestaurants, roleCan } from "@workspace/core"
-import { Button } from "@workspace/ui/components/button"
+import { Button, buttonVariants } from "@workspace/ui/components/button"
 import type { Metadata } from "next"
 import Link from "next/link"
 
@@ -43,23 +43,25 @@ export default async function AccountPage() {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    nativeButton={false}
-                    render={<Link href={`/${r.slug}/kitchen`} />}
+                  <Link
+                    href={`/${r.slug}/kitchen`}
+                    className={buttonVariants({
+                      variant: "outline",
+                      size: "sm",
+                    })}
                   >
                     Kitchen
-                  </Button>
+                  </Link>
                   {roleCan(r.role, "orders:view") && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      nativeButton={false}
-                      render={<Link href={`/${r.slug}/dashboard`} />}
+                    <Link
+                      href={`/${r.slug}/dashboard`}
+                      className={buttonVariants({
+                        variant: "outline",
+                        size: "sm",
+                      })}
                     >
                       Dashboard
-                    </Button>
+                    </Link>
                   )}
                 </div>
               </li>
