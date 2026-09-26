@@ -1,5 +1,5 @@
 // The only place where order status changes are defined.
-import { Fulfillment, OrderStatus } from "@workspace/db"
+import { Fulfillment, OrderStatus } from "@workspace/db/enums"
 
 const {
   PENDING_PAYMENT,

@@ -1,4 +1,4 @@
-import { Fulfillment, OrderStatus } from "@workspace/db"
+import { Fulfillment, OrderStatus } from "@workspace/db/enums"
 
 import { sendSms } from "./sms"
 
