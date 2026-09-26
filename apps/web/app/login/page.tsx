@@ -26,6 +26,9 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   const slug = returnTo.split("/")[1] ?? ""
   const restaurant = slug ? await getRestaurantBySlug(slug) : null
   const brand = restaurant ? readBrand(restaurant.theme) : undefined
+  const forStaff = ["kitchen", "dashboard"].includes(
+    returnTo.split("/")[2] ?? ""
+  )
 
   return (
     <PlatformShell
@@ -50,7 +53,13 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         >
           <LoginForm
             returnTo={returnTo}
-            restaurantName={restaurant?.name ?? null}
+            context={
+              restaurant
+                ? forStaff
+                  ? `${restaurant.name} staff`
+                  : `Order from ${restaurant.name}`
+                : "Welcome"
+            }
           />
         </div>
       </div>

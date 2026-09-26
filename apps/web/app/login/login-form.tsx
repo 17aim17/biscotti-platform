@@ -16,10 +16,11 @@ function toE164(input: string): string | null {
 
 export function LoginForm({
   returnTo,
-  restaurantName,
+  context,
 }: {
   returnTo: string
-  restaurantName: string | null
+  // Line above the heading, e.g. "Order from Casa Spezia".
+  context: string
 }) {
   const router = useRouter()
   const [step, setStep] = useState<"phone" | "code">("phone")
@@ -64,9 +65,7 @@ export function LoginForm({
   return (
     <div className="flex w-full max-w-sm flex-col gap-8">
       <div className="flex flex-col gap-3">
-        <p className={`${eyebrow} text-(--sf-accent-ink)`}>
-          {restaurantName ? `Order from ${restaurantName}` : "Welcome"}
-        </p>
+        <p className={`${eyebrow} text-(--sf-accent-ink)`}>{context}</p>
         <h1 className="font-display text-5xl leading-none font-medium tracking-tight">
           Sign in
         </h1>
