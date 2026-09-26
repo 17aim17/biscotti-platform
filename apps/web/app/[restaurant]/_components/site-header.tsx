@@ -23,7 +23,10 @@ export function SiteHeader({
           <Link href={`/${slug}#menu`} className={link}>
             Menu
           </Link>
-          <Link href={`/${slug}#visit`} className={`${link} hidden sm:inline`}>
+          <Link href={`/${slug}/orders`} className={`${link} hidden sm:inline`}>
+            Orders
+          </Link>
+          <Link href={`/${slug}#visit`} className={`${link} hidden lg:inline`}>
             Visit
           </Link>
         </nav>

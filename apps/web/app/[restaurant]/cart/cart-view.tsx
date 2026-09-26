@@ -12,6 +12,7 @@ import { formatRupees } from "@/lib/money"
 
 import { DietMark } from "../_components/diet-mark"
 import { QuantityControl } from "../_components/quantity-control"
+import { solidButton } from "../_components/styles"
 
 type Location = RestaurantSummary["locations"][number]
 
@@ -75,11 +76,7 @@ export function CartView({
   const pickupAllowed = selected?.acceptsPickup ?? false
   const fulfillment: Fulfillment =
     cart.fulfillment === "pickup" && pickupAllowed ? "pickup" : "delivery"
-  // Checkout (address, totals, payment) lands in the next phase; until then the
-  // button stays disabled even when an order would be possible.
-  const checkoutAvailable = false
-  const canCheckout =
-    checkoutAvailable && Boolean(selected?.openNow) && orderable.length > 0
+  const canCheckout = Boolean(selected?.openNow) && orderable.length > 0
 
   return (
     <div className="flex flex-col gap-6 pb-16">
@@ -255,13 +252,18 @@ export function CartView({
               : "Packaging"}{" "}
             and GST are added at checkout.
           </p>
-          <button
-            type="button"
-            disabled={!canCheckout}
-            className="rounded-(--sf-radius-control) bg-(image:--sf-btn) py-3.5 text-base font-bold text-white shadow-(--sf-btn-shadow) transition enabled:hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Checkout (coming soon)
-          </button>
+          {canCheckout ? (
+            <Link href={`/${slug}/checkout`} className={`${solidButton} py-4`}>
+              Checkout
+            </Link>
+          ) : (
+            <span
+              aria-disabled
+              className={`${solidButton} cursor-not-allowed py-4 opacity-50`}
+            >
+              Checkout
+            </span>
+          )}
           {selected && !selected.openNow && (
             <p className="text-center text-sm text-(--sf-muted)">
               {selected.name} is closed right now.
