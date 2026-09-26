@@ -18,4 +18,6 @@ Deferred on purpose to keep the MVP small. Roughly in priority order.
 14. Subdomain per restaurant once a domain exists (rewrite to the path routes).
 15. Upgrade to ESLint 10 once eslint-plugin-react supports it.
 16. Dark mode.
-17. Platform onboarding UI, custom domains, delivery partners, native apps, loyalty, POS integration, analytics.
+17. Server-side geocoding of delivery addresses. The radius check currently trusts the map pin coordinates sent by the browser.
+18. Per-restaurant order numbers (for example a daily counter per outlet). The current order number is one global sequence, so numbers skip and reveal overall volume.
+19. Platform onboarding UI, custom domains, delivery partners, native apps, loyalty, POS integration, analytics.
