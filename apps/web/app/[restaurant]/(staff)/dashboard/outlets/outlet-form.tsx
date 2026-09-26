@@ -23,20 +23,21 @@ const DAYS = [
   ["sun", "Sunday"],
 ] as const
 type Day = (typeof DAYS)[number][0]
-type DayHours = { open: boolean; from: string; to: string }
+type Span = [string, string]
+type DayHours = { open: boolean; spans: Span[] }
 
-// Stored hours ({ mon: [["10:00", "22:30"]] }) to one span per day for the
-// form. Split days (lunch and dinner) keep their first span only.
+// Stored hours ({ mon: [["12:00", "15:00"], ["18:00", "23:00"]] }) to form
+// rows and back. Every span is kept, so lunch and dinner survive a save.
 function toRows(hours: unknown): Record<Day, DayHours> {
-  const stored = (hours ?? {}) as Partial<Record<Day, [string, string][]>>
+  const stored = (hours ?? {}) as Partial<Record<Day, Span[]>>
   return Object.fromEntries(
     DAYS.map(([day]) => {
-      const span = stored[day]?.[0]
+      const spans = stored[day] ?? []
       return [
         day,
-        span
-          ? { open: true, from: span[0], to: span[1] }
-          : { open: false, from: "10:00", to: "22:30" },
+        spans.length > 0
+          ? { open: true, spans: spans.map(([a, b]) => [a, b] as Span) }
+          : { open: false, spans: [["10:00", "22:30"]] as Span[] },
       ]
     })
   ) as Record<Day, DayHours>
@@ -46,7 +47,7 @@ function toHours(rows: Record<Day, DayHours>) {
   return Object.fromEntries(
     DAYS.filter(([day]) => rows[day].open).map(([day]) => [
       day,
-      [[rows[day].from, rows[day].to]],
+      rows[day].spans,
     ])
   )
 }
@@ -131,6 +132,10 @@ export function OutletForm({
 
   const setDay = (day: Day, change: Partial<DayHours>) =>
     setRows((r) => ({ ...r, [day]: { ...r[day], ...change } }))
+  const setSpan = (day: Day, index: number, span: Span) =>
+    setDay(day, {
+      spans: rows[day].spans.map((s, i) => (i === index ? span : s)),
+    })
 
   return (
     <form onSubmit={save} className="flex flex-col gap-6">
@@ -251,16 +256,17 @@ export function OutletForm({
 
       <div className="flex flex-col gap-3">
         <span className={`${eyebrow} text-(--sf-muted)`}>
-          Opening hours (a close time before the open time runs past midnight)
+          Opening hours (a close time before the open time runs past midnight;
+          add a second period for lunch and dinner)
         </span>
-        <div className="grid gap-x-8 gap-y-2 sm:grid-cols-2">
+        <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
           {DAYS.map(([day, label]) => (
             // Fixed columns so every day's times line up.
             <div
               key={day}
-              className="grid grid-cols-[7.5rem_1fr_auto_1fr] items-center gap-3 text-sm"
+              className="grid grid-cols-[7.5rem_1fr] items-start gap-3 text-sm"
             >
-              <label className="flex items-center gap-2">
+              <label className="flex h-10 items-center gap-2">
                 <input
                   type="checkbox"
                   checked={rows[day].open}
@@ -270,23 +276,65 @@ export function OutletForm({
                 {label}
               </label>
               {rows[day].open ? (
-                <>
-                  <input
-                    type="time"
-                    value={rows[day].from}
-                    onChange={(e) => setDay(day, { from: e.target.value })}
-                    className={`${inputClass} h-10 px-3`}
-                  />
-                  <span className="text-(--sf-muted)">to</span>
-                  <input
-                    type="time"
-                    value={rows[day].to}
-                    onChange={(e) => setDay(day, { to: e.target.value })}
-                    className={`${inputClass} h-10 px-3`}
-                  />
-                </>
+                <div className="flex flex-col gap-2">
+                  {rows[day].spans.map(([from, to], index) => (
+                    <div
+                      key={index}
+                      className="grid grid-cols-[1fr_auto_1fr_1.5rem] items-center gap-3"
+                    >
+                      <input
+                        type="time"
+                        value={from}
+                        onChange={(e) =>
+                          setSpan(day, index, [e.target.value, to])
+                        }
+                        className={`${inputClass} h-10 px-3`}
+                      />
+                      <span className="text-(--sf-muted)">to</span>
+                      <input
+                        type="time"
+                        value={to}
+                        onChange={(e) =>
+                          setSpan(day, index, [from, e.target.value])
+                        }
+                        className={`${inputClass} h-10 px-3`}
+                      />
+                      {index > 0 ? (
+                        <button
+                          type="button"
+                          aria-label="Remove these hours"
+                          onClick={() =>
+                            setDay(day, {
+                              spans: rows[day].spans.filter(
+                                (_, i) => i !== index
+                              ),
+                            })
+                          }
+                          className="text-(--sf-muted) hover:text-(--brand)"
+                        >
+                          ×
+                        </button>
+                      ) : (
+                        <span />
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDay(day, {
+                        spans: [...rows[day].spans, ["18:00", "23:00"]],
+                      })
+                    }
+                    className={`${eyebrow} self-start text-[0.6rem] text-(--sf-muted) hover:text-(--sf-ink)`}
+                  >
+                    + add hours
+                  </button>
+                </div>
               ) : (
-                <span className="col-span-3 text-(--sf-muted)">Closed</span>
+                <span className="flex h-10 items-center text-(--sf-muted)">
+                  Closed
+                </span>
               )}
             </div>
           ))}
