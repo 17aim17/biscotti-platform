@@ -6,3 +6,6 @@
 .env.keys
 .env.local
 .env.*.local
+
+# Queries saved from the local Studio SQL editor (personal scratch)
+snippets
