@@ -33,7 +33,9 @@ const restaurants = [
     name: "Casa Spezia",
     slug: "casa-spezia",
     theme: {
-      primary: "#c2410c",
+      preset: "classic",
+      primary: "#8a2c12",
+      accent: "#b08d57",
       tagline:
         "Tandoor, curries and Indo-Chinese favourites, cooked fresh to order.",
       heroImageUrl:
@@ -61,7 +63,9 @@ const restaurants = [
     name: "Osteria Sole",
     slug: "osteria-sole",
     theme: {
-      primary: "#d97706",
+      preset: "vibrant",
+      primary: "#ea580c",
+      accent: "#f59e0b",
       tagline: "Momos, noodles and fiery Indo-Chinese, made for sharing.",
       heroImageUrl:
         "https://images.unsplash.com/photo-1585937421612-70a008356fbe",
