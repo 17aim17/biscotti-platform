@@ -1,10 +1,10 @@
 import { getMenu } from "@workspace/core"
 
-import { readBrand } from "@/lib/brand"
+import { brandStyle, readBrand } from "@/lib/brand"
 import { getRestaurantOr404 } from "@/lib/restaurant"
 
 import { CartBar } from "./_components/cart-bar"
-import { Hero } from "./_components/hero"
+import { Facts, Hero } from "./_components/hero"
 import { MenuBrowser } from "./_components/menu-browser"
 
 export default async function StorefrontPage({
@@ -12,20 +12,27 @@ export default async function StorefrontPage({
 }: PageProps<"/[restaurant]">) {
   const { restaurant: slug } = await params
   const restaurant = await getRestaurantOr404(slug)
+  const brand = readBrand(restaurant.theme)
   const categories = await getMenu(restaurant.id)
-  const vegCount = categories.reduce(
-    (n, c) => n + c.menuItems.filter((d) => d.isVeg).length,
-    0
-  )
+  const dishes = categories.flatMap((c) => c.menuItems)
 
   return (
-    <div className="flex flex-col gap-8 pb-28">
+    <div className="pb-28">
       <Hero
         restaurant={restaurant}
-        brand={readBrand(restaurant.theme)}
-        vegCount={vegCount}
+        brand={brand}
+        hasSignatures={dishes.some((d) => d.isFeatured)}
       />
-      <MenuBrowser slug={restaurant.slug} categories={categories} />
+      <Facts
+        restaurant={restaurant}
+        dishCount={dishes.length}
+        vegCount={dishes.filter((d) => d.isVeg).length}
+      />
+      <MenuBrowser
+        slug={restaurant.slug}
+        categories={categories}
+        themeStyle={brandStyle(brand)}
+      />
       <CartBar slug={restaurant.slug} categories={categories} />
     </div>
   )
