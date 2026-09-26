@@ -51,28 +51,34 @@ type PresetStyle = {
   // use the same class (a solid color is a one-color gradient).
   button: (b: Brand) => string
   buttonShadow: (b: Brand) => string
+  // Button and small label lettering: case, letter spacing, size.
+  buttonText: { case: "uppercase" | "none"; tracking: string; size: string }
+  // Color of the outlined Add button.
+  add: (b: Brand) => string
   cardShadow: string
-  // Override for headline font; null keeps the serif (Fraunces).
+  // Headline font; null keeps Fraunces.
   displayFont: string | null
   // Soft colored light behind the page (vibrant only).
   glows: boolean
 }
 
 const PRESET_STYLES: Record<Preset, PresetStyle> = {
-  // Quiet luxury: ivory, serif headlines, solid colors, hairlines, soft depth.
+  // Quiet luxury, like a printed menu: ivory paper, a high-contrast editorial
+  // serif, near-square corners, hairlines instead of boxes, letterspaced caps.
   classic: {
-    bg: "#faf6ef",
-    card: "#ffffff",
-    ink: "#1f1a17",
-    muted: "#6f655c",
-    line: "rgb(60 40 20 / 0.10)",
-    radiusCard: "1.25rem",
-    radiusControl: "9999px",
+    bg: "#f6f1e8",
+    card: "#fffcf7",
+    ink: "#1b1612",
+    muted: "#6d6259",
+    line: "rgb(27 22 18 / 0.12)",
+    radiusCard: "0.25rem",
+    radiusControl: "0.125rem",
     button: (b) => `linear-gradient(${b.primary}, ${b.primary})`,
-    buttonShadow: () => "0 1px 2px rgb(0 0 0 / 0.08)",
-    cardShadow:
-      "0 1px 2px rgb(28 20 12 / 0.04), 0 12px 28px -16px rgb(28 20 12 / 0.18)",
-    displayFont: null,
+    buttonShadow: () => "none",
+    buttonText: { case: "uppercase", tracking: "0.18em", size: "0.72rem" },
+    add: () => "#1b1612",
+    cardShadow: "0 24px 60px -30px rgb(27 22 18 / 0.35)",
+    displayFont: "var(--font-editorial)",
     glows: false,
   },
   // Clean and minimal: white, sans headlines, tighter corners.
@@ -86,6 +92,8 @@ const PRESET_STYLES: Record<Preset, PresetStyle> = {
     radiusControl: "0.75rem",
     button: (b) => `linear-gradient(${b.primary}, ${b.primary})`,
     buttonShadow: () => "none",
+    buttonText: { case: "none", tracking: "0", size: "0.875rem" },
+    add: (b) => b.primary,
     cardShadow: "0 1px 2px rgb(0 0 0 / 0.05)",
     displayFont: "var(--font-sans)",
     glows: false,
@@ -96,12 +104,14 @@ const PRESET_STYLES: Record<Preset, PresetStyle> = {
     card: "#ffffff",
     ink: "#1c1917",
     muted: "#78716c",
-    line: "rgb(67 20 7 / 0.08)",
+    line: "rgb(67 20 7 / 0.1)",
     radiusCard: "1.5rem",
     radiusControl: "9999px",
     button: (b) => `linear-gradient(90deg, ${b.primary}, ${b.accent})`,
     buttonShadow: (b) =>
       `0 6px 16px -4px color-mix(in oklab, ${b.primary} 45%, transparent)`,
+    buttonText: { case: "none", tracking: "0.01em", size: "0.875rem" },
+    add: (b) => b.primary,
     cardShadow: "0 1px 2px rgb(67 20 7 / 0.05)",
     displayFont: null,
     glows: true,
@@ -133,6 +143,12 @@ export function brandStyle(brand: Brand): CSSProperties {
     "--sf-btn": p.button(brand),
     "--sf-btn-shadow": p.buttonShadow(brand),
     "--sf-shadow-card": p.cardShadow,
+    // Accent darkened toward the text color, readable for small labels.
+    "--sf-accent-ink": `color-mix(in oklab, ${brand.accent} 70%, ${p.ink})`,
+    "--sf-add": p.add(brand),
+    "--sf-btn-case": p.buttonText.case,
+    "--sf-btn-tracking": p.buttonText.tracking,
+    "--sf-btn-size": p.buttonText.size,
     ...(p.displayFont ? { "--font-display": p.displayFont } : {}),
   } as CSSProperties
 }
