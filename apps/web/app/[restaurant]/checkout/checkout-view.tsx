@@ -14,6 +14,7 @@ import { eyebrow, solidButton } from "../_components/styles"
 import { payAndConfirm } from "../orders/pay"
 import { placeOrderAction, quoteAction } from "./actions"
 import { DeliveryMap, type Pin } from "./delivery-map"
+import { addressAt } from "./geocode"
 import { LocationSearch } from "./location-search"
 
 type Location = RestaurantSummary["locations"][number]
@@ -47,7 +48,13 @@ export function CheckoutView({
 
   const [name, setName] = useState(defaultName)
   const [pin, setPin] = useState<Pin | null>(null)
-  const [line1, setLine1] = useState("")
+  // The address of the pin, shown in the search box. `pin` records which pin
+  // it describes, so a moved pin is known to need a new lookup.
+  const [pinAddress, setPinAddress] = useState<{
+    pin: Pin
+    text: string
+  } | null>(null)
+  const [house, setHouse] = useState("")
   const [landmark, setLandmark] = useState("")
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("online")
   const [quote, setQuote] = useState<Quote | null>(null)
@@ -117,6 +124,27 @@ export function CheckoutView({
     }
   }, [restaurantId, outlet, fulfillment, pin, items])
 
+  // Pin moved on the map (tap, drag, my location): look up its address once
+  // it stops moving. Search picks arrive with their address already.
+  useEffect(() => {
+    if (!pin || pinAddress?.pin === pin) return
+    const controller = new AbortController()
+    const timer = setTimeout(async () => {
+      let text
+      try {
+        text = await addressAt(pin, controller.signal)
+      } catch {
+        if (controller.signal.aborted) return
+        text = `${pin.lat.toFixed(5)}, ${pin.lng.toFixed(5)}`
+      }
+      setPinAddress({ pin, text })
+    }, 400)
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+    }
+  }, [pin, pinAddress])
+
   if (!outlet || items.length === 0) {
     return (
       <div className="flex flex-col items-center gap-6 py-24 text-center">
@@ -129,12 +157,18 @@ export function CheckoutView({
   }
 
   const needsAddress = fulfillment === "delivery"
+  const area = pin && pinAddress?.pin === pin ? pinAddress.text : null
   const missing = [
     !name.trim() && "your name",
     needsAddress && !pin && "a pin on the map",
-    needsAddress && line1.trim().length < 3 && "your address",
+    needsAddress && !house.trim() && "your house or flat number",
   ].filter(Boolean) as string[]
-  const canPlace = !placing && quote !== null && missing.length === 0
+  const canPlace =
+    !placing &&
+    quote !== null &&
+    missing.length === 0 &&
+    // Wait for the pin's address before placing a delivery order.
+    (!needsAddress || area !== null)
 
   function locateMe() {
     const unavailable =
@@ -173,8 +207,12 @@ export function CheckoutView({
       paymentMethod: method,
       customerName: name,
       address:
-        needsAddress && pin
-          ? { line1, landmark: landmark || undefined, ...pin }
+        needsAddress && pin && area
+          ? {
+              line1: `${house.trim()}, ${area}`.slice(0, 200),
+              landmark: landmark || undefined,
+              ...pin,
+            }
           : undefined,
       items,
       idempotencyKey,
@@ -298,16 +336,11 @@ export function CheckoutView({
                 </button>
               </div>
               <LocationSearch
+                label={pin ? (area ?? "Finding the address…") : ""}
                 near={{ lat: outlet.lat, lng: outlet.lng }}
                 onPick={(place) => {
                   setPin(place.pin)
-                  // A starting point for the address; the customer adds the
-                  // house number.
-                  if (!line1.trim()) {
-                    setLine1(
-                      place.label.split(",").slice(0, 3).join(",").trim()
-                    )
-                  }
+                  setPinAddress({ pin: place.pin, text: place.label })
                 }}
               />
               {locateError && (
@@ -326,12 +359,12 @@ export function CheckoutView({
                 onPinChange={setPin}
               />
               <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
-                <Field label="House, street, area">
+                <Field label="House, flat, floor">
                   <input
-                    value={line1}
-                    onChange={(e) => setLine1(e.target.value)}
-                    autoComplete="street-address"
-                    maxLength={200}
+                    value={house}
+                    onChange={(e) => setHouse(e.target.value)}
+                    autoComplete="address-line1"
+                    maxLength={60}
                     className={inputClass}
                   />
                 </Field>

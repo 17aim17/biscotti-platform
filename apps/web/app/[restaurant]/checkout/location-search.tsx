@@ -4,82 +4,40 @@ import { LoaderCircle, MapPin, Search } from "lucide-react"
 import { useEffect, useId, useState } from "react"
 
 import type { Pin } from "./delivery-map"
+import { searchPlaces, type Place } from "./geocode"
 
-export type Place = { label: string; pin: Pin }
-
-type PhotonFeature = {
-  geometry: { coordinates: [number, number] }
-  properties: {
-    name?: string
-    housenumber?: string
-    street?: string
-    district?: string
-    locality?: string
-    city?: string
-    state?: string
-    countrycode?: string
-  }
-}
-
-// Suggestions while typing, from Photon (komoot's free OpenStreetMap search,
-// built for search-as-you-type), weighted toward the outlet. The public
-// server asks for fair use; a production app would use a paid or self-hosted
-// geocoder (backlog).
-const PHOTON_URL = "https://photon.komoot.io/api/"
-
-function toPlace(f: PhotonFeature): Place {
-  const p = f.properties
-  const street = [p.housenumber, p.street].filter(Boolean).join(" ")
-  const parts = [p.name, street, p.district ?? p.locality, p.city ?? p.state]
-  const label = [...new Set(parts.filter(Boolean))].join(", ")
-  const [lng, lat] = f.geometry.coordinates
-  return { label, pin: { lat, lng } }
-}
-
+// The search box above the map. It always shows the address of the pin
+// (`label`, owned by the checkout form) unless the customer is typing a new
+// search. Only typing searches: picking a suggestion or moving the pin
+// changes the label without opening the list again.
 export function LocationSearch({
+  label,
   near,
   onPick,
 }: {
+  label: string
   near: Pin
   onPick: (place: Place) => void
 }) {
   const listId = useId()
-  const [query, setQuery] = useState("")
+  // What the customer typed; null when they are not editing.
+  const [typed, setTyped] = useState<string | null>(null)
   const [results, setResults] = useState<Place[] | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [active, setActive] = useState(0)
-  // The list only shows while the search box has focus, so it never stays
-  // on top of the map.
-  const [focused, setFocused] = useState(false)
+
+  const query = typed?.trim() ?? ""
+  const { lat, lng } = near
 
   // Search shortly after typing stops; a newer query cancels the older request.
   useEffect(() => {
-    const q = query.trim()
-    if (q.length < 3) return
+    if (query.length < 3) return
     const controller = new AbortController()
     const timer = setTimeout(async () => {
       setBusy(true)
-      // About 50 km around the outlet.
-      const d = 0.5
-      const params = new URLSearchParams({
-        q,
-        lang: "en",
-        limit: "6",
-        lat: String(near.lat),
-        lon: String(near.lng),
-        bbox: [near.lng - d, near.lat - d, near.lng + d, near.lat + d].join(),
-      })
       try {
-        const response = await fetch(`${PHOTON_URL}?${params}`, {
-          signal: controller.signal,
-        })
-        if (!response.ok) throw new Error(String(response.status))
-        const data = (await response.json()) as { features: PhotonFeature[] }
-        const places = data.features
-          .filter((f) => f.properties.countrycode === "IN")
-          .map(toPlace)
-        setResults(places)
+        setResults(await searchPlaces(query, { lat, lng }, controller.signal))
         setActive(0)
         setError(null)
       } catch (e) {
@@ -95,18 +53,28 @@ export function LocationSearch({
       clearTimeout(timer)
       controller.abort()
     }
-  }, [query, near.lat, near.lng])
+  }, [query, lat, lng])
+
+  // Leave editing: the box goes back to showing the pin's address.
+  function stopEditing() {
+    setTyped(null)
+    setResults(null)
+    setBusy(false)
+  }
 
   function pick(place: Place) {
     onPick(place)
-    setQuery(place.label)
-    setResults(null)
+    stopEditing()
   }
 
-  const open = focused && results !== null && query.trim().length >= 3
+  const open = typed !== null && query.length >= 3 && results !== null
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (!open || !results) return
+    if (e.key === "Escape") {
+      stopEditing()
+      return
+    }
+    if (!open) return
     if (e.key === "ArrowDown") {
       e.preventDefault()
       setActive((i) => Math.min(i + 1, results.length - 1))
@@ -116,8 +84,6 @@ export function LocationSearch({
     } else if (e.key === "Enter" && results[active]) {
       e.preventDefault()
       pick(results[active])
-    } else if (e.key === "Escape") {
-      setFocused(false)
     }
   }
 
@@ -130,23 +96,21 @@ export function LocationSearch({
           strokeWidth={1.5}
         />
         <input
-          type="search"
+          type="text"
           role="combobox"
           aria-expanded={open}
           aria-controls={listId}
           aria-autocomplete="list"
           aria-activedescendant={open ? `${listId}-${active}` : undefined}
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value)
-            if (e.target.value.trim().length < 3) setResults(null)
-          }}
+          value={typed ?? label}
+          onChange={(e) => setTyped(e.target.value)}
+          // Select the current address so typing replaces it.
+          onFocus={(e) => e.target.select()}
+          onBlur={stopEditing}
           onKeyDown={onKeyDown}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
           placeholder="Search for your area, street or landmark"
           autoComplete="off"
-          className="h-12 w-full rounded-(--sf-radius-control) bg-(--sf-card) pr-11 pl-11 text-base ring-1 ring-(--sf-line) transition outline-none focus:ring-2 focus:ring-(--sf-ink)"
+          className="h-12 w-full truncate rounded-(--sf-radius-control) bg-(--sf-card) pr-11 pl-11 text-base ring-1 ring-(--sf-line) transition outline-none focus:ring-2 focus:ring-(--sf-ink)"
         />
         {busy && (
           <LoaderCircle className="absolute top-1/2 right-4 size-4 -translate-y-1/2 animate-spin text-(--sf-muted)" />
@@ -170,7 +134,7 @@ export function LocationSearch({
                 id={`${listId}-${i}`}
                 role="option"
                 aria-selected={i === active}
-                // mousedown, not click: fires before the input loses focus.
+                // mousedown, not click: runs before the input loses focus.
                 onMouseDown={(e) => {
                   e.preventDefault()
                   pick(place)
