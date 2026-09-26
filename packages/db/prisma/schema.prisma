@@ -6,3 +6,95 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// Conventions
+// - Money is stored in integer paise (₹1 = 100 paise). Tax is in basis points (500 = 5%).
+// - Tables and columns are snake_case in Postgres, camelCase in TypeScript.
+// - Menu data is archived (archived_at), never deleted, because orders reference it.
+
+// A restaurant brand. The tenant: everything below belongs to one restaurant.
+model Restaurant {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  // URL segment: /casa-spezia, /casa-spezia/kitchen, /casa-spezia/dashboard
+  slug         String   @unique
+  // Brand colors, e.g. { "primary": "#8a2b0e" }
+  theme        Json     @default("{}")
+  logoPath     String?  @map("logo_path")
+  // Legal pages: { "about": "...", "privacy": "...", "refund": "...", "terms": "..." }
+  legal        Json     @default("{}")
+  gstin        String?
+  fssaiLicense String?  @map("fssai_license")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  locations  Location[]
+  categories Category[]
+  menuItems  MenuItem[]
+
+  @@map("restaurants")
+}
+
+// An outlet of a restaurant, with its own hours, delivery area, fees and tax.
+model Location {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  restaurantId      String   @map("restaurant_id") @db.Uuid
+  name              String
+  address           String
+  lat               Float
+  lng               Float
+  deliveryRadiusM   Int      @default(5000) @map("delivery_radius_m")
+  // Weekly opening hours in Asia/Kolkata: { "mon": [["10:00", "22:30"]], ... }
+  hours             Json     @default("{}")
+  // Manual switch, e.g. to close early. Hours still apply when true.
+  isOpen            Boolean  @default(true) @map("is_open")
+  deliveryFeePaise  Int      @default(0) @map("delivery_fee_paise")
+  packagingFeePaise Int      @default(0) @map("packaging_fee_paise")
+  taxBps            Int      @default(500) @map("tax_bps")
+  acceptsCod        Boolean  @default(true) @map("accepts_cod")
+  acceptsPickup     Boolean  @default(true) @map("accepts_pickup")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@index([restaurantId])
+  @@map("locations")
+}
+
+model Category {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  restaurantId String    @map("restaurant_id") @db.Uuid
+  name         String
+  sort         Int       @default(0)
+  archivedAt   DateTime? @map("archived_at") @db.Timestamptz(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  menuItems  MenuItem[]
+
+  @@index([restaurantId])
+  @@map("categories")
+}
+
+model MenuItem {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  restaurantId String    @map("restaurant_id") @db.Uuid
+  categoryId   String    @map("category_id") @db.Uuid
+  title        String
+  description  String    @default("")
+  pricePaise   Int       @map("price_paise")
+  isVeg        Boolean   @map("is_veg")
+  imagePath    String?   @map("image_path")
+  // Quick "sold out" toggle for the whole restaurant.
+  isAvailable  Boolean   @default(true) @map("is_available")
+  archivedAt   DateTime? @map("archived_at") @db.Timestamptz(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  restaurant Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  category   Category   @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([restaurantId, categoryId])
+  @@map("menu_items")
+}
