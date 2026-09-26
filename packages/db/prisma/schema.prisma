@@ -88,7 +88,7 @@ model MenuItem {
   description  String    @default("")
   pricePaise   Int       @map("price_paise")
   isVeg        Boolean   @map("is_veg")
-  imagePath    String?   @map("image_path")
+  imageUrl     String?   @map("image_url")
   // Quick "sold out" toggle for the whole restaurant.
   isAvailable  Boolean   @default(true) @map("is_available")
   archivedAt   DateTime? @map("archived_at") @db.Timestamptz(6)

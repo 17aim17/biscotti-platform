@@ -76,7 +76,7 @@ export async function getMenu(restaurantId: string) {
           pricePaise: true,
           isVeg: true,
           isAvailable: true,
-          imagePath: true,
+          imageUrl: true,
         },
       },
     },

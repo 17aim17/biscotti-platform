@@ -17,7 +17,7 @@
     "db:stop": "supabase stop",
     "db:status": "supabase status",
     "db:generate": "turbo run db:generate",
-    "db:reset": "supabase db reset && pnpm --filter @workspace/db db:migrate && pnpm --filter @workspace/db db:seed",
+    "db:reset": "supabase db reset && pnpm --filter @workspace/db db:migrate && pnpm --filter @workspace/db db:generate && pnpm --filter @workspace/db db:seed",
     "check": "pnpm --filter @workspace/core check"
   },
   "devDependencies": {
