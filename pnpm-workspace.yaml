@@ -6,3 +6,16 @@ packages:
 allowBuilds:
   sharp: true
   unrs-resolver: true
+
+# pnpm delays installing brand-new releases (supply-chain safety). These exact
+# versions were newer than that window when added; later versions still wait.
+minimumReleaseAgeExclude:
+  - "@supabase/cli-darwin-arm64@2.118.0"
+  - "@supabase/cli-darwin-x64@2.118.0"
+  - "@supabase/cli-linux-arm64-musl@2.118.0"
+  - "@supabase/cli-linux-arm64@2.118.0"
+  - "@supabase/cli-linux-x64-musl@2.118.0"
+  - "@supabase/cli-linux-x64@2.118.0"
+  - "@supabase/cli-windows-arm64@2.118.0"
+  - "@supabase/cli-windows-x64@2.118.0"
+  - supabase@2.118.0
