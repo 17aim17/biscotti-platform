@@ -1,4 +1,4 @@
-import { listRestaurantOrders, type OrderFilter } from "@workspace/core"
+import { can, listRestaurantOrders, type OrderFilter } from "@workspace/core"
 import { cn } from "@workspace/ui/lib/utils"
 import type { Metadata } from "next"
 import Link from "next/link"
@@ -47,7 +47,10 @@ export default async function OrdersPage({
 
   const filter =
     FILTERS.find((f) => f.value === rawFilter)?.value ?? ("all" as const)
-  const orders = await listRestaurantOrders(user.id, restaurant.id, filter)
+  const [orders, canRefund] = await Promise.all([
+    listRestaurantOrders(user.id, restaurant.id, filter),
+    can(user.id, restaurant.id, "payments:refund"),
+  ])
 
   return (
     <>
@@ -149,7 +152,13 @@ export default async function OrdersPage({
                         )}
                         , then mark it here.
                       </span>
-                      <RefundButton slug={slug} paymentId={refund.id} />
+                      {canRefund ? (
+                        <RefundButton slug={slug} paymentId={refund.id} />
+                      ) : (
+                        <span className="text-xs text-(--sf-muted)">
+                          An owner can refund this.
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>

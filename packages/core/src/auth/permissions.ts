@@ -7,6 +7,7 @@ import { DomainError } from "../errors"
 export type Permission =
   | "kitchen:use" // see live orders, accept/reject, move orders along
   | "orders:view" // order history in the dashboard
+  | "payments:refund" // record that a payment was refunded in Razorpay
   | "menu:manage"
   | "locations:manage"
   | "staff:manage"
@@ -23,6 +24,7 @@ const ROLE_PERMISSIONS: Record<MembershipRole, Permission[]> = {
   [MembershipRole.owner]: [
     "kitchen:use",
     "orders:view",
+    "payments:refund",
     "menu:manage",
     "locations:manage",
     "staff:manage",

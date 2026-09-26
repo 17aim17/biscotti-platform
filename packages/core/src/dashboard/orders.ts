@@ -74,14 +74,15 @@ export async function countOrdersNeedingRefund(
 }
 
 // The owner refunded the payment in the Razorpay dashboard and records it
-// here. Guarded, so a double click changes one row once. (Automatic refunds
-// through the Razorpay API are in the backlog.)
+// here. Owners only: otherwise anyone who can see orders could clear the list
+// of money owed without refunding it. Guarded, so a double click changes one
+// row once. (Automatic refunds through the Razorpay API are in the backlog.)
 export async function markPaymentRefunded(
   userId: string,
   restaurantId: string,
   paymentId: string
 ) {
-  await requirePermission(userId, restaurantId, "orders:view")
+  await requirePermission(userId, restaurantId, "payments:refund")
   const updated = await prisma.payment.updateMany({
     where: {
       id: paymentId,
