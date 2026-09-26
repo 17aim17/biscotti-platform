@@ -6,7 +6,8 @@ import { DomainError } from "../errors"
 import { parseInput } from "../validation"
 
 // Staff management, owners only. A restaurant always keeps at least one owner,
-// so nobody can lock everyone out of the dashboard.
+// and nobody can remove or demote themselves, so an owner cannot lock
+// themselves (or everyone) out by accident. Another owner has to do it.
 
 export async function listStaff(userId: string, restaurantId: string) {
   await requirePermission(userId, restaurantId, "staff:manage")
@@ -75,6 +76,7 @@ export async function changeStaffRole(
       where: { id: membershipId, restaurantId },
     })
     if (!member) throw new DomainError("NOT_FOUND", "Team member not found.")
+    notYourself(member.userId, actorId, "change your own role")
     if (
       member.role === MembershipRole.owner &&
       newRole !== MembershipRole.owner
@@ -99,6 +101,7 @@ export async function removeStaffMember(
       where: { id: membershipId, restaurantId },
     })
     if (!member) throw new DomainError("NOT_FOUND", "Team member not found.")
+    notYourself(member.userId, actorId, "remove yourself")
     if (member.role === MembershipRole.owner) {
       await ensureAnotherOwner(tx, restaurantId, membershipId)
     }
@@ -124,6 +127,15 @@ async function ensureAnotherOwner(
     throw new DomainError(
       "INVALID_INPUT",
       "A restaurant needs at least one owner. Add another owner first."
+    )
+  }
+}
+
+function notYourself(memberUserId: string, actorId: string, what: string) {
+  if (memberUserId === actorId) {
+    throw new DomainError(
+      "FORBIDDEN",
+      `You can't ${what}. Another owner can do that.`
     )
   }
 }

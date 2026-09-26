@@ -90,35 +90,42 @@ export function StaffManager({
                 {m.phone ? `+${m.phone}` : ""}
               </span>
             </div>
-            <div className="flex items-center gap-3">
-              <select
-                value={m.role}
-                disabled={pending}
-                aria-label="Role"
-                onChange={(e) =>
-                  run(() => changeRoleAction(slug, m.id, e.target.value))
-                }
-                className={`${inputClass} h-10 w-36`}
-              >
-                {ROLES.map((r) => (
-                  <option key={r.value} value={r.value}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="button"
-                disabled={pending}
-                onClick={() => {
-                  const who = m.isYou ? "yourself" : (m.name ?? `+${m.phone}`)
-                  if (window.confirm(`Remove ${who} from the team?`))
-                    run(() => removeStaffAction(slug, m.id))
-                }}
-                className={`${eyebrow} text-[0.6rem] text-(--sf-muted) hover:text-(--brand)`}
-              >
-                Remove
-              </button>
-            </div>
+            {m.isYou ? (
+              // Your own role and membership are changed by another owner.
+              <span className={`${eyebrow} text-(--sf-muted)`}>
+                {ROLES.find((r) => r.value === m.role)?.label}
+              </span>
+            ) : (
+              <div className="flex items-center gap-3">
+                <select
+                  value={m.role}
+                  disabled={pending}
+                  aria-label="Role"
+                  onChange={(e) =>
+                    run(() => changeRoleAction(slug, m.id, e.target.value))
+                  }
+                  className={`${inputClass} h-10 w-36`}
+                >
+                  {ROLES.map((r) => (
+                    <option key={r.value} value={r.value}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  disabled={pending}
+                  onClick={() => {
+                    const who = m.name ?? `+${m.phone}`
+                    if (window.confirm(`Remove ${who} from the team?`))
+                      run(() => removeStaffAction(slug, m.id))
+                  }}
+                  className={`${eyebrow} text-[0.6rem] text-(--sf-muted) hover:text-(--brand)`}
+                >
+                  Remove
+                </button>
+              </div>
+            )}
           </li>
         ))}
       </ul>
