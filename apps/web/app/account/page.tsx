@@ -46,6 +46,7 @@ export default async function AccountPage() {
                   <Button
                     variant="outline"
                     size="sm"
+                    nativeButton={false}
                     render={<Link href={`/${r.slug}/kitchen`} />}
                   >
                     Kitchen
@@ -54,6 +55,7 @@ export default async function AccountPage() {
                     <Button
                       variant="outline"
                       size="sm"
+                      nativeButton={false}
                       render={<Link href={`/${r.slug}/dashboard`} />}
                     >
                       Dashboard
