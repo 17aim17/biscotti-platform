@@ -53,8 +53,17 @@ export {
 export {
   placeOrder,
   placeOrderInput,
+  quoteOrder,
+  quoteOrderInput,
   type PlaceOrderInput,
+  type QuoteOrderInput,
 } from "./orders/place-order"
+export {
+  getCustomerOrder,
+  getProfileName,
+  listCustomerOrders,
+  type CustomerOrder,
+} from "./orders/queries"
 export { updateOrderStatus, type StatusChangeBy } from "./orders/update-status"
 
 // markPaid and the signature helpers stay internal: callers go through these.
