@@ -3,7 +3,7 @@
 import { LoaderCircle, MapPin, Search } from "lucide-react"
 import { useEffect, useId, useState } from "react"
 
-import type { Pin } from "./delivery-map"
+import type { Pin } from "@/components/delivery-map"
 import { searchPlaces, type Place } from "./geocode"
 
 // The search box above the map. It always shows the address of the pin

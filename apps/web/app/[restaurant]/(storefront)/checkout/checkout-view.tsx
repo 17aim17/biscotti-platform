@@ -13,7 +13,7 @@ import { formatRupees } from "@/lib/money"
 import { eyebrow, inputClass, solidButton } from "@/components/styles"
 import { payAndConfirm } from "../orders/pay"
 import { placeOrderAction, quoteAction } from "./actions"
-import { DeliveryMap, type Pin } from "./delivery-map"
+import { DeliveryMap, type Pin } from "@/components/delivery-map"
 import { addressAt } from "./geocode"
 import { LocationSearch } from "./location-search"
 

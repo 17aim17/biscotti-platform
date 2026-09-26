@@ -2,7 +2,7 @@
 // Photon: komoot's free OpenStreetMap geocoder, built for search-as-you-type.
 // The public server asks for fair use; a production app would use a paid or
 // self-hosted geocoder (backlog).
-import type { Pin } from "./delivery-map"
+import type { Pin } from "@/components/delivery-map"
 
 export type Place = { label: string; pin: Pin }
 
