@@ -52,6 +52,18 @@ pnpm dev          # http://localhost:3000
 | +91 99999 00003 | Casa Spezia staff                  |
 | +91 99999 00004 | Osteria Sole owner (second tenant) |
 
+### Pages
+
+| URL                      | Who                   | What                                            |
+| ------------------------ | --------------------- | ----------------------------------------------- |
+| `/casa-spezia`           | anyone                | Storefront (placeholder until the menu lands)   |
+| `/login`                 | anyone                | Phone OTP sign in                               |
+| `/account`               | signed in             | Phone number, restaurants you work at, sign out |
+| `/casa-spezia/kitchen`   | staff, manager, owner | Kitchen (placeholder)                           |
+| `/casa-spezia/dashboard` | manager, owner        | Dashboard (placeholder)                         |
+
+Staff pages check access in the page itself: visitors are sent to `/login` and back, and users without a role at that restaurant see a "no access" message.
+
 ### Database changes
 
 The schema lives in `packages/db/prisma/schema.prisma`. To change it:
