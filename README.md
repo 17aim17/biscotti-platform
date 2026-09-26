@@ -25,13 +25,20 @@ docs/                    ADRs, architecture notes, backlog
 
 ## Running locally
 
-Requires [mise](https://mise.jdx.dev) (for Node and pnpm).
+Requires [mise](https://mise.jdx.dev) (for Node and pnpm) and Docker Desktop (for the local Supabase stack).
 
 ```bash
 mise install
 pnpm install
+pnpm db:start     # Postgres, Auth, Storage, Realtime in Docker
+cp .env.example .env
+pnpm db:status    # copy the publishable and secret keys into .env
 pnpm dev          # http://localhost:3000
 ```
+
+- Supabase Studio: http://127.0.0.1:54323
+- Phone login uses fixed test numbers and sends no SMS. The numbers and codes are in `supabase/config.toml` under `[auth.sms.test_otp]` (for example `+91 99999 00001`, code `123456`).
+- `pnpm db:stop` stops the containers.
 
 Other commands:
 
