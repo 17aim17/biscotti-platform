@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useCart, type Fulfillment } from "@/lib/cart/store"
 import { formatRupees } from "@/lib/money"
 
-import { eyebrow, solidButton } from "@/components/styles"
+import { eyebrow, inputClass, solidButton } from "@/components/styles"
 import { payAndConfirm } from "../orders/pay"
 import { placeOrderAction, quoteAction } from "./actions"
 import { DeliveryMap, type Pin } from "./delivery-map"
@@ -518,9 +518,6 @@ export function CheckoutView({
     </div>
   )
 }
-
-const inputClass =
-  "h-12 w-full rounded-(--sf-radius-control) bg-(--sf-card) px-4 text-base ring-1 ring-(--sf-line) outline-none transition focus:ring-2 focus:ring-(--sf-ink)"
 
 function Step({
   number,

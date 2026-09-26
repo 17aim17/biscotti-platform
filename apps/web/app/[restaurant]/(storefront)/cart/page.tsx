@@ -16,11 +16,7 @@ export default async function CartPage({
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pt-8">
-      <CartView
-        slug={restaurant.slug}
-        categories={categories}
-        locations={restaurant.locations}
-      />
+      <CartView slug={restaurant.slug} categories={categories} />
     </div>
   )
 }

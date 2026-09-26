@@ -1,32 +1,29 @@
 "use client"
 
-import type { MenuCategory, RestaurantSummary } from "@workspace/core"
+import type { MenuCategory } from "@workspace/core"
 import { cn } from "@workspace/ui/lib/utils"
-import { ArrowLeft, Bike, MapPin, ShoppingBag, Trash2 } from "lucide-react"
+import { ArrowLeft, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useMemo } from "react"
 
-import { useCart, type Fulfillment } from "@/lib/cart/store"
+import { eyebrow, solidButton } from "@/components/styles"
+import { useCart } from "@/lib/cart/store"
 import { formatRupees } from "@/lib/money"
 
 import { DietMark } from "../_components/diet-mark"
 import { QuantityControl } from "../_components/quantity-control"
-import { solidButton } from "@/components/styles"
 
-type Location = RestaurantSummary["locations"][number]
-
+// The cart: dishes and quantities. Outlet, delivery or pickup, address and
+// payment are chosen at checkout, where the server prices the order.
 export function CartView({
   slug,
   categories,
-  locations,
 }: {
   slug: string
   categories: MenuCategory[]
-  locations: Location[]
 }) {
-  const { cart, count, add, decrement, setQty, setLocation, setFulfillment } =
-    useCart(slug)
+  const { cart, count, add, decrement, setQty } = useCart(slug)
   const dishes = useMemo(
     () =>
       new Map(
@@ -37,20 +34,15 @@ export function CartView({
 
   if (count === 0) {
     return (
-      <section className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-(--sf-radius-card) bg-(--sf-card) px-6 py-16 text-center shadow-(--sf-shadow-card) ring-1 ring-(--sf-line)">
-        <span className="flex size-16 items-center justify-center rounded-full bg-(--sf-soft) text-(--brand)">
-          <ShoppingBag className="size-8" />
-        </span>
-        <h1 className="font-display text-3xl font-semibold">
-          Your cart is empty
+      <section className="flex flex-col items-center gap-6 py-24 text-center">
+        <p className={`${eyebrow} text-(--sf-accent-ink)`}>Your cart</p>
+        <h1 className="font-display text-5xl font-medium tracking-tight">
+          Nothing here yet
         </h1>
         <p className="text-(--sf-muted)">
           Add a few dishes from the menu to get started.
         </p>
-        <Link
-          href={`/${slug}#menu`}
-          className="rounded-(--sf-radius-control) bg-(image:--sf-btn) px-6 py-3 font-semibold text-white shadow-(--sf-btn-shadow) transition hover:scale-105"
-        >
+        <Link href={`/${slug}#menu`} className={`${solidButton} px-8 py-3.5`}>
           Browse the menu
         </Link>
       </section>
@@ -69,73 +61,71 @@ export function CartView({
     0
   )
 
-  const selected =
-    locations.find((l) => l.id === cart.locationId) ??
-    locations.find((l) => l.openNow) ??
-    null
-  const pickupAllowed = selected?.acceptsPickup ?? false
-  const fulfillment: Fulfillment =
-    cart.fulfillment === "pickup" && pickupAllowed ? "pickup" : "delivery"
-  const canCheckout = Boolean(selected?.openNow) && orderable.length > 0
-
   return (
-    <div className="flex flex-col gap-6 pb-16">
-      <div className="flex items-center gap-3">
+    <div className="flex flex-col gap-10 pb-16">
+      <div className="flex flex-col gap-4">
         <Link
-          href={`/${slug}`}
-          aria-label="Back to the menu"
-          className="flex size-10 items-center justify-center rounded-full bg-(--sf-card) shadow-(--sf-shadow-card) ring-1 ring-(--sf-line) transition hover:scale-105"
+          href={`/${slug}#menu`}
+          className={`${eyebrow} inline-flex w-fit items-center gap-2 text-(--sf-muted) transition hover:text-(--sf-ink)`}
         >
-          <ArrowLeft className="size-5" />
+          <ArrowLeft className="size-3.5" /> Back to the menu
         </Link>
-        <h1 className="font-display text-4xl font-semibold tracking-tight">
+        <h1 className="font-display text-5xl font-medium tracking-tight sm:text-6xl">
           Your cart
         </h1>
       </div>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[1fr_22rem]">
-        <div className="flex flex-col gap-6">
-          <Panel title={`${count} ${count === 1 ? "item" : "items"}`}>
-            <ul className="divide-y divide-(--sf-line)">
-              {lines.map(({ line, dish }) => (
-                <li
-                  key={line.menuItemId}
-                  className="flex items-center gap-4 py-4 first:pt-0 last:pb-0"
-                >
-                  <span className="relative size-16 shrink-0 overflow-hidden rounded-[calc(var(--sf-radius-card)-0.5rem)] bg-(--sf-soft)">
-                    {dish?.imageUrl && (
-                      <Image
-                        src={`${dish.imageUrl}?w=160&h=160&q=70&auto=format&fit=crop`}
-                        alt=""
-                        fill
-                        sizes="64px"
-                        className={cn(
-                          "object-cover",
-                          !dish.isAvailable && "grayscale"
-                        )}
-                      />
-                    )}
-                  </span>
-                  <div className="flex min-w-0 flex-1 flex-col gap-1">
-                    {dish ? (
-                      <>
-                        <span className="flex items-center gap-2 font-semibold">
-                          <DietMark isVeg={dish.isVeg} />
-                          <span className="truncate">{dish.title}</span>
+      <div className="grid items-start gap-10 lg:grid-cols-[1fr_22rem] lg:gap-14">
+        <section>
+          <div className="flex items-baseline justify-between border-b border-(--sf-ink)/80 pb-3">
+            <h2 className="font-display text-3xl font-medium">Dishes</h2>
+            <span className={`${eyebrow} text-(--sf-muted)`}>
+              {count} {count === 1 ? "item" : "items"}
+            </span>
+          </div>
+          <ul className="divide-y divide-(--sf-line)">
+            {lines.map(({ line, dish }) => (
+              <li
+                key={line.menuItemId}
+                className="flex items-center gap-4 py-5"
+              >
+                <span className="relative size-18 shrink-0 overflow-hidden rounded-(--sf-radius-card) bg-(--sf-soft)">
+                  {dish?.imageUrl && (
+                    <Image
+                      src={`${dish.imageUrl}?w=200&h=200&q=70&auto=format&fit=crop`}
+                      alt=""
+                      fill
+                      sizes="72px"
+                      className={cn(
+                        "object-cover",
+                        !dish.isAvailable && "grayscale"
+                      )}
+                    />
+                  )}
+                </span>
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                  {dish ? (
+                    <>
+                      <span className="flex items-center gap-2">
+                        <DietMark isVeg={dish.isVeg} />
+                        <span className="truncate font-display text-xl">
+                          {dish.title}
                         </span>
-                        <span className="text-sm text-(--sf-muted) tabular-nums">
-                          {dish.isAvailable
-                            ? formatRupees(dish.pricePaise * line.qty)
-                            : "Sold out right now"}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-sm text-(--sf-muted)">
-                        This dish is no longer on the menu.
                       </span>
-                    )}
-                  </div>
-                  {dish?.isAvailable ? (
+                      <span className="text-sm text-(--sf-muted) tabular-nums">
+                        {dish.isAvailable
+                          ? `${formatRupees(dish.pricePaise)} each`
+                          : "Sold out right now"}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-sm text-(--sf-muted)">
+                      This dish is no longer on the menu.
+                    </span>
+                  )}
+                </div>
+                {dish?.isAvailable ? (
+                  <div className="flex flex-col items-end gap-2">
                     <QuantityControl
                       soldOut={false}
                       qty={line.qty}
@@ -143,149 +133,51 @@ export function CartView({
                       onAdd={() => add(line.menuItemId)}
                       onRemove={() => decrement(line.menuItemId)}
                     />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setQty(line.menuItemId, 0)}
-                      aria-label="Remove from cart"
-                      className="flex size-9 items-center justify-center rounded-full text-(--sf-muted) transition hover:bg-red-50 hover:text-red-600"
-                    >
-                      <Trash2 className="size-4" />
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </Panel>
-
-          <Panel title="How do you want it?">
-            <div className="grid grid-cols-2 gap-1 rounded-(--sf-radius-control) bg-(--sf-soft) p-1">
-              {(["delivery", "pickup"] as const).map((option) => {
-                const active = fulfillment === option
-                const disabled = option === "pickup" && !pickupAllowed
-                return (
+                    <span className="font-display text-lg tabular-nums">
+                      {formatRupees(dish.pricePaise * line.qty)}
+                    </span>
+                  </div>
+                ) : (
                   <button
-                    key={option}
                     type="button"
-                    aria-pressed={active}
-                    disabled={disabled}
-                    onClick={() => setFulfillment(option)}
-                    className={cn(
-                      "flex items-center justify-center gap-2 rounded-(--sf-radius-control) py-2.5 text-sm font-semibold transition",
-                      active
-                        ? "bg-(--sf-card) text-(--brand) shadow-sm"
-                        : "text-(--sf-muted) hover:text-(--sf-ink)",
-                      disabled && "cursor-not-allowed opacity-40"
-                    )}
+                    onClick={() => setQty(line.menuItemId, 0)}
+                    aria-label="Remove from cart"
+                    className="flex size-9 items-center justify-center rounded-full text-(--sf-muted) transition hover:text-(--brand)"
                   >
-                    {option === "delivery" ? (
-                      <Bike className="size-4" />
-                    ) : (
-                      <ShoppingBag className="size-4" />
-                    )}
-                    {option === "delivery" ? "Delivery" : "Pickup"}
+                    <X className="size-4" />
                   </button>
-                )
-              })}
-            </div>
-          </Panel>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
 
-          <Panel title="Order from">
-            <div className="grid gap-3 sm:grid-cols-2">
-              {locations.map((location) => {
-                const active = selected?.id === location.id
-                return (
-                  <label
-                    key={location.id}
-                    className={cn(
-                      "flex cursor-pointer flex-col gap-2 rounded-2xl p-4 ring-1 transition",
-                      active
-                        ? "bg-(--sf-soft) ring-2 ring-(--brand)"
-                        : "ring-(--sf-line) hover:bg-(--sf-soft)"
-                    )}
-                  >
-                    <input
-                      type="radio"
-                      name="location"
-                      value={location.id}
-                      checked={active}
-                      onChange={() => setLocation(location.id)}
-                      className="sr-only"
-                    />
-                    <span className="flex items-center justify-between gap-2">
-                      <span className="flex items-center gap-2 font-semibold">
-                        <MapPin className="size-4 text-(--brand)" />
-                        {location.name}
-                      </span>
-                      <span
-                        className={cn(
-                          "rounded-full px-2 py-0.5 text-xs font-semibold",
-                          location.openNow
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-(--sf-soft) text-(--sf-muted)"
-                        )}
-                      >
-                        {location.openNow ? "Open" : "Closed"}
-                      </span>
-                    </span>
-                    <span className="text-sm text-(--sf-muted)">
-                      {location.address}
-                    </span>
-                  </label>
-                )
-              })}
-            </div>
-          </Panel>
-        </div>
-
-        <aside className="flex flex-col gap-4 rounded-(--sf-radius-card) bg-(--sf-card) p-6 shadow-(--sf-shadow-card) ring-1 ring-(--sf-line) lg:sticky lg:top-24">
-          <h2 className="font-display text-2xl font-semibold">Order summary</h2>
-          <div className="flex items-center justify-between text-sm">
+        <aside className="flex flex-col gap-5 rounded-(--sf-radius-card) bg-(--sf-card) p-6 shadow-(--sf-shadow-card) ring-1 ring-(--sf-line) sm:p-8 lg:sticky lg:top-28">
+          <p className={`${eyebrow} text-(--sf-muted)`}>Summary</p>
+          <div className="flex items-baseline justify-between border-b border-(--sf-ink)/80 pb-4">
             <span className="text-(--sf-muted)">Subtotal</span>
-            <span className="font-semibold tabular-nums">
+            <span className="font-display text-3xl font-medium tabular-nums">
               {formatRupees(subtotal)}
             </span>
           </div>
           <p className="text-sm text-(--sf-muted)">
-            {fulfillment === "delivery"
-              ? "Delivery fee, packaging"
-              : "Packaging"}{" "}
-            and GST are added at checkout.
+            Delivery, packaging and GST are added at checkout, where you choose
+            the outlet and delivery or pickup.
           </p>
-          {canCheckout ? (
-            <Link href={`/${slug}/checkout`} className={`${solidButton} py-4`}>
+          {orderable.length > 0 ? (
+            <Link href={`/${slug}/checkout`} className={`${solidButton} h-13`}>
               Checkout
             </Link>
           ) : (
             <span
               aria-disabled
-              className={`${solidButton} cursor-not-allowed py-4 opacity-50`}
+              className={`${solidButton} h-13 cursor-not-allowed opacity-50`}
             >
               Checkout
             </span>
           )}
-          {selected && !selected.openNow && (
-            <p className="text-center text-sm text-(--sf-muted)">
-              {selected.name} is closed right now.
-            </p>
-          )}
         </aside>
       </div>
     </div>
-  )
-}
-
-function Panel({
-  title,
-  children,
-}: {
-  title: string
-  children: React.ReactNode
-}) {
-  return (
-    <section className="rounded-(--sf-radius-card) bg-(--sf-card) p-5 shadow-(--sf-shadow-card) ring-1 ring-(--sf-line) sm:p-6">
-      <h2 className="mb-4 text-lg font-semibold">{title}</h2>
-      {children}
-    </section>
   )
 }
