@@ -17,9 +17,11 @@ config({
 
 type Dish = (typeof menu)[number]
 
-// Open every day, 10:00 to 22:30, Asia/Kolkata.
+// Open every day from 09:00 until 03:00 the next morning, Asia/Kolkata. Long
+// hours so the demo can be tried at almost any time; the span past midnight
+// also exercises overnight hours.
 const days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
-const everyDay = Object.fromEntries(days.map((d) => [d, [["10:00", "22:30"]]]))
+const everyDay = Object.fromEntries(days.map((d) => [d, [["09:00", "03:00"]]]))
 
 const legal = (name: string) => ({
   about: `${name} is a demo restaurant on Biscotti.`,
