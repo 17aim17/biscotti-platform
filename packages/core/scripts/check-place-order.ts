@@ -71,6 +71,28 @@ await attempt("delivery without address", { fulfillment: "delivery" })
 await attempt("Osteria Sole dish at Casa Spezia", {
   items: [{ menuItemId: osteria.menuItems[0]!.id, qty: 1 }],
 })
+// Whole category archived: its dishes can no longer be ordered.
+await prisma.category.update({
+  where: { id: tikka.categoryId },
+  data: { archivedAt: new Date() },
+})
+await attempt("dish in an archived category", {})
+await prisma.category.update({
+  where: { id: tikka.categoryId },
+  data: { archivedAt: null },
+})
+
+// Broken hours stored for the outlet: treated as closed, not a crash.
+await prisma.location.update({
+  where: { id: kharar.id },
+  data: { hours: { mon: [["9am", "late"]] } },
+})
+await attempt("outlet with invalid stored hours", {})
+await prisma.location.update({
+  where: { id: kharar.id },
+  data: { hours: kharar.hours as object },
+})
+
 const p = await placeOrder(
   customer.id,
   {

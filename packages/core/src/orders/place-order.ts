@@ -33,6 +33,10 @@ export const placeOrderInput = z
       .object({
         line1: z.string().trim().min(3).max(TEXT_LIMITS.addressLine),
         landmark: z.string().trim().max(TEXT_LIMITS.landmark).optional(),
+        // From the map pin in the browser. The radius check trusts these, and
+        // nothing ties them to line1: a customer could pin inside the area and
+        // type an address outside it. Staff see the address and can reject.
+        // Server-side geocoding is in the backlog.
         lat: z.number().min(-90).max(90),
         lng: z.number().min(-180).max(180),
       })
@@ -91,8 +95,13 @@ export async function placeOrder(
   if (!location)
     throw new DomainError("NOT_FOUND", "This outlet does not exist.")
 
-  const hours = openingHoursSchema.parse(location.hours)
-  if (!location.isOpen || !isOpenAt(hours, now)) {
+  // Bad stored hours are a data problem: treat the outlet as closed instead of
+  // failing with a validation error.
+  const hours = openingHoursSchema.safeParse(location.hours)
+  if (!hours.success) {
+    console.error(`[orders] invalid opening hours for location ${location.id}`)
+  }
+  if (!location.isOpen || !hours.success || !isOpenAt(hours.data, now)) {
     throw new DomainError(
       "LOCATION_CLOSED",
       `${location.name} is closed right now.`
@@ -131,6 +140,7 @@ export async function placeOrder(
       id: { in: [...qtyById.keys()] },
       restaurantId: input.restaurantId,
       archivedAt: null,
+      category: { archivedAt: null },
     },
   })
   const unavailable = [...qtyById.keys()].filter(

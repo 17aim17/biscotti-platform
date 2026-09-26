@@ -1,6 +1,7 @@
 import { PaymentStatus, prisma, type OrderStatus } from "@workspace/db"
 
 import { requirePermission } from "../auth/permissions"
+import { TEXT_LIMITS } from "../constants"
 import { DomainError } from "../errors"
 import { notifyOrderStatus } from "../notifications/order-status"
 import {
@@ -52,7 +53,10 @@ export async function updateOrderStatus(params: {
       data: {
         status: to,
         ...(stamp ? { [stamp]: new Date() } : {}),
-        ...(reason ? { cancelReason: reason } : {}),
+        // The reason only means something when the order will not be fulfilled.
+        ...(reason && NOT_FULFILLED_STATUSES.includes(to)
+          ? { cancelReason: reason.slice(0, TEXT_LIMITS.cancelReason) }
+          : {}),
       },
     })
     if (changed.count === 0) {
