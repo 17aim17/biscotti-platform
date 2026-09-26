@@ -70,7 +70,7 @@ export function MenuBrowser({
             <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-stone-400" />
             <input
               type="search"
-              placeholder="Search biryani, paneer, momos..."
+              placeholder="Search dishes"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               className="h-11 w-full rounded-full bg-white pr-4 pl-10 text-sm shadow-sm ring-1 ring-orange-950/10 outline-none placeholder:text-stone-400 focus:ring-2 focus:ring-(--brand)"
