@@ -1,0 +1,21 @@
+# Backlog
+
+Deferred on purpose to keep the MVP small. Roughly in priority order.
+
+1. Synced cart (server-side cart shared across devices). The MVP keeps the cart in the browser and prices it on the server at checkout.
+2. Promo codes (with an atomic usage counter).
+3. Item customizations and add-ons.
+4. Tests: pricing, order status map, permissions, tenant separation, end-to-end checkout.
+5. Observability: structured logs and error tracking.
+6. Automatic refunds and a payment reconciliation job, including expiring abandoned `PENDING_PAYMENT` orders.
+7. Reliable notifications (outbox with retries).
+8. Per-outlet item availability.
+9. Saved customer addresses.
+10. Order history table (`order_events`) for a full audit trail.
+11. Organizations above restaurants (groups that run several brands).
+12. Row Level Security as a second guard on server queries.
+13. Rate limiting on checkout, security headers.
+14. Subdomain per restaurant once a domain exists (rewrite to the path routes).
+15. Upgrade to ESLint 10 once eslint-plugin-react supports it.
+16. Dark mode.
+17. Platform onboarding UI, custom domains, delivery partners, native apps, loyalty, POS integration, analytics.

@@ -1,0 +1,20 @@
+node_modules
+.next
+.turbo
+dist
+coverage
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+next-env.d.ts
+out
+build
+.vercel
+*.pem
+
+# Written by `next dev` on every run (Next.js agent notes); not ours to commit.
+apps/web/AGENTS.md
+apps/web/CLAUDE.md

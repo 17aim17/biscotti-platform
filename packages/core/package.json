@@ -1,0 +1,23 @@
+{
+  "name": "@workspace/core",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@workspace/db": "workspace:*"
+  },
+  "devDependencies": {
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/typescript-config": "workspace:*",
+    "@types/node": "^24",
+    "eslint": "^9",
+    "typescript": "6.0.3"
+  }
+}
