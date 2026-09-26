@@ -237,8 +237,13 @@ export function CheckoutView({
     router.push(`/${slug}/orders/${orderId}`)
   }
 
+  const payLabel =
+    method === "online"
+      ? `Pay ${quote ? formatRupees(quote.totals.totalPaise) : ""}`
+      : "Place order"
+
   return (
-    <div className="flex flex-col gap-10 pb-16">
+    <div className="flex flex-col gap-10 pb-32 lg:pb-16">
       <div className="flex flex-col gap-4">
         <Link
           href={`/${slug}/cart`}
@@ -267,7 +272,7 @@ export function CheckoutView({
               value={fulfillment}
               onChange={(v) => setFulfillment(v as Fulfillment)}
             />
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {locations.map((l) => (
                 <button
                   key={l.id}
@@ -275,14 +280,18 @@ export function CheckoutView({
                   onClick={() => setLocation(l.id)}
                   aria-pressed={l.id === outlet.id}
                   className={cn(
-                    "flex flex-col gap-1 rounded-(--sf-radius-card) bg-(--sf-card) p-4 text-left ring-1 transition",
+                    "flex flex-col gap-1 rounded-(--sf-radius-card) bg-(--sf-card) p-3 text-left ring-1 transition sm:p-4",
                     l.id === outlet.id
                       ? "ring-2 ring-(--sf-ink)"
                       : "ring-(--sf-line) hover:ring-(--sf-muted)"
                   )}
                 >
-                  <span className="font-display text-xl">{l.name}</span>
-                  <span className="text-xs text-(--sf-muted)">{l.address}</span>
+                  <span className="truncate font-display text-lg sm:text-xl">
+                    {l.name}
+                  </span>
+                  <span className="hidden text-xs text-(--sf-muted) sm:block">
+                    {l.address}
+                  </span>
                   <span
                     className={`${eyebrow} mt-1 text-[0.6rem] ${l.openNow ? "text-emerald-700" : "text-(--sf-muted)"}`}
                   >
@@ -466,10 +475,8 @@ export function CheckoutView({
           >
             {placing ? (
               <LoaderCircle className="size-4 animate-spin" />
-            ) : method === "online" ? (
-              `Pay ${quote ? formatRupees(quote.totals.totalPaise) : ""}`
             ) : (
-              "Place order"
+              payLabel
             )}
           </button>
           {missing.length > 0 && !quoteError && (
@@ -481,6 +488,32 @@ export function CheckoutView({
             Prices are checked by the restaurant when you order.
           </p>
         </aside>
+      </div>
+
+      {/* Phones: total and the button stay in reach while filling the form. */}
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-4 border-t border-(--sf-line) bg-(--sf-bg)/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-xl lg:hidden">
+        <div className="flex flex-1 flex-col">
+          <span className={`${eyebrow} text-[0.6rem] text-(--sf-muted)`}>
+            Total
+          </span>
+          <span className="font-display text-2xl leading-tight font-medium tabular-nums">
+            {quote ? formatRupees(quote.totals.totalPaise) : "…"}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={submit}
+          disabled={!canPlace}
+          className={`${solidButton} h-12 px-6 disabled:cursor-not-allowed disabled:opacity-50`}
+        >
+          {placing ? (
+            <LoaderCircle className="size-4 animate-spin" />
+          ) : method === "online" ? (
+            "Pay now"
+          ) : (
+            "Place order"
+          )}
+        </button>
       </div>
     </div>
   )
