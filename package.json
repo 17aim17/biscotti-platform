@@ -15,7 +15,8 @@
     "supabase": "supabase",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
-    "db:status": "supabase status"
+    "db:status": "supabase status",
+    "db:generate": "turbo run db:generate"
   },
   "devDependencies": {
     "@workspace/eslint-config": "workspace:*",

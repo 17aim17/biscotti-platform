@@ -4,6 +4,9 @@ packages:
 
 # Packages allowed to run install scripts (pnpm blocks them by default).
 allowBuilds:
+  "@prisma/engines": true
+  esbuild: true
+  prisma: true
   sharp: true
   unrs-resolver: true
 
@@ -19,3 +22,4 @@ minimumReleaseAgeExclude:
   - "@supabase/cli-windows-arm64@2.118.0"
   - "@supabase/cli-windows-x64@2.118.0"
   - supabase@2.118.0
+  - dotenv@18.0.4

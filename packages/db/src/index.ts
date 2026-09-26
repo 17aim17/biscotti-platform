@@ -1,2 +1,2 @@
-// Prisma client and schema live here. Filled in from Phase 3.
-export {}
+export { prisma } from "./client"
+export * from "./generated/prisma/client"
