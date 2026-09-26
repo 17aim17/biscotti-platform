@@ -77,7 +77,7 @@ export async function markPaid(params: {
   // Known from the webhook; the checkout callback does not include it.
   amountPaise?: number
 }): Promise<MarkPaidResult> {
-  const result = await prisma.$transaction(async (tx) => {
+  const { result, orderId } = await prisma.$transaction(async (tx) => {
     const payment = await tx.payment.findUnique({
       where: { razorpayOrderId: params.razorpayOrderId },
     })
@@ -118,7 +118,10 @@ export async function markPaid(params: {
             `${params.razorpayOrderId} (already paid by ${payment.razorpayPaymentId}): refund it in Razorpay`
         )
       }
-      return MarkPaidResult.alreadyRecorded
+      return {
+        result: MarkPaidResult.alreadyRecorded,
+        orderId: payment.orderId,
+      }
     }
 
     // This is the only way an online order becomes PLACED: the status map
@@ -143,24 +146,29 @@ export async function markPaid(params: {
       where: { id: payment.orderId, status: OrderStatus.PENDING_PAYMENT },
       data: { status: OrderStatus.PLACED },
     })
-    if (placed.count === 1) return MarkPaidResult.placed
+    if (placed.count === 1) {
+      return { result: MarkPaidResult.placed, orderId: payment.orderId }
+    }
 
     // Money arrived for an order that was cancelled or rejected meanwhile.
     await tx.payment.update({
       where: { id: payment.id },
       data: { status: PaymentStatus.needs_refund },
     })
-    return MarkPaidResult.needsRefund
+    return { result: MarkPaidResult.needsRefund, orderId: payment.orderId }
   })
 
   if (result === MarkPaidResult.placed) {
-    const order = await prisma.order.findFirstOrThrow({
-      where: {
-        payments: { some: { razorpayOrderId: params.razorpayOrderId } },
-      },
+    const order = await prisma.order.findUniqueOrThrow({
+      where: { id: orderId },
       include: { restaurant: { select: { name: true } } },
     })
-    await notifyOrderStatus(order, order.restaurant.name)
+    // Always the "received" message, even if staff already accepted the order
+    // in the moment since the transaction committed.
+    await notifyOrderStatus(
+      { ...order, status: OrderStatus.PLACED },
+      order.restaurant.name
+    )
   }
   return result
 }
