@@ -32,6 +32,12 @@ export {
   roleCan,
   type Permission,
 } from "./auth/permissions"
+export {
+  getRestaurantBySlug,
+  getStaffRestaurants,
+  isReservedSlug,
+  type RestaurantSummary,
+} from "./restaurants/queries"
 
 export {
   ACTIVE_STATUSES,
