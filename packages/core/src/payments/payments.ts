@@ -91,15 +91,34 @@ export async function markPaid(params: {
       )
     }
 
-    // Guarded: only the first caller moves the payment out of "created".
+    // Guarded: only the first caller records the payment. "failed" is included
+    // because Razorpay Checkout lets the customer retry inside the same
+    // Razorpay order (card declined, then UPI succeeds): payment.failed arrives
+    // first, then the successful payment.
     const recorded = await tx.payment.updateMany({
-      where: { id: payment.id, status: PaymentStatus.created },
+      where: {
+        id: payment.id,
+        status: { in: [PaymentStatus.created, PaymentStatus.failed] },
+      },
       data: {
         status: PaymentStatus.captured,
         razorpayPaymentId: params.razorpayPaymentId,
       },
     })
-    if (recorded.count === 0) return MarkPaidResult.alreadyRecorded
+    if (recorded.count === 0) {
+      if (
+        payment.razorpayPaymentId &&
+        payment.razorpayPaymentId !== params.razorpayPaymentId
+      ) {
+        // A second, different successful payment for an order already paid.
+        // The row keeps the first payment; this one must be refunded by hand.
+        console.warn(
+          `[payments] second payment ${params.razorpayPaymentId} for Razorpay order ` +
+            `${params.razorpayOrderId} (already paid by ${payment.razorpayPaymentId}): refund it in Razorpay`
+        )
+      }
+      return MarkPaidResult.alreadyRecorded
+    }
 
     const placed = await tx.order.updateMany({
       where: { id: payment.orderId, status: OrderStatus.PENDING_PAYMENT },

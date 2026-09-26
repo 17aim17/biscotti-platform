@@ -149,6 +149,34 @@ await show(`#${d.order.number} payment after customer cancelled`, () =>
   handleRazorpayWebhook(wd.body, wd.sig)
 )
 
+// 6. Card declined, then the customer retries in the same Razorpay order and pays.
+const e = await unpaidOrder()
+const failed = JSON.stringify({
+  event: "payment.failed",
+  payload: {
+    payment: {
+      entity: {
+        id: `${e.rzpPayment}_declined`,
+        order_id: e.rzpOrder,
+        amount: e.order.totalPaise,
+      },
+    },
+  },
+})
+await show(`#${e.order.number} first attempt declined`, () =>
+  handleRazorpayWebhook(
+    failed,
+    createHmac("sha256", "test_webhook_secret").update(failed).digest("hex")
+  )
+)
+const we = webhook(e.rzpOrder, e.rzpPayment, e.order.totalPaise)
+await show(`#${e.order.number} retry succeeds (webhook)`, () =>
+  handleRazorpayWebhook(we.body, we.sig)
+)
+console.log(
+  `   order ${(await statusOf(e.order.id)).status}, payment ${(await statusOf(e.order.id)).payments[0]!.status}`
+)
+
 // 5. Paid order rejected by the kitchen.
 await show(
   `#${a.order.number} kitchen rejects the paid order`,
