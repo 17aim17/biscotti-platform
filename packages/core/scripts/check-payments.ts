@@ -177,6 +177,43 @@ console.log(
   `   order ${(await statusOf(e.order.id)).status}, payment ${(await statusOf(e.order.id)).payments[0]!.status}`
 )
 
+// 7. Paid order: customer taps Cancel as staff taps Accept. Whoever loses must
+//    leave the payment alone (only a cancelled paid order needs a refund).
+for (let i = 0; i < 5; i++) {
+  const f = await unpaidOrder()
+  await confirmCheckoutPayment({
+    razorpayOrderId: f.rzpOrder,
+    razorpayPaymentId: f.rzpPayment,
+    signature: checkoutSig(f.rzpOrder, f.rzpPayment),
+  })
+  const cancel = () =>
+    updateOrderStatus({
+      orderId: f.order.id,
+      to: "CANCELLED",
+      by: { kind: "customer", userId: customer.id },
+    })
+  const accept = () =>
+    updateOrderStatus({
+      orderId: f.order.id,
+      to: "ACCEPTED",
+      by: { kind: "staff", userId: staff.id },
+    })
+  // Alternate who starts first so both outcomes happen.
+  await Promise.allSettled(
+    i % 2 === 0 ? [cancel(), accept()] : [accept(), cancel()]
+  )
+  const after = await statusOf(f.order.id)
+  const consistent =
+    (after.status === "CANCELLED") ===
+    (after.payments[0]!.status === "needs_refund")
+  console.log(
+    `#${f.order.number} cancel vs accept race`.padEnd(46),
+    "->",
+    `order ${after.status}, payment ${after.payments[0]!.status}`,
+    consistent ? "(consistent)" : "(WRONG)"
+  )
+}
+
 // 5. Paid order rejected by the kitchen.
 await show(
   `#${a.order.number} kitchen rejects the paid order`,
