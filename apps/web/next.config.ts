@@ -10,6 +10,10 @@ config({ path: path.resolve(process.cwd(), "../../.env"), quiet: true })
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@workspace/ui", "@workspace/core", "@workspace/db"],
+  images: {
+    // Demo menu photos are hosted on Unsplash (free Unsplash License photos).
+    remotePatterns: [{ protocol: "https", hostname: "images.unsplash.com" }],
+  },
 }
 
 export default nextConfig
