@@ -73,7 +73,7 @@ export function DishCard({
             {dish.description}
           </p>
         )}
-        <div className="mt-5 hidden items-center gap-5 sm:flex">
+        <div className="hidden items-center gap-5 pt-5 sm:mt-auto sm:flex">
           {control()}
           {soldOut && (
             <span className={`${eyebrow} text-(--sf-muted)`}>Sold out</span>
