@@ -32,7 +32,13 @@ const restaurants = [
   {
     name: "Casa Spezia",
     slug: "casa-spezia",
-    theme: { primary: "#9a3412" },
+    theme: {
+      primary: "#c2410c",
+      tagline:
+        "Tandoor, curries and Indo-Chinese favourites, cooked fresh to order.",
+      heroImageUrl:
+        "https://images.unsplash.com/photo-1742281258189-3b933879867a",
+    },
     locations: [
       { name: "Kharar", address: "Kharar, Punjab", lat: 30.7464, lng: 76.6469 },
       {
@@ -54,7 +60,12 @@ const restaurants = [
     // Second tenant, used to check that restaurants cannot see each other's data.
     name: "Osteria Sole",
     slug: "osteria-sole",
-    theme: { primary: "#b45309" },
+    theme: {
+      primary: "#d97706",
+      tagline: "Momos, noodles and fiery Indo-Chinese, made for sharing.",
+      heroImageUrl:
+        "https://images.unsplash.com/photo-1585937421612-70a008356fbe",
+    },
     locations: [
       {
         name: "Mohali",
@@ -139,6 +150,7 @@ async function seedRestaurant(r: (typeof restaurants)[number]) {
       description: d.description,
       pricePaise: d.pricePaise,
       isVeg: d.isVeg,
+      imageUrl: d.imageUrl,
     })),
   })
 
