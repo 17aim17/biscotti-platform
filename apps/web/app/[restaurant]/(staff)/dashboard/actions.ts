@@ -115,13 +115,21 @@ export async function archiveDishAction(slug: string, dishId: unknown) {
 
 // Photos (dishes, hero image, logo)
 
-const IMAGE_TYPES: Record<string, string> = {
-  "image/jpeg": "jpg",
-  "image/png": "png",
-  "image/webp": "webp",
-}
 // Same limits as the menu-images bucket in supabase/config.toml.
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024
+
+// The file's real type from its first bytes. The type the browser reports is
+// only a claim, so it is not trusted.
+function imageType(bytes: Uint8Array) {
+  const at = (offset: number, ...values: number[]) =>
+    values.every((v, i) => bytes[offset + i] === v)
+  if (at(0, 0xff, 0xd8, 0xff)) return { ext: "jpg", type: "image/jpeg" }
+  if (at(0, 0x89, 0x50, 0x4e, 0x47)) return { ext: "png", type: "image/png" }
+  // "RIFF" .... "WEBP"
+  if (at(0, 0x52, 0x49, 0x46, 0x46) && at(8, 0x57, 0x45, 0x42, 0x50))
+    return { ext: "webp", type: "image/webp" }
+  return null
+}
 
 // Stores the photo under the restaurant's own folder and returns its public
 // URL. The browser never writes to Storage directly: uploads go through here,
@@ -134,17 +142,18 @@ export async function uploadImageAction(slug: string, form: FormData) {
     if (!(file instanceof File)) {
       throw new DomainError("INVALID_INPUT", "Choose a photo.")
     }
-    const ext = IMAGE_TYPES[file.type]
-    if (!ext) {
-      throw new DomainError("INVALID_INPUT", "Use a JPEG, PNG or WebP photo.")
-    }
     if (file.size > MAX_IMAGE_BYTES) {
       throw new DomainError("INVALID_INPUT", "Photos can be up to 2 MB.")
     }
-    const path = `${restaurantId}/${crypto.randomUUID()}.${ext}`
+    const bytes = new Uint8Array(await file.arrayBuffer())
+    const image = imageType(bytes)
+    if (!image) {
+      throw new DomainError("INVALID_INPUT", "Use a JPEG, PNG or WebP photo.")
+    }
+    const path = `${restaurantId}/${crypto.randomUUID()}.${image.ext}`
     const storage = createSupabaseAdminClient().storage.from("menu-images")
-    const { error } = await storage.upload(path, file, {
-      contentType: file.type,
+    const { error } = await storage.upload(path, bytes, {
+      contentType: image.type,
       cacheControl: "31536000",
     })
     if (error) throw new Error(`Upload failed: ${error.message}`)

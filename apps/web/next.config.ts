@@ -14,6 +14,11 @@ const supabase = new URL(
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@workspace/ui", "@workspace/core", "@workspace/db"],
+  experimental: {
+    // Server Actions accept 1 MB by default; photo uploads allow 2 MB
+    // (dashboard/actions.ts), plus room for the form encoding.
+    serverActions: { bodySizeLimit: "3mb" },
+  },
   images: {
     remotePatterns: [
       // Demo menu photos are hosted on Unsplash (free Unsplash License photos).

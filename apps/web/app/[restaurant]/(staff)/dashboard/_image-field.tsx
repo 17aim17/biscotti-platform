@@ -32,10 +32,17 @@ export function ImageField({
     setError(null)
     const form = new FormData()
     form.set("file", file)
-    const result = await uploadImageAction(slug, form)
-    setBusy(false)
-    if (result.ok) onChange(result.data)
-    else setError(result.error)
+    try {
+      const result = await uploadImageAction(slug, form)
+      if (result.ok) onChange(result.data)
+      else setError(result.error)
+    } catch {
+      // The request itself failed (network, or the file was too large for
+      // the server to read). Without this the button would stay busy.
+      setError("Upload failed. Check the connection and try again.")
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
