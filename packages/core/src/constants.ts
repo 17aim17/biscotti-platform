@@ -27,3 +27,17 @@ export const TEXT_LIMITS = {
   cancelReason: 200,
   idempotencyKey: 100,
 } as const
+
+// URL segments used by the app itself. A restaurant slug cannot be one of these,
+// since /<slug> is the restaurant's storefront.
+export const RESERVED_SLUGS = [
+  "account",
+  "admin",
+  "api",
+  "auth",
+  "dashboard",
+  "kitchen",
+  "login",
+  "logout",
+  "_next",
+] as const
