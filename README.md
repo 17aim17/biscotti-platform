@@ -1,10 +1,14 @@
 # Biscotti
 
+[![CI](https://github.com/17aim17/biscotti-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/17aim17/biscotti-platform/actions/workflows/ci.yml)
+
 Online ordering for restaurants. Each restaurant gets a branded storefront, a kitchen screen for live orders, and a dashboard for its menu, outlets and staff.
 
 Biscotti is a rebuild of the original app (a Firebase project I built as a student in 2020). The goal is a small, correct MVP: prices computed on the server, payments verified, permissions checked on every staff action, and nothing in the database exposed by default.
 
 **[Live demo](https://biscotti-sigma.vercel.app)** · [System design](docs/architecture/system-design.md) · [How it works](docs/architecture/how-it-works.md) · [Rebuild notes](docs/architecture/rebuild-notes.md) · [Decisions](docs/adr)
+
+![Casa Spezia storefront](docs/images/storefront.jpeg)
 
 ## How it fits together
 
@@ -37,18 +41,29 @@ Biscotti is a rebuild of the original app (a Firebase project I built as a stude
 - **One codebase, many brands:** each restaurant picks a look and colours, stored as data and turned into CSS variables.
 - **Written down:** a [system design](docs/architecture/system-design.md) in interview format, 11 short [decision records](docs/adr), and a [backlog](docs/backlog.md) of what is deliberately not built yet.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/kitchen.jpeg" alt="Kitchen screen with new and cooking orders"><br><sub>Kitchen: new orders arrive live, one tap moves them along</sub></td>
+    <td width="50%"><img src="docs/images/dashboard.jpeg" alt="Owner dashboard, menu page"><br><sub>Dashboard: menu, photos, availability, outlets, staff</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/images/menu.jpeg" alt="Storefront menu with categories and search"><br><sub>Menu: categories, search, veg filter</sub></td>
+    <td width="50%" align="center"><img src="docs/images/order-mobile.jpeg" alt="Order status page on a phone" width="60%"><br><sub>Order page on a phone: updates as the kitchen works</sub></td>
+  </tr>
+</table>
+
 ## Try it
 
 **Live demo:** https://biscotti-sigma.vercel.app
 
 Sign in with one of the demo phone numbers below and its code (no SMS is sent; these are test numbers). Online payments run in Razorpay **test mode**: pay with the card `4100 2800 0000 1007`, any future expiry, any CVV, and any 4-10 digit OTP. No real money moves.
 
-| Phone       | Role               | Code       | Try                                                                                                                                       |
-| ----------- | ------------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 99999 00001 | Customer           | `098765`   | Order from [Casa Spezia](https://biscotti-sigma.vercel.app/casa-spezia)                                                                   |
-| 99999 00002 | Casa Spezia staff  | `098765`   | [Kitchen](https://biscotti-sigma.vercel.app/casa-spezia/kitchen) only (the dashboard says "no access")                                    |
-| 99999 00003 | Casa Spezia owner  | not public | [Kitchen](https://biscotti-sigma.vercel.app/casa-spezia/kitchen) and [dashboard](https://biscotti-sigma.vercel.app/casa-spezia/dashboard) |
-| 99999 00004 | Osteria Sole owner | not public | A second restaurant that cannot see Casa Spezia's data                                                                                    |
+| Phone       | Role              | Code     | Try                                                                                                    |
+| ----------- | ----------------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| 99999 00001 | Customer          | `098765` | Order from [Casa Spezia](https://biscotti-sigma.vercel.app/casa-spezia)                                |
+| 99999 00002 | Casa Spezia staff | `098765` | [Kitchen](https://biscotti-sigma.vercel.app/casa-spezia/kitchen) only (the dashboard says "no access") |
 
 **A five-minute walkthrough:**
 
@@ -56,7 +71,7 @@ Sign in with one of the demo phone numbers below and its code (no SMS is sent; t
 2. Sign in as the customer (`99999 00001`, code `098765`). Pick delivery (drop the pin inside the circle) or pickup, and pay online with the test card or choose cash.
 3. In a second browser or a private window, sign in as the kitchen staff (`99999 00002`, code `098765`) and open the **kitchen**. The order is there within a second; press Accept, then move it along.
 4. Watch the customer's order page update by itself.
-5. The owner accounts (dashboard: menu, photos, outlets, staff, refunds) are not public, so the demo stays tidy. The [system design](docs/architecture/system-design.md) and [how it works](docs/architecture/how-it-works.md) describe what they can do.
+5. The dashboard (menu, photos, outlets, staff, refunds) is shown in the screenshots above; the [system design](docs/architecture/system-design.md) and [how it works](docs/architecture/how-it-works.md) describe it.
 
 The demo data is shared by everyone who tries it, so it may look a little used.
 
@@ -99,14 +114,12 @@ pnpm dev          # http://localhost:3000
 
 ### Demo data
 
-`pnpm db:reset` seeds two restaurants and four users. Phone login uses fixed test numbers (set in `supabase/config.toml`) and sends no SMS. Locally, every code is in `supabase/config.toml`.
+`pnpm db:reset` seeds two restaurants and demo users. Phone login uses fixed test numbers and sends no SMS.
 
-| Phone           | User                               | Code                       |
-| --------------- | ---------------------------------- | -------------------------- |
-| +91 99999 00001 | Customer                           | `098765`                   |
-| +91 99999 00002 | Casa Spezia staff                  | `098765`                   |
-| +91 99999 00003 | Casa Spezia owner                  | see `supabase/config.toml` |
-| +91 99999 00004 | Osteria Sole owner (second tenant) | see `supabase/config.toml` |
+| Phone           | User              | Code     |
+| --------------- | ----------------- | -------- |
+| +91 99999 00001 | Customer          | `098765` |
+| +91 99999 00002 | Casa Spezia staff | `098765` |
 
 ### Pages
 
