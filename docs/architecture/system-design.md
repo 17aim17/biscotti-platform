@@ -101,26 +101,45 @@ Customer              Next.js + core                    Postgres            Razo
 
 ---
 
-## 3. Data model (9 tables)
+## 3. Data model (9 tables, plus Supabase's users)
 
 ```
-restaurants ─< locations
-     │
-     ├─< categories ─< menu_items
-     ├─< memberships >─ profiles (Supabase auth user)
-     └─< orders ─< order_items   (title + price snapshot)
-            │
-            └─< payments         (razorpay_order_id, razorpay_payment_id unique)
-profiles ─< orders (as customer)
+auth.users (Supabase Auth: phone, sign-in)
+   │ same id (a trigger creates the profile on sign-up)
+   ▼
+profiles ──< memberships >── restaurants ──< locations
+   │         (role per                │
+   │          restaurant)             ├──< categories ──< menu_items
+   │                                  │
+   └──────────< orders >──────────────┘   (each order: one restaurant, one location, one customer)
+                  │
+                  ├──< order_items   (title + price copied at order time)
+                  └──< payments      (one row per Razorpay attempt)
 ```
+
+**Where are the users?** Supabase Auth owns the real users table, `auth.users`: phone number, sign-in times, one-time codes. The app never writes to it directly. Everything the app needs about a person lives in `profiles`, which has the **same id** as the `auth.users` row. A trigger creates the profile when someone signs in for the first time, and another deletes it when the login is deleted (unless the person has orders, which blocks the delete).
+
+**Who is staff?** Nobody has a "type". A person is a customer everywhere by default. `memberships` gives a person a role (owner, manager or staff) at one restaurant, so the same profile can own one restaurant, cook at another, and order from a third.
+
+| Table         | One row is                      | Key columns                                                                                                                                                                                                                    | Notes                                                                                 |
+| ------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `restaurants` | a brand (the tenant)            | `name`, `slug` (unique, the URL), `theme` (look: preset, colours, tagline, photos), `legal` (four pages), `gstin`, `fssai_license`                                                                                             | Everything below hangs off it through `restaurant_id`                                 |
+| `locations`   | an outlet                       | `address`, `lat`/`lng`, `delivery_radius_m`, `hours` (per weekday, may run past midnight), `is_open` (pause switch), fees in paise, `tax_bps`, `accepts_cod`, `accepts_pickup`                                                 | Fees, tax and hours are per outlet                                                    |
+| `categories`  | a menu section                  | `name`, `sort`, `archived_at`                                                                                                                                                                                                  | Archived, never deleted                                                               |
+| `menu_items`  | a dish                          | `title`, `description`, `price_paise`, `is_veg`, `image_url`, `is_available` (sold out today), `is_featured` (signature), `archived_at`                                                                                        | Archived, never deleted: past orders point at it                                      |
+| `profiles`    | a person                        | `id` (= `auth.users.id`), `name`, `phone`                                                                                                                                                                                      | Customers and staff alike                                                             |
+| `memberships` | a person's role at a restaurant | `user_id`, `restaurant_id`, `role`                                                                                                                                                                                             | Unique per (person, restaurant); the base of all permission checks                    |
+| `orders`      | an order                        | `number` (shown as #1042), `status`, `fulfillment` (delivery/pickup), `payment_method` (online/cash), copies of the customer's name, phone and address, totals in paise, `idempotency_key`, status timestamps, `cancel_reason` | Unique (customer, idempotency key) stops double orders                                |
+| `order_items` | a line on an order              | `menu_item_id`, `title`, `unit_price_paise`, `qty`, `line_total_paise`                                                                                                                                                         | Copies title and price, so menu edits never change past orders                        |
+| `payments`    | one Razorpay attempt            | `razorpay_order_id` (unique), `razorpay_payment_id` (unique), `status` (created, captured, failed, needs_refund, refunded), `amount_paise`                                                                                     | "Pay now" again makes a new row; unique ids make recording a payment twice impossible |
 
 - **Money in integer paise**; tax in basis points. No floats, no strings (the old app stored prices as strings).
-- **Snapshots:** `order_items` copies title and price; `orders` copies the address and the customer's name/phone. Menu edits never change past orders.
-- **Archive, don't delete** menu items and categories (orders point to them).
-- **Order number:** an auto-increment column shown as "#1042".
-- **Statuses:** one map in code (`PENDING_PAYMENT → PLACED → ACCEPTED → PREPARING → READY → OUT_FOR_DELIVERY/PICKED_UP → DELIVERED`, plus `REJECTED`/`CANCELLED`). Enforced with guarded updates (`WHERE status = <expected>`). The old app had three spellings of "cancelled"; now there's one definition.
-- **Constraints:** `price_paise >= 0`, unique slug, unique `(customer, idempotency_key)`, unique Razorpay IDs, unique `(user, restaurant)` membership.
-- **Why Postgres:** relational data + transactions + constraints + RLS. Contrast with the old Firestore: copied data, drifting fields, open rules.
+- **Snapshots:** `order_items` copies title and price; `orders` copies the address and the customer's name and phone. Menu or profile edits never change past orders.
+- **Archive, don't delete** menu items and categories (orders point to them). Orders restrict deleting their restaurant, outlet, customer and dishes.
+- **Order number:** one auto-increment sequence, shown as "#1042" (a per-restaurant counter is in the backlog).
+- **Statuses:** one map in code (`PENDING_PAYMENT → PLACED → ACCEPTED → PREPARING → READY → OUT_FOR_DELIVERY/PICKED_UP → DELIVERED`, plus `REJECTED`/`CANCELLED`), enforced with guarded updates (`WHERE status = <expected>`).
+- **Constraints:** non-negative prices and fees with upper limits, totals that must add up, tax between 0 and 100%, positive delivery radius, slug format, delivery orders must have an address.
+- **Why Postgres:** relational data, transactions, constraints and row level security. Contrast with the old Firestore: copied data, drifting field names, open rules.
 
 **Security model:**
 
