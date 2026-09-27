@@ -2,28 +2,7 @@
 // build. Scripts outside Next.js run with `--conditions=react-server`.
 import "server-only"
 
-export * from "./constants"
-export { DomainError, type DomainErrorCode } from "./errors"
-
-export {
-  calculateTotals,
-  priceLines,
-  type LineInput,
-  type LocationCharges,
-  type OrderTotals,
-  type PricedLine,
-} from "./pricing"
-
-export {
-  distanceInMeters,
-  isWithinRadius,
-  type Coordinates,
-} from "./locations/distance"
-export {
-  isOpenAt,
-  openingHoursSchema,
-  type OpeningHours,
-} from "./locations/hours"
+export { DomainError } from "./errors"
 
 export {
   can,
@@ -36,47 +15,36 @@ export {
   getMenu,
   getRestaurantBySlug,
   getStaffRestaurants,
-  isReservedSlug,
   listRestaurants,
   type MenuCategory,
   type MenuDish,
   type RestaurantSummary,
 } from "./restaurants/queries"
 
-export {
-  ACTIVE_STATUSES,
-  Actor,
-  canTransition,
-  nextStatuses,
-  NOT_FULFILLED_STATUSES,
-  ORDER_TRANSITIONS,
-} from "./orders/status"
-export {
-  placeOrder,
-  placeOrderInput,
-  quoteOrder,
-  quoteOrderInput,
-  type PlaceOrderInput,
-  type QuoteOrderInput,
-} from "./orders/place-order"
+export { Actor, nextStatuses } from "./orders/status"
+export { placeOrder, quoteOrder } from "./orders/place-order"
+// Named by the return types of Server Actions in apps/web.
+export type { OrderTotals } from "./pricing"
 export {
   getCustomerOrder,
   getProfile,
   listCustomerOrders,
   type CustomerOrder,
 } from "./orders/queries"
-export { updateOrderStatus, type StatusChangeBy } from "./orders/update-status"
+export { updateOrderStatus } from "./orders/update-status"
 export { listKitchenOrders, type KitchenOrder } from "./orders/kitchen"
 
 // markPaid and the signature helpers stay internal: callers go through these.
 export {
   confirmCheckoutPayment,
   handleRazorpayWebhook,
-  MarkPaidResult,
   startOnlinePayment,
+  type MarkPaidResult,
 } from "./payments/payments"
 
-// Dashboard: every function checks the caller's permission first.
+// Dashboard. Every function that reads or changes a restaurant checks the
+// caller's permission first; staffPhone and findUserIdByPhone only help
+// addStaffMember find the person.
 export {
   countOrdersNeedingRefund,
   listRestaurantOrders,
@@ -93,7 +61,6 @@ export {
   renameCategory,
   setDishAvailable,
   updateDish,
-  type DishInput,
   type EditableCategory,
   type EditableDish,
 } from "./dashboard/menu"
@@ -102,7 +69,6 @@ export {
   getOutletsForEditing,
   updateOutlet,
   type EditableOutlet,
-  type OutletInput,
 } from "./dashboard/outlets"
 export {
   addStaffMember,
@@ -116,7 +82,6 @@ export {
   getSettingsForEditing,
   THEME_PRESETS,
   updateSettings,
-  type SettingsInput,
   type ThemePreset,
 } from "./dashboard/settings"
 export { parseInput } from "./validation"
