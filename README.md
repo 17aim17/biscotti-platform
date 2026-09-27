@@ -4,6 +4,31 @@ Online ordering for restaurants. Each restaurant gets a branded storefront, a ki
 
 Biscotti is a rebuild of the original app (a Firebase project I built as a student in 2020). The goal is a small, correct MVP: prices computed on the server, payments verified, permissions checked on every staff action, and nothing in the database exposed by default.
 
+## How it fits together
+
+```
+ Browser (customer, kitchen tablet, owner)
+   │  pages and Server Actions               live order updates
+   ▼                                          ▲
+ apps/web  (Next.js on Vercel)                │
+   │  thin actions: who is signed in           │
+   ▼                                          │
+ packages/core  (business logic)              │
+   │  validate input, check the role,         │
+   │  price orders, move statuses, payments   │
+   ▼                                          │
+ packages/db  (Prisma) ──▶ Supabase Postgres ─┘ Realtime (row level security decides who hears what)
+                           Supabase Auth (phone OTP), Storage (photos)
+
+ Razorpay ──▶ webhook /api/webhooks/razorpay ──▶ core (verify, record payment)
+```
+
+- The browser never sends prices or statuses: it sends ids and quantities, and the server does the rest.
+- Every change to restaurant data goes through core, which checks the person's role at that restaurant (owner, manager or staff).
+- The database is locked to browsers by default; the only reads it serves directly are live order updates.
+
+The design, the decisions and what was wrong with the original app are written up in [docs](#docs).
+
 ## Stack
 
 - Next.js 16 (App Router), React 19, Tailwind CSS 4, shadcn/ui
@@ -99,6 +124,7 @@ pnpm dlx shadcn@latest add <component> -c apps/web
 
 ## Docs
 
-- [System design](docs/architecture/system-design.md)
-- [Decisions (ADRs)](docs/adr)
-- [Backlog](docs/backlog.md)
+- [System design](docs/architecture/system-design.md): requirements, architecture, data model, interfaces, what to optimize next
+- [Rebuild notes](docs/architecture/rebuild-notes.md): what the original app got wrong, how Biscotti handles each problem, and the bugs the rebuild itself ran into
+- [Decisions (ADRs)](docs/adr): one page per important decision, with its trade-offs
+- [Backlog](docs/backlog.md): what is deliberately not built yet, in rough priority order

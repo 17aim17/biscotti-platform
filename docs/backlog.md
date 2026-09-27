@@ -14,7 +14,7 @@ Deferred on purpose to keep the MVP small. Roughly in priority order.
 10. Order history table (`order_events`) for a full audit trail.
 11. Organizations above restaurants (groups that run several brands).
 12. Row Level Security as a second guard on server queries.
-13. Rate limiting on checkout, security headers.
+13. Rate limiting and abuse limits: cap open orders per customer, limit OTP and payment attempts, reuse an unpaid Razorpay order instead of creating a new one per attempt; security headers.
 14. Subdomain per restaurant once a domain exists (rewrite to the path routes).
 15. Upgrade to ESLint 10 once eslint-plugin-react supports it.
 16. Dark mode.
@@ -23,3 +23,9 @@ Deferred on purpose to keep the MVP small. Roughly in priority order.
 19. Cache the menu pages (Next.js "use cache" with tag revalidation when the menu is edited in the dashboard).
 20. ~~Menu photos uploaded by restaurants (Supabase Storage).~~ Done in Phase 9 (dashboard uploads).
 21. Platform onboarding UI, custom domains, delivery partners, native apps, loyalty, POS integration, analytics.
+22. Staff limited to one outlet (a `location_id` on memberships), so a tablet account at one outlet only sees that outlet's orders.
+23. Invite staff instead of creating their login right away: the membership shows as "invited" until that person signs in, and the owner does not see an existing account's name.
+24. Enforce the order status map in the database as well (a trigger), not only in core.
+25. Upgrade to Prisma 8 once it is stable (pinned to 7.x now).
+26. Remove photos from Storage when a dish or restaurant stops using them (uploads are never deleted today).
+27. Staff and customer notifications beyond SMS (email, push), once reliable notifications (7) exist.
