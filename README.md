@@ -124,7 +124,7 @@ pnpm dlx shadcn@latest add <component> -c apps/web
 
 ## Docs
 
-- [System design](docs/architecture/system-design.md): requirements, architecture, data model, interfaces, what to optimize next
+- [System design](docs/architecture/system-design.md): how the system works, in plain words: the pieces, three journeys step by step, every table, who can do what, and a glossary
 - [Rebuild notes](docs/architecture/rebuild-notes.md): what the original app got wrong, how Biscotti handles each problem, and the bugs the rebuild itself ran into
 - [Decisions (ADRs)](docs/adr): one page per important decision, with its trade-offs
 - [Backlog](docs/backlog.md): what is deliberately not built yet, in rough priority order
