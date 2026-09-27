@@ -1,10 +1,10 @@
 import {
   countOrdersNeedingRefund,
-  getMembership,
   roleCan,
   type Permission,
 } from "@workspace/core"
 
+import { getMyMembership } from "@/lib/access"
 import { getCurrentUser } from "@/lib/auth"
 import { getRestaurantOr404 } from "@/lib/restaurant"
 
@@ -28,7 +28,7 @@ export default async function DashboardLayout({
   const { restaurant: slug } = await params
   const restaurant = await getRestaurantOr404(slug)
   const user = await getCurrentUser()
-  const membership = user ? await getMembership(user.id, restaurant.id) : null
+  const membership = user ? await getMyMembership(user.id, restaurant.id) : null
   const allowed = SECTIONS.filter(
     (s) => membership && roleCan(membership.role, s.permission)
   )
