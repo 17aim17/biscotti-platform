@@ -1,199 +1,324 @@
-# Biscotti: how the system works
+# Biscotti: system design
 
-Biscotti lets a restaurant take orders on its own branded website instead of through a delivery app. Each restaurant gets three screens: a **storefront** for customers, a **kitchen screen** for live orders, and a **dashboard** for the menu, outlets, staff and settings. It is a small, deliberately simple MVP: strict where it matters (money, permissions, who can see data), plain everywhere else.
+Interview version, in RADIO order: **Requirements → Architecture → Data model → Interface → Optimizations**. For a gentler tour of the pieces and concepts, read [how it works](how-it-works.md) first. Decisions have one-page [ADRs](../adr); what changed from the original 2020 app is in the [rebuild notes](rebuild-notes.md).
 
-Terms in **bold** are explained in the [glossary](#glossary) at the end. What the original 2020 app got wrong is in [rebuild notes](rebuild-notes.md); each decision has a one-page [ADR](../adr).
-
----
-
-## 1. Who uses it
-
-| Person         | What they do                                                                                        | Where                                                            |
-| -------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| Customer       | Browse the menu, fill a cart, sign in with their phone, pay online or in cash, watch the order live | `/casa-spezia`, `/casa-spezia/checkout`, `/casa-spezia/orders/…` |
-| Kitchen staff  | See new orders appear, accept or reject, move them along until delivered                            | `/casa-spezia/kitchen`                                           |
-| Manager, owner | Edit the menu and photos, outlets and hours, staff, branding, legal pages; handle refunds           | `/casa-spezia/dashboard/…`                                       |
-
-Every restaurant lives under its own URL prefix (`/casa-spezia`, `/osteria-sole`). That prefix is how the app knows which restaurant a page belongs to.
-
-**Size:** a few restaurants, a few orders a minute at the busiest. One app and one database are plenty; the hard parts are correctness and security, not load.
+**One-line pitch:** a multi-tenant online ordering platform (Lunchbox.io-style) where each restaurant gets a branded storefront, a live kitchen screen and a dashboard, so it can take direct orders instead of paying aggregator commissions. Built as a lean MVP that is strict about money, permissions and data exposure.
 
 ---
 
-## 2. The pieces
+## R: Requirements
+
+### Users and functional requirements
+
+| Actor         | Must be able to                                                                                                                                                                                                                                                                                           |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Customer      | Browse a restaurant's menu (search, veg filter, dish details); keep a cart without signing in; sign in with phone OTP at checkout; choose outlet, delivery (map pin, inside a radius) or pickup; pay online (Razorpay) or cash; follow the order live; see past orders; cancel before the kitchen accepts |
+| Kitchen staff | See new orders within seconds (with sound); accept or reject with a reason; move orders through cooking, ready, out for delivery, delivered or picked up                                                                                                                                                  |
+| Manager       | Everything staff can, plus: order history, menu (dishes, photos, sold out), outlets (hours, radius, fees, tax, cash/pickup, pause)                                                                                                                                                                        |
+| Owner         | Everything a manager can, plus: staff and roles, branding and legal pages, recording refunds                                                                                                                                                                                                              |
+
+**Out of scope for the MVP** (backlog): cart across devices, promo codes, dish options, delivery-partner app, automatic refunds, native apps, analytics.
+
+### Non-functional requirements (in priority order)
+
+1. **Tenant isolation:** a restaurant never sees or changes another's data; a customer only sees their own orders.
+2. **Money correctness:** prices come from the server; no double orders, no double payments, no order marked paid without a verified payment.
+3. **Nothing exposed by default:** no table readable from the browser unless explicitly allowed (the original app's database was public for years).
+4. **Freshness:** a new order reaches the kitchen in under 2 seconds; status changes reach the customer as fast.
+5. **Reliability of payment confirmation:** a paid order is recorded even if the customer closes the tab.
+6. **Simplicity and cost:** one developer, free or cheap managed services, easy to explain end to end.
+
+### Back-of-envelope estimates
+
+Assume **50 restaurants × 150 orders a day = 7,500 orders/day**.
+
+| Quantity         | Estimate                                                           | So what                                     |
+| ---------------- | ------------------------------------------------------------------ | ------------------------------------------- |
+| Peak orders      | 20% of the day in the dinner hour: 1,500/h ≈ **0.4 orders/s**      | Writes are tiny                             |
+| Writes per order | order + items + payment + ~5 status changes ≈ 10                   | Peak ≈ **4 writes/s**                       |
+| Menu page views  | ~20 per order: 150k/day, peak ≈ **10 req/s**                       | Reads dominate (~50:1); cache menus first   |
+| Live connections | ~100 kitchen tablets + a few hundred customers watching orders     | Well inside one Realtime service            |
+| Order storage    | ~3 KB per order with items and payment: ~22 MB/day ≈ **8 GB/year** | One Postgres instance for years             |
+| Photos           | 50 restaurants × 100 dishes × ~300 KB ≈ **1.5 GB**                 | Object storage, served through an image CDN |
+
+**Conclusion:** one app and one Postgres database are the right size. The hard problems are correctness, security and concurrency, not throughput. At 100× this is still one database with read replicas and caching (see scaling path).
+
+### Constraints
+
+India: prices in INR with GST, FSSAI licence in the footer, Razorpay for UPI/cards/netbanking, phone OTP (more common than email). Free tiers (Vercel, Supabase) and no paid map API.
+
+---
+
+## A: Architecture
 
 ```
-  Phone / tablet / laptop (the browser)
-        │  pages, button clicks
-        ▼
-  ┌──────────── Next.js app (apps/web), hosted on Vercel ────────────┐
-  │  Pages (Server Components): build the HTML on the server          │
-  │  Server Actions: functions the browser calls when you click       │
-  │  One API route: /api/webhooks/razorpay                            │
-  │          │                                                        │
-  │  packages/core: the business rules (prices, orders, payments,     │
-  │                 who is allowed to do what)                        │
-  │          │                                                        │
-  │  packages/db: Prisma, the code that talks to the database         │
-  └──────────┼───────────────────────────────────────────────────────┘
-             ▼
-  ┌──────────────────── Supabase ────────────────────────────────────┐
-  │  Postgres (the database)     Auth (phone sign-in)                  │
-  │  Storage (menu photos)       Realtime (pushes order changes live)  │
-  └───────────────────────────────────────────────────────────────────┘
-        ▲ payment confirmations                    SMS to customers ▶
-     Razorpay
+  Customer phone            Kitchen tablet / owner laptop
+  /casa-spezia              /casa-spezia/kitchen, /casa-spezia/dashboard
+        │                           │
+        └──────────── HTTPS ────────┘
+                       ▼
+  ┌──────────────── Next.js on Vercel (one app) ───────────────────────┐
+  │  proxy.ts: refresh the session cookie on every request              │
+  │  Pages (Server Components) ─── read ──┐                             │
+  │  Server Actions ───────────── write ──┤                             │
+  │  /api/webhooks/razorpay ──────────────┤                             │
+  │                                       ▼                             │
+  │  packages/core: pricing · orders · payments · permissions · SMS     │
+  │                                       │ Prisma (server only)        │
+  └───────────────────────────────────────┼─────────────────────────────┘
+                                          ▼
+  ┌──────────────────────── Supabase ───────────────────────────────────┐
+  │  Postgres (constraints, RLS deny-by-default)    Auth (phone OTP)       │
+  │  Realtime (order changes → kitchen, customer)   Storage (photos)       │
+  └───────────────────────────────────────────────────────────────────────┘
+        ▲ webhook (payment captured/failed)             SMS provider ◀── core
+     Razorpay ◀── create payment (server) / payment window (browser)
 ```
 
-| Piece                                 | What it does                                                                                          | Why it is here                                                                             |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Browser                               | Shows pages; keeps the cart in `localStorage`                                                         | The cart needs no server until checkout                                                    |
-| Next.js pages (**Server Components**) | Run on the server, read the database, send finished HTML                                              | Data never has to be fetched and stored in the browser (the old app needed Redux for that) |
-| **Server Actions**                    | Functions like `placeOrderAction` that the browser calls on a click; they run on the server           | No hand-written API layer; typed from button to database                                   |
-| `packages/core`                       | All business rules: pricing, checking hours and delivery range, order statuses, payments, permissions | One place for the rules, separate from the UI, easy to reuse (for a mobile API later)      |
-| `packages/db` (**Prisma**)            | Defines the tables and runs the queries                                                               | Typed queries and versioned **migrations**                                                 |
-| Postgres                              | Stores everything; also enforces rules of its own (**constraints**, **RLS**)                          | Relational data with **transactions**, unlike the old Firestore                            |
-| Supabase Auth                         | Phone number + one-time code sign-in; the session is a cookie                                         | Managed login, no passwords to store                                                       |
-| Supabase Realtime                     | Tells the kitchen and the customer's page when an order changes                                       | Orders appear within a second without refreshing                                           |
-| Supabase Storage                      | Holds photos uploaded in the dashboard                                                                | Files next to the data                                                                     |
-| Razorpay                              | Takes online payments; tells our server when money arrives (**webhook**)                              | Cards, UPI and netbanking in India                                                         |
+### Components
 
-**Repo layout:** `apps/web` is the only app that is deployed. It uses `packages/core` (rules), which uses `packages/db` (database). `packages/ui` holds shared buttons and dialogs.
+| Component    | Responsibility                                               | Technology                                              |
+| ------------ | ------------------------------------------------------------ | ------------------------------------------------------- |
+| Web app      | All three surfaces; SSR pages, Server Actions, webhook route | Next.js 16 App Router, React 19, Tailwind, shadcn       |
+| Domain layer | Business rules and every permission check; no framework code | `packages/core`, TypeScript, zod                        |
+| Data layer   | Schema, migrations, typed queries                            | `packages/db`, Prisma 7, Postgres                       |
+| Auth         | Phone OTP, signed session cookie                             | Supabase Auth, `@supabase/ssr`                          |
+| Live updates | Push order row changes to browsers                           | Supabase Realtime (`postgres_changes`), filtered by RLS |
+| Files        | Menu photos, hero image, logo                                | Supabase Storage, `next/image`                          |
+| Payments     | Collect money; confirm by callback and webhook               | Razorpay (test mode)                                    |
+| Maps         | Delivery pin, radius, address lookup                         | Leaflet + OpenStreetMap tiles, Photon geocoder          |
 
----
+### Request paths
 
-## 3. Three journeys, step by step
+- **Read (pages):** browser → Server Component → `core` query (filtered by `restaurant_id`) → HTML. No client-side data store; the old app's Redux cache is gone.
+- **Write:** browser → Server Action → `requireUserId()` → `core` function (validate with zod, `requirePermission`, check ownership, write in a transaction) → `{ ok, data }` or `{ ok: false, error }`.
+- **Async in:** Razorpay → webhook (verify HMAC over the raw body) → `core.markPaid`.
+- **Async out:** Postgres change → Realtime → subscribed browsers → `router.refresh()` re-renders from the server. SMS is sent after the status change commits.
 
-**A. Opening the menu** (`/casa-spezia`)
+### Key choices and alternatives
 
-1. The browser asks for the page. The Next.js server finds the restaurant by its slug (`casa-spezia`).
-2. The page's server code reads the menu from Postgres (through `core` and Prisma) and renders the HTML.
-3. The browser shows it. "Add" only updates the cart in `localStorage`; nothing is sent yet.
-
-**B. Placing and paying for an order**
-
-1. At checkout the customer signs in (phone + code); Supabase sets a session cookie.
-2. As they pick delivery or pickup, move the map pin or change dishes, the page calls `quoteAction`. The server loads real prices, fees and tax and returns the total. The browser never sends a price.
-3. "Pay" calls `placeOrderAction`. Core checks the outlet is open, the pin is inside the delivery area and every dish is available, prices the order again, and saves it as `PENDING_PAYMENT`. The request carries an **idempotency key**, so a double click cannot create two orders.
-4. The server creates a payment with Razorpay and the browser opens Razorpay's payment window.
-5. The customer pays. Two confirmations may arrive, in any order: the browser's signed callback and Razorpay's **webhook**. Each is checked (signature, amount), and the first one moves the order to `PLACED` with a **guarded update**; the second finds nothing left to do.
-6. The customer lands on the order page, which listens for changes through Realtime.
-
-(Cash orders skip steps 4-5: they are saved as `PLACED` straight away.)
-
-**C. The kitchen moves the order**
-
-1. The kitchen screen is listening through Realtime. The new order appears (with a chime) within about a second.
-2. Staff press Accept, then Start cooking, Mark ready, Out for delivery. Each press calls `moveOrderAction`; core checks the person's role and that the move is allowed from the current status.
-3. Each change is pushed to the customer's order page, and an SMS goes out for the important ones (accepted, on the way).
+| Choice                                                   | Alternatives considered                           | Why this one                                                                                                                                                                      |
+| -------------------------------------------------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| One Next.js app with a domain package (modular monolith) | Separate storefront/dashboard apps; microservices | One deploy, one auth setup; `core` is reusable behind a REST API later. Services add network hops and ops for no gain at 4 writes/s ([ADR 0003](../adr/0003-modular-monolith.md)) |
+| Server Components + Server Actions                       | SPA + REST/GraphQL API                            | No API layer to hand-write, typed end to end, less JavaScript in the browser. REST can be added for native apps, calling the same `core`                                          |
+| Supabase (Postgres + Auth + Realtime + Storage)          | Stay on Firebase; self-host Postgres + Auth       | Relational data with transactions and constraints, plus managed login and live updates ([ADR 0001](../adr/0001-supabase-over-firebase.md))                                        |
+| Logic in TypeScript, Postgres for integrity              | Logic in SQL functions and RLS only               | Easier to read, test and change; the database still enforces constraints and locks the public API ([ADR 0002](../adr/0002-prisma-and-app-first-logic.md))                         |
+| Restaurant in the path (`/casa-spezia`)                  | Subdomain per restaurant                          | Free `*.vercel.app` domain, one cookie; subdomains later via a rewrite ([ADR 0007](../adr/0007-path-based-tenancy.md))                                                            |
+| Realtime + refresh, polling fallback                     | Polling only; SSE/WebSockets of our own           | Sub-second updates without running a socket server; polling covers dropped connections                                                                                            |
+| Cart in `localStorage`, priced on the server             | Server cart from the first click                  | Browse without login; no race conditions; price integrity kept ([ADR 0009](../adr/0009-cart-in-the-browser-priced-on-the-server.md))                                              |
 
 ---
 
-## 4. The data
+## D: Data model
 
 ```
-auth.users (Supabase's own table: phone, sign-in)
-   │ same id
-   ▼
-profiles ──< memberships >── restaurants ──< locations
-   │         (a role at one      │
-   │          restaurant)        ├──< categories ──< menu_items
-   │                             │
-   └────────< orders >───────────┘
-                │
-                ├──< order_items
-                └──< payments
+auth.users ─(same id)─ profiles ──< memberships >── restaurants ──< locations
+                          │                              ├──< categories ──< menu_items
+                          │                              │
+                          └──────────< orders >──────────┘   orders ──> locations
+                                         ├──< order_items ──> menu_items
+                                         └──< payments
 ```
 
-(`A ──< B` means one A has many B.)
+| Table         | Primary key and relations                           | Unique keys                                | Indexes                                                                      | Notes                                                                                                                     |
+| ------------- | --------------------------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `restaurants` | `id`                                                | `slug`                                     |                                                                              | `theme`, `legal` as JSON (read whole, validated in core)                                                                  |
+| `locations`   | `id`, `restaurant_id`                               |                                            | `(restaurant_id)`                                                            | Fees in paise, `tax_bps`, `hours` JSON (per weekday, spans may cross midnight), `lat/lng`, `delivery_radius_m`, `is_open` |
+| `categories`  | `id`, `restaurant_id`                               |                                            | `(restaurant_id)`                                                            | `sort`, `archived_at` (soft delete)                                                                                       |
+| `menu_items`  | `id`, `restaurant_id`, `category_id`                |                                            | `(restaurant_id, category_id)`                                               | `price_paise`, `is_available`, `is_featured`, `archived_at`                                                               |
+| `profiles`    | `id` = `auth.users.id`                              |                                            |                                                                              | Created by a trigger at sign-up; removed with the login unless it has orders                                              |
+| `memberships` | `id`, `user_id`, `restaurant_id`                    | `(user_id, restaurant_id)`                 | `(restaurant_id)`                                                            | `role`: owner, manager, staff                                                                                             |
+| `orders`      | `id`, `restaurant_id`, `location_id`, `customer_id` | `number`; `(customer_id, idempotency_key)` | `(restaurant_id, status, created_at desc)`; `(customer_id, created_at desc)` | Snapshots of name, phone, address; totals in paise; status timestamps                                                     |
+| `order_items` | `id`, `order_id`, `menu_item_id`                    |                                            | `(order_id)`                                                                 | Snapshot of title and unit price                                                                                          |
+| `payments`    | `id`, `order_id`                                    | `razorpay_order_id`; `razorpay_payment_id` | `(order_id)`                                                                 | One row per attempt; `status`, `amount_paise`                                                                             |
 
-**Users, profiles and memberships.** Supabase keeps the real users table (`auth.users`: phone, sign-in details) in its own area of the database; the app never writes to it. The app's own record of a person is `profiles`, with the **same id**. A trigger creates it at first sign-in and removes it if the login is deleted (unless the person has orders). Nobody has a "type": everyone is a customer by default, and a `memberships` row gives a person a role at one restaurant. So one person can own one restaurant and order from another.
+### Access patterns → indexes
 
-| Table         | What it stores                                                                                                      | Example                                     |
-| ------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| `restaurants` | One brand: name, URL slug, look (colours, photos, tagline), legal pages, GSTIN/FSSAI                                | Casa Spezia, `casa-spezia`, classic look    |
-| `locations`   | One outlet: address, map position, delivery radius, opening hours, fees, tax, cash/pickup yes or no, a pause switch | Chandigarh, 5 km, 09:00-03:00, delivery ₹30 |
-| `categories`  | A menu section, in order                                                                                            | Appetizers (1st), Soups (2nd)               |
-| `menu_items`  | A dish: name, description, price, veg or not, photo, sold out today, signature dish                                 | Achari Paneer Tikka, ₹249, veg              |
-| `profiles`    | A person (customer or staff)                                                                                        | +91 99999 00001, "Test Customer"            |
-| `memberships` | A person's role at a restaurant                                                                                     | +91 99999 00003 is **staff** at Casa Spezia |
-| `orders`      | An order: number, status, delivery or pickup, cash or online, copies of name/phone/address, all totals              | #2, `DELIVERED`, delivery, cash, ₹732.90    |
-| `order_items` | The dishes on an order, with the name and price **as they were** when ordered                                       | 1 × Achari Paneer Tikka at ₹249             |
-| `payments`    | One online payment attempt with Razorpay's ids and its outcome                                                      | `captured`, ₹313.95                         |
+| Query                                                     | Served by                                         |
+| --------------------------------------------------------- | ------------------------------------------------- |
+| Menu of a restaurant (storefront)                         | `menu_items (restaurant_id, category_id)`         |
+| Kitchen board: a restaurant's active orders, newest first | `orders (restaurant_id, status, created_at desc)` |
+| A customer's order history                                | `orders (customer_id, created_at desc)`           |
+| "Did this checkout attempt already create an order?"      | unique `(customer_id, idempotency_key)`           |
+| Record a Razorpay payment exactly once                    | unique `razorpay_order_id`, `razorpay_payment_id` |
+| A person's role at a restaurant (every staff action)      | unique `(user_id, restaurant_id)`                 |
 
-Rules that hold everywhere:
+### Modelling decisions
 
-- **Money is whole paise** (₹249 is stored as `24900`): no rounding errors. Tax is stored in basis points (5% = `500`).
-- **Orders keep copies** of dish names, prices and the address, so editing the menu later never changes a past order.
-- **Dishes and categories are archived, never deleted**, because old orders point at them.
-- **Order statuses** follow one map: `PENDING_PAYMENT → PLACED → ACCEPTED → PREPARING → READY → OUT_FOR_DELIVERY → DELIVERED` (pickup ends with `PICKED_UP`), with `REJECTED` and `CANCELLED` as exits.
-- The database itself refuses bad data (**constraints**): negative prices, totals that don't add up, a delivery order without an address.
-
----
-
-## 5. Who can do what
-
-Three layers, from the outside in:
-
-1. **Sign-in.** A phone number and a one-time code. The session lives in a cookie that `proxy.ts` refreshes on each request.
-2. **Roles (RBAC)**, checked on the server for every action, per restaurant:
-
-   | Can                                         | Staff | Manager | Owner |
-   | ------------------------------------------- | ----- | ------- | ----- |
-   | Use the kitchen screen                      | ✓     | ✓       | ✓     |
-   | See orders, edit the menu and outlets       |       | ✓       | ✓     |
-   | Mark refunds, manage staff, change settings |       |         | ✓     |
-
-   Customers have no role. They can only see, pay for and cancel their **own** orders. Two extra rules: a restaurant always keeps an owner, and nobody can remove or demote themselves.
-
-3. **The database lock (RLS).** Browsers can reach Supabase directly, so every table is locked by default. The only thing a browser may read directly is order updates for Realtime: a customer's own orders, and staff's current kitchen orders. Everything else goes through the server.
+- **Money in integer paise**, tax in basis points; tax computed once per order and rounded to the paisa. A check constraint enforces `total = subtotal + fees + tax` ([ADR 0004](../adr/0004-money-in-paise.md)).
+- **Snapshots:** orders copy the customer's name, phone and address; order items copy the dish title and price. Editing the menu never rewrites history.
+- **Soft deletes** for dishes and categories (`archived_at`); orders restrict deleting their restaurant, outlet, customer and dishes.
+- **Order status is an enum with a state machine in code:**
+  ```
+  PENDING_PAYMENT ──paid──▶ PLACED ──▶ ACCEPTED ──▶ PREPARING ──▶ READY ──▶ OUT_FOR_DELIVERY ──▶ DELIVERED
+        │ (cash orders start at PLACED)  │  │                          └──(pickup)──▶ PICKED_UP
+        └──▶ CANCELLED (customer)        │  └──▶ CANCELLED (staff, after accept)
+                              REJECTED ◀─┘ (staff)   CANCELLED ◀─ PLACED (customer, before accept)
+  ```
+  Each move is allowed for one actor (customer, staff or system). Only the payment code can move `PENDING_PAYMENT → PLACED` ([ADR 0006](../adr/0006-order-status-map-and-guarded-updates.md)).
+- **Payment status:** `created → captured` (or `failed`, which can still become `captured` on a retry inside Razorpay's window); `captured → needs_refund → refunded` when the order will not be fulfilled.
+- **JSON columns** (`theme`, `legal`, `hours`, `delivery_address`) for data that is always read and written whole; shape validated with zod in core. Trade-off: no SQL queries into them, which none of the access patterns need.
+- **Multi-tenancy: shared schema.** Every tenant-owned table has `restaurant_id`; indexes lead with it. Chosen over schema-per-tenant or database-per-tenant for many small tenants and one migration path; a very large tenant could move to its own database later.
 
 ---
 
-## 6. How money and orders stay correct
+## I: Interface
 
-| Risk                                       | What prevents it                                                                      |
-| ------------------------------------------ | ------------------------------------------------------------------------------------- |
-| Customer changes a price in the browser    | The browser only sends dish ids and quantities; the server prices everything          |
-| Double click creates two orders            | **Idempotency key** + a unique index: the second request gets the same order          |
-| Kitchen accepts while the customer cancels | **Guarded updates**: `…WHERE status = 'PLACED'` succeeds for only one of them         |
-| Payment recorded twice, or a fake "paid"   | Signatures checked, amounts compared, unique Razorpay ids, guarded update to `PLACED` |
-| Browser closes right after paying          | Razorpay's **webhook** records the payment anyway                                     |
-| Money arrives for a rejected order         | Marked `needs_refund`; the owner refunds it and marks it in the dashboard             |
+### Server Actions (called by the browser)
+
+All return `ActionResult<T> = { ok: true, data: T } | { ok: false, error: string }`. Input is `unknown` on arrival and validated in core.
+
+| Action                 | Input                                                                            | Returns                                                                | Who                                                  |
+| ---------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------- |
+| `quoteAction`          | `{ restaurantId, locationId, fulfillment, pin?, items: {menuItemId, qty}[] }`    | lines and totals                                                       | anyone                                               |
+| `placeOrderAction`     | the quote fields + `paymentMethod`, `customerName`, `address?`, `idempotencyKey` | `{ orderId, payment }` (Razorpay details for online orders, else null) | signed-in customer                                   |
+| `startPaymentAction`   | `orderId`                                                                        | new Razorpay order details ("Pay now")                                 | the order's customer                                 |
+| `confirmPaymentAction` | `{ razorpayOrderId, razorpayPaymentId, signature }`                              | `placed`, `already_recorded` or `needs_refund`                         | signed in; signature is the real check               |
+| `cancelOrderAction`    | `orderId`                                                                        | `null`                                                                 | the order's customer, before accept                  |
+| `moveOrderAction`      | `{ orderId, to, reason? }`                                                       | `null`                                                                 | staff+ at the order's restaurant; status map decides |
+| Dashboard actions      | `slug` + section input (dish, category, outlet, staff member, settings, photo)   | `null` or a URL                                                        | manager/owner per section                            |
+
+### Webhook
+
+`POST /api/webhooks/razorpay`, header `x-razorpay-signature` = HMAC-SHA256 of the raw body with the webhook secret.
+
+| Case                              | Response                                                                           |
+| --------------------------------- | ---------------------------------------------------------------------------------- |
+| `payment.captured` for our order  | 200, payment recorded (or already recorded)                                        |
+| `payment.failed`                  | 200, attempt marked failed                                                         |
+| Payment or event we do not handle | 200, ignored (a 4xx/5xx would make Razorpay retry and eventually disable the hook) |
+| Bad signature, amount mismatch    | 400 (retrying cannot fix it)                                                       |
+| Unexpected error (database down)  | 500, Razorpay retries later                                                        |
+
+### Realtime
+
+| Subscriber          | Channel filter                           | Allowed by RLS policy                                                               |
+| ------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------- |
+| Customer order page | `orders`, `id = <order>`                 | `customer_id = auth.uid()`                                                          |
+| Kitchen board       | `orders`, `restaurant_id = <restaurant>` | member of the restaurant, and the order is in progress or finished in the last hour |
+
+The payload is ignored; the page calls `router.refresh()` so data always comes through the server path. Polling every 15-20 s covers dropped sockets.
+
+### Auth and authorization
+
+- **Authentication:** Supabase phone OTP; session in a signed cookie refreshed by `proxy.ts`. The server derives the user id from the cookie; the browser never sends it.
+- **Authorization (tenant-scoped RBAC):** `memberships` gives a role per restaurant; a static role → permission map in core (`kitchen:use`, `orders:view`, `menu:manage`, `locations:manage`, `payments:refund`, `staff:manage`, `restaurant:manage`). `requirePermission` throws on failure, so a forgotten `if` cannot let an action continue.
+- **Ownership checks:** every id from the browser is looked up with the restaurant (`WHERE id = ? AND restaurant_id = ?`) or the customer; misses return "not found" rather than revealing that the row exists.
+- **Invariants:** at least one owner per restaurant (serializable transaction); nobody removes or demotes themselves.
+
+### Errors
+
+`DomainError(code, message)` for expected failures (`LOCATION_CLOSED`, `OUT_OF_RANGE`, `ITEM_UNAVAILABLE`, `FORBIDDEN`, `STATUS_CONFLICT`, `PAYMENT_MISMATCH`, `INVALID_INPUT`, ...): the message is shown to the user. Anything else is logged and shown as "Something went wrong". A failed network request in the browser becomes an error result too (`callAction`).
 
 ---
 
-## 7. Main decisions
+## O: Optimizations and deep dives
 
-| Decision                                                                                                    | Why                                                          | Trade-off                                                |
-| ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------- |
-| One Next.js app, rules in `core` ([ADR 0003](../adr/0003-modular-monolith.md))                              | One deploy, simplest to build and explain                    | Storefront and dashboard scale together                  |
-| Supabase: Postgres, Auth, Storage, Realtime ([0001](../adr/0001-supabase-over-firebase.md))                 | Real relational database plus managed login and live updates | Tied to Supabase's services (the data is plain Postgres) |
-| Restaurant in the URL path ([0007](../adr/0007-path-based-tenancy.md))                                      | Works on a free domain with one login                        | Subdomains later, via a rewrite                          |
-| Cart in the browser, priced on the server ([0009](../adr/0009-cart-in-the-browser-priced-on-the-server.md)) | Simple and safe                                              | No cart across devices yet                               |
-| Payments confirmed twice ([0005](../adr/0005-payments-webhook-and-callback.md))                             | Either confirmation can be lost                              | Refunds are manual for now                               |
-| Database locked by default ([0008](../adr/0008-rls-as-a-second-lock.md))                                    | A missed check in code cannot expose data to browsers        | Server code must still filter by restaurant              |
-| No tests, logs or queues yet ([0011](../adr/0011-what-is-not-built.md))                                     | Finish the core loop first                                   | Listed first in the backlog                              |
+### 1. Checkout and payment consistency
+
+```
+Customer          Server (core)                              Postgres        Razorpay
+  │ quote ───────▶ price from DB ◀────────────────────────────────▶
+  │ place order ─▶ checks (open, radius, available) + price
+  │                insert order PENDING_PAYMENT (idempotency key) ──▶
+  │                create Razorpay order (outside any transaction) ─────────────────▶
+  │                insert payments row ──────────────────────────────▶
+  │◀── payment window
+  │ pays ───────────────────────────────────────────────────────────────────────────▶
+  │ callback ───▶ verify signature ─┐          webhook ◀── verify HMAC ◀───────────┤
+  │                                 ▼                     ▼
+  │                markPaid: amount matches → payment captured (guarded)
+  │                UPDATE orders SET status='PLACED' WHERE status='PENDING_PAYMENT'  (first one wins)
+  │                → Realtime → kitchen chimes; SMS after commit
+```
+
+| Failure                                             | Handling                                                                               |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Double click on Pay                                 | Same idempotency key → the same order is returned (unique index, with a race fallback) |
+| Tab closed after paying                             | Webhook records it                                                                     |
+| Callback and webhook both arrive                    | Guarded updates: the second is a no-op                                                 |
+| Card declined, then UPI succeeds in the same window | A `failed` attempt may still become `captured`                                         |
+| Razorpay down when placing                          | Order exists; the order page offers "Pay now" (a new attempt)                          |
+| Paid, but the order was rejected meanwhile          | Payment marked `needs_refund`; owner refunds in Razorpay and records it                |
+| Abandoned checkout                                  | Stays `PENDING_PAYMENT`, never shown to the kitchen; cleanup job is backlog            |
+
+No network call happens inside a database transaction.
+
+### 2. Concurrency
+
+- **Guarded updates** (`UPDATE ... WHERE status = <expected>`): customer cancel vs kitchen accept has exactly one winner; the loser gets a "changed by someone else" error.
+- **Interactive transactions** so side effects (payment flags) only run if the guarded update won. A batch transaction is atomic but not conditional; that exact bug was found and fixed.
+- **Serializable isolation** for the "at least one owner" rule, so two owners demoting each other at once cannot both pass the check (verified with a race script).
+
+### 3. Tenant isolation and data exposure
+
+Two ways into the database, each guarded:
+
+|             | Door 1: our server              | Door 2: Supabase's public API                                                                          |
+| ----------- | ------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Used for    | Every page and action           | Realtime only                                                                                          |
+| Connects as | `postgres` (bypasses RLS)       | `anon` / `authenticated` (RLS applies)                                                                 |
+| Guard       | Role + ownership checks in core | RLS on every table, no policies by default; browser grants revoked; two read-only policies on `orders` |
+
+A code review found the first staff policy let kitchen staff read the whole order history (with phone numbers) through the API; it was narrowed to current orders and re-tested with a real login. **Hardening next:** run server queries under RLS too (a restricted database role plus per-request claims), and automated cross-tenant tests.
+
+### 4. Performance
+
+- **Server rendering** sends HTML with data already in it; most components never ship JavaScript.
+- **Indexes** match every hot query (table above).
+- **`next/image`** resizes and caches photos; uploads are capped at 2 MB and checked by their bytes.
+- **Debounced quotes** (300 ms) and **abortable place searches** keep checkout chatty but cheap.
+- **Connection pooling (at deploy):** the app will connect through Supabase's pooler, so serverless functions do not exhaust Postgres connections.
+- **Next step: cache menu pages** (`"use cache"` with a tag per restaurant, revalidated when the dashboard edits the menu). Reads outnumber writes ~50:1, so this removes most database reads.
+
+### 5. Frontend
+
+- **Server Components by default,** Client Components only for interactivity (menu filters, cart, checkout, map, kitchen board, dashboard forms).
+- **Per-restaurant theming** with CSS variables from a preset and two colours: one codebase, distinct brands.
+- **Resilient calls:** every action call turns network failures into messages; checkout keeps a placed order even if the payment confirmation fails, and a quote is only shown for the inputs it was priced for.
+- **Kitchen screen:** chime on new orders (needs a tap to allow audio), screen wake lock re-acquired when the tab returns, outlet filter in the URL so a tablet can be bookmarked.
+
+### 6. Scaling path
+
+| Load                       | Change                                                                                                                              |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| 10× (500 restaurants)      | Cache menu pages; move the geocoder to a paid or self-hosted one; rate limits                                                       |
+| 100×                       | Read replica for storefront reads; Realtime Broadcast instead of per-row change feeds; queue + workers for SMS and refunds (outbox) |
+| 1000× or very large chains | Split storefront and dashboard deployments; move the biggest tenants to their own databases; analytics in a separate store          |
+
+### 7. Failure modes
+
+| Dependency down  | Effect                                            | Mitigation                                                         |
+| ---------------- | ------------------------------------------------- | ------------------------------------------------------------------ |
+| Razorpay         | Online payment unavailable                        | Cash still works; order saved, "Pay now" later                     |
+| Webhook delivery | Payment unconfirmed if the callback was also lost | Razorpay retries webhooks; reconciliation job is backlog           |
+| Realtime         | No live updates                                   | Polling every 15-20 s                                              |
+| SMS provider     | Customer not notified                             | Best effort after commit; outbox with retries is backlog           |
+| Geocoder         | No address search                                 | Customer can still tap the map and type the address                |
+| Postgres         | App down                                          | Managed service; backups and point-in-time recovery on a paid plan |
+
+### 8. Known gaps (and why)
+
+No automated tests, no structured logging or error tracking, manual refunds, no rate limits, SMS without retries, abandoned checkouts not cleaned up. All deliberate for the MVP and listed in the [backlog](../backlog.md); tests for pricing, the status map and tenant isolation come first ([ADR 0011](../adr/0011-what-is-not-built.md)).
 
 ---
 
-## 8. What comes next
+## Presenting it in a 45-minute interview
 
-From the [backlog](../backlog.md), in rough order: a cart that follows you across devices, promo codes, dish options, automated tests, logs and error tracking, automatic refunds, reliable SMS (retries), rate limits.
+| Minutes | Section      | Say                                                                                            |
+| ------- | ------------ | ---------------------------------------------------------------------------------------------- |
+| 0-5     | Requirements | Actors, the must-haves, the numbers: "writes are tiny, correctness is the hard part"           |
+| 5-15    | Architecture | Draw the box diagram; one app, a domain layer, Supabase, Razorpay; read, write and async paths |
+| 15-25   | Data model   | Tables, keys, the status machine, paise and snapshots, shared-schema tenancy                   |
+| 25-30   | Interface    | Server Actions with the result type, the webhook contract, Realtime + RLS                      |
+| 30-45   | Deep dives   | Checkout consistency, concurrency, tenant isolation (two doors), then the scaling path         |
 
-At much larger scale: cache the menu pages, a read replica for storefront traffic, a queue for notifications, split the storefront and dashboard into separate apps.
+### Likely follow-up questions
 
----
-
-## Glossary
-
-- **Server Component:** a React component that runs only on the server; it can read the database and sends plain HTML to the browser.
-- **Server Action:** a server function the browser calls directly (for example on a button click); Next.js turns the call into a request for you.
-- **Prisma:** the library that defines the tables in TypeScript and runs typed queries.
-- **Migration:** a versioned SQL file that changes the database structure; applied in order, kept in git.
-- **Transaction:** several database changes that either all happen or none do.
-- **Constraint:** a rule inside the database (unique, not null, a check like `price >= 0`) that rejects bad data even if the code has a bug.
-- **RLS (row level security):** Postgres rules that decide which rows a signed-in browser may read; here, almost none.
-- **Webhook:** a request another service (Razorpay) sends to our server when something happens, like a payment.
-- **Idempotency key:** a random id sent with a request so that repeating the request has no extra effect.
-- **Guarded update:** an update that only applies if the row is still in the expected state (`WHERE status = 'PLACED'`), so two people cannot both "win".
+- **"How do you prevent double charging?"** Unique Razorpay ids, guarded update from `PENDING_PAYMENT`, idempotency key on the order; callback and webhook are both safe to repeat.
+- **"What if the webhook arrives before the callback?"** Either can arrive first; whichever runs `markPaid` first wins, the other finds nothing to change.
+- **"How is one restaurant kept away from another's data?"** Role check at the restaurant plus an ownership check on every id, in core; RLS locks the public API; hardening is RLS on server queries and cross-tenant tests.
+- **"Why not microservices?"** 4 writes/s at peak; services would add latency, deployments and distributed transactions for no benefit. `core` is already a clean seam to split along.
+- **"How would the kitchen scale to thousands of restaurants?"** Realtime Broadcast from a database trigger per restaurant channel instead of row-level change feeds; the kitchen query is already indexed.
+- **"Why keep the cart in the browser?"** Browsing needs no login, there are no cart races, and the price is still computed on the server; a synced cart is the first backlog item.
+- **"What would you build next?"** Tests, then menu caching, then automatic refunds with a reconciliation job and an outbox for notifications.
