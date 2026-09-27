@@ -20,7 +20,8 @@ const input = z.object({
     "PICKED_UP",
     "CANCELLED",
   ]),
-  reason: z.string().trim().max(200).optional(),
+  // Core trims it to the length it stores; this only stops huge inputs.
+  reason: z.string().trim().max(2000).optional(),
 })
 
 export async function moveOrderAction(raw: unknown) {

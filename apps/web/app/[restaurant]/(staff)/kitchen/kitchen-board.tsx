@@ -71,21 +71,54 @@ export function KitchenBoard({
   const router = useRouter()
   const [soundOn, setSoundOn] = useState(false)
   const audio = useRef<AudioContext | null>(null)
-  const wakeLock = useRef<WakeLockSentinel | null>(null)
 
   useLiveOrders(restaurantId)
 
   // Chime when a new order arrives (not for the ones already on screen when
   // the page loaded).
-  const seen = useRef<Set<string> | null>(null)
+  // Switching the outlet filter starts over, so the other outlets' waiting
+  // orders are not taken for new ones.
+  const seen = useRef<{ outletId: string | null; ids: Set<string> } | null>(
+    null
+  )
   useEffect(() => {
     const placed = orders.filter((o) => o.status === "PLACED").map((o) => o.id)
-    if (seen.current) {
-      const fresh = placed.filter((id) => !seen.current!.has(id))
+    const previous = seen.current
+    if (previous && previous.outletId === outletId) {
+      const fresh = placed.filter((id) => !previous.ids.has(id))
       if (fresh.length > 0 && soundOn && audio.current) chime(audio.current)
+      seen.current = { outletId, ids: new Set([...previous.ids, ...placed]) }
+    } else {
+      seen.current = { outletId, ids: new Set(placed) }
     }
-    seen.current = new Set([...(seen.current ?? []), ...placed])
-  }, [orders, soundOn])
+  }, [orders, soundOn, outletId])
+
+  // While sound is on, keep the screen awake. Browsers drop the lock when
+  // the tab is hidden or the screen turns off, so ask again on return.
+  useEffect(() => {
+    if (!soundOn || !("wakeLock" in navigator)) return
+    let lock: WakeLockSentinel | null = null
+    let active = true
+    const request = async () => {
+      try {
+        const next = await navigator.wakeLock.request("screen")
+        if (active) lock = next
+        else void next.release()
+      } catch {
+        // Denied (battery saver, for example): the board still works.
+      }
+    }
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void request()
+    }
+    void request()
+    document.addEventListener("visibilitychange", onVisible)
+    return () => {
+      active = false
+      document.removeEventListener("visibilitychange", onVisible)
+      void lock?.release()
+    }
+  }, [soundOn])
 
   // Waiting orders in the tab title, visible from other tabs.
   const waiting = orders.filter((o) => o.status === "PLACED").length
@@ -96,24 +129,18 @@ export function KitchenBoard({
     document.title = waiting > 0 ? `(${waiting}) New orders` : "Kitchen"
   }, [waiting])
 
-  // Browsers only allow sound after a tap, so sound is a button. It also keeps
-  // the screen awake, since a kitchen tablet should not go to sleep.
+  // Browsers only allow sound after a tap, so sound is a button. Turning it
+  // on also keeps the screen awake (above), since a kitchen tablet should
+  // not go to sleep.
   async function toggleSound() {
     if (soundOn) {
       setSoundOn(false)
-      await wakeLock.current?.release()
-      wakeLock.current = null
       return
     }
     audio.current ??= new AudioContext()
     await audio.current.resume()
     chime(audio.current)
     setSoundOn(true)
-    try {
-      wakeLock.current = await navigator.wakeLock?.request("screen")
-    } catch {
-      // Not supported or denied: the board still works.
-    }
   }
 
   function chooseOutlet(id: string) {
@@ -272,7 +299,12 @@ function OrderCard({
             {STATUS_LABEL[order.status]}
           </span>
         ) : (
-          <Elapsed since={order.createdAt} urgent={isNew} />
+          // New orders count from when they arrived in the kitchen (an
+          // online order only arrives once paid), others from checkout.
+          <Elapsed
+            since={isNew ? order.updatedAt : order.createdAt}
+            urgent={isNew}
+          />
         )}
       </header>
 
@@ -377,6 +409,8 @@ function Elapsed({ since, urgent }: { since: Date; urgent: boolean }) {
   )
   return (
     <span
+      // Server and browser clocks can land on different minutes.
+      suppressHydrationWarning
       className={cn(
         "rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap tabular-nums",
         urgent && minutes >= 5
