@@ -4,28 +4,7 @@ Online ordering for restaurants. Each restaurant gets a branded storefront, a ki
 
 Biscotti is a rebuild of the original app (a Firebase project I built as a student in 2020). The goal is a small, correct MVP: prices computed on the server, payments verified, permissions checked on every staff action, and nothing in the database exposed by default.
 
-## Try it
-
-**Live demo:** https://biscotti-sigma.vercel.app
-
-Sign in with one of the demo phone numbers below and the code **`098765`** (no SMS is sent; these are test numbers). Online payments run in Razorpay **test mode**: pay with the card `4100 2800 0000 1007`, any future expiry, any CVV, and any 4-10 digit OTP. No real money moves.
-
-| Phone       | Role               | Try                                                                                                                                       |
-| ----------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 99999 00001 | Customer           | Order from [Casa Spezia](https://biscotti-sigma.vercel.app/casa-spezia)                                                                   |
-| 99999 00002 | Casa Spezia owner  | [Kitchen](https://biscotti-sigma.vercel.app/casa-spezia/kitchen) and [dashboard](https://biscotti-sigma.vercel.app/casa-spezia/dashboard) |
-| 99999 00003 | Casa Spezia staff  | Kitchen only (the dashboard says "no access")                                                                                             |
-| 99999 00004 | Osteria Sole owner | A second restaurant that cannot see Casa Spezia's data                                                                                    |
-
-**A five-minute walkthrough:**
-
-1. Open [Casa Spezia](https://biscotti-sigma.vercel.app/casa-spezia), add a few dishes, open the cart and go to checkout.
-2. Sign in as the customer (`99999 00001`, code `098765`). Pick delivery (drop the pin inside the circle) or pickup, and pay online with the test card or choose cash.
-3. In a second browser or a private window, sign in as the owner (`99999 00002`) and open the **kitchen**. The order is there within a second; press Accept, then move it along.
-4. Watch the customer's order page update by itself.
-5. In the owner's **dashboard**, mark a dish sold out or change a price, and see the storefront change. Reject a paid order to see it appear under "Needs refund".
-
-The demo data is shared by everyone who tries it, so it may look a little used.
+**[Live demo](https://biscotti-sigma.vercel.app)** · [System design](docs/architecture/system-design.md) · [How it works](docs/architecture/how-it-works.md) · [Rebuild notes](docs/architecture/rebuild-notes.md) · [Decisions](docs/adr)
 
 ## How it fits together
 
@@ -50,7 +29,36 @@ The demo data is shared by everyone who tries it, so it may look a little used.
 - Every change to restaurant data goes through core, which checks the person's role at that restaurant (owner, manager or staff).
 - The database is locked to browsers by default; the only reads it serves directly are live order updates.
 
-The design, the decisions and what was wrong with the original app are written up in [docs](#docs).
+**What's worth a look:**
+
+- **Money you can trust:** prices come only from the server, amounts are integer paise, an idempotency key stops double orders, and payments are confirmed twice (browser callback and Razorpay webhook) without double counting.
+- **Tenant isolation, tested:** roles are checked per restaurant on every change, every id is checked to belong to that restaurant, and cross-restaurant attacks were tried against the code and refused. The database is locked to browsers by default.
+- **Live kitchen:** a new order reaches the kitchen screen in about half a second (Supabase Realtime, with polling as a fallback).
+- **One codebase, many brands:** each restaurant picks a look and colours, stored as data and turned into CSS variables.
+- **Written down:** a [system design](docs/architecture/system-design.md) in interview format, 11 short [decision records](docs/adr), and a [backlog](docs/backlog.md) of what is deliberately not built yet.
+
+## Try it
+
+**Live demo:** https://biscotti-sigma.vercel.app
+
+Sign in with one of the demo phone numbers below and the code **`098765`** (no SMS is sent; these are test numbers). Online payments run in Razorpay **test mode**: pay with the card `4100 2800 0000 1007`, any future expiry, any CVV, and any 4-10 digit OTP. No real money moves.
+
+| Phone       | Role               | Try                                                                                                                                       |
+| ----------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 99999 00001 | Customer           | Order from [Casa Spezia](https://biscotti-sigma.vercel.app/casa-spezia)                                                                   |
+| 99999 00002 | Casa Spezia owner  | [Kitchen](https://biscotti-sigma.vercel.app/casa-spezia/kitchen) and [dashboard](https://biscotti-sigma.vercel.app/casa-spezia/dashboard) |
+| 99999 00003 | Casa Spezia staff  | Kitchen only (the dashboard says "no access")                                                                                             |
+| 99999 00004 | Osteria Sole owner | A second restaurant that cannot see Casa Spezia's data                                                                                    |
+
+**A five-minute walkthrough:**
+
+1. Open [Casa Spezia](https://biscotti-sigma.vercel.app/casa-spezia), add a few dishes, open the cart and go to checkout.
+2. Sign in as the customer (`99999 00001`, code `098765`). Pick delivery (drop the pin inside the circle) or pickup, and pay online with the test card or choose cash.
+3. In a second browser or a private window, sign in as the owner (`99999 00002`) and open the **kitchen**. The order is there within a second; press Accept, then move it along.
+4. Watch the customer's order page update by itself.
+5. In the owner's **dashboard**, mark a dish sold out or change a price, and see the storefront change. Reject a paid order to see it appear under "Needs refund".
+
+The demo data is shared by everyone who tries it, so it may look a little used.
 
 ## Stack
 
