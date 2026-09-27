@@ -40,6 +40,9 @@ export function DeliveryMap({
       // A map needs a view before anything can be measured on it.
       const m = L.map(container.current, {
         scrollWheelZoom: false,
+        // On phones a one-finger swipe over the map should scroll the page,
+        // not pan the map. Tap, pin drag and pinch zoom still work.
+        dragging: !L.Browser.mobile,
         // Half steps let the delivery area fill the map more closely.
         zoomSnap: 0.5,
       }).setView([start.current.lat, start.current.lng], 13)
