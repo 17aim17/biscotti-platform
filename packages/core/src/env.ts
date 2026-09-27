@@ -7,6 +7,7 @@ function required(name: string): string {
 }
 
 export const env = {
+  supabaseUrl: () => required("NEXT_PUBLIC_SUPABASE_URL"),
   razorpayKeyId: () => required("NEXT_PUBLIC_RAZORPAY_KEY_ID"),
   razorpayKeySecret: () => required("RAZORPAY_KEY_SECRET"),
   razorpayWebhookSecret: () => required("RAZORPAY_WEBHOOK_SECRET"),

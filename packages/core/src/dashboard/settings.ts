@@ -3,6 +3,7 @@ import { z } from "zod"
 
 import { requirePermission } from "../auth/permissions"
 import { parseInput } from "../validation"
+import { assertImageUrl } from "./images"
 
 // The storefront looks the web app offers. restaurants.theme stores one of
 // these plus two colours; apps/web/lib/brand.ts turns them into styles.
@@ -72,5 +73,7 @@ export async function updateSettings(
 ) {
   await requirePermission(userId, restaurantId, "restaurant:manage")
   const input = parseInput(settingsInput, raw)
+  assertImageUrl(input.theme.heroImageUrl, restaurantId)
+  assertImageUrl(input.theme.logoUrl, restaurantId)
   await prisma.restaurant.update({ where: { id: restaurantId }, data: input })
 }

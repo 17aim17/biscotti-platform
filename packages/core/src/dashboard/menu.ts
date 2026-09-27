@@ -5,6 +5,7 @@ import { requirePermission } from "../auth/permissions"
 import { MAX_PRICE_PAISE } from "../constants"
 import { DomainError } from "../errors"
 import { parseInput } from "../validation"
+import { assertImageUrl } from "./images"
 
 // Menu editing for managers and owners. Dishes and categories are archived,
 // never deleted: past orders point at them.
@@ -148,6 +149,7 @@ export async function createDish(
 ) {
   await requirePermission(userId, restaurantId, "menu:manage")
   const input = parseInput(dishInput, raw)
+  assertImageUrl(input.imageUrl, restaurantId)
   await ownCategory(restaurantId, input.categoryId)
   return prisma.menuItem.create({ data: { ...input, restaurantId } })
 }
@@ -160,6 +162,7 @@ export async function updateDish(
 ) {
   await requirePermission(userId, restaurantId, "menu:manage")
   const input = parseInput(dishInput, raw)
+  assertImageUrl(input.imageUrl, restaurantId)
   await ownDish(restaurantId, dishId)
   await ownCategory(restaurantId, input.categoryId)
   // Past orders keep their own copy of title and price, so editing is safe.
