@@ -267,10 +267,10 @@ max_frequency = "5s"
 # Fixed phone -> code pairs for local testing. No SMS is sent for these numbers.
 # Keys are the number without the leading "+".
 [auth.sms.test_otp]
-919999900001 = "123456" # customer
-919999900002 = "123456" # Casa Spezia owner
-919999900003 = "123456" # Casa Spezia staff
-919999900004 = "123456" # Osteria Sole owner
+919999900001 = "098765" # customer
+919999900002 = "098765" # Casa Spezia owner
+919999900003 = "098765" # Casa Spezia staff
+919999900004 = "098765" # Osteria Sole owner
 
 # Configure logged in session timeouts.
 # [auth.sessions]
