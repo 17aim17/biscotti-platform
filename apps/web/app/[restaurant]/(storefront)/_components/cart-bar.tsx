@@ -19,22 +19,31 @@ export function CartBar({
   categories: MenuCategory[]
 }) {
   const { cart, count, prune } = useCart(slug)
+  // Prices of dishes that can be ordered now. Sold-out dishes stay in the
+  // cart (the cart page shows them) but do not count toward the total.
   const prices = useMemo(
     () =>
       new Map(
         categories.flatMap((c) =>
-          c.menuItems.map((d) => [d.id, d.pricePaise] as const)
+          c.menuItems
+            .filter((d) => d.isAvailable)
+            .map((d) => [d.id, d.pricePaise] as const)
         )
       ),
+    [categories]
+  )
+  // Every dish still on the menu, sold out or not.
+  const onMenu = useMemo(
+    () => new Set(categories.flatMap((c) => c.menuItems.map((d) => d.id))),
     [categories]
   )
   // Remove dishes that left the menu since they were added (this browser's cart
   // can be days old).
   useEffect(() => {
-    prune(new Set(prices.keys()))
+    prune(onMenu)
     // prune is recreated each render; running when the menu changes is enough.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prices])
+  }, [onMenu])
 
   if (count === 0) return null
 

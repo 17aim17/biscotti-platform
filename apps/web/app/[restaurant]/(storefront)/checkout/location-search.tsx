@@ -112,7 +112,9 @@ export function LocationSearch({
           autoComplete="off"
           className="h-12 w-full truncate rounded-(--sf-radius-control) bg-(--sf-card) pr-11 pl-11 text-base ring-1 ring-(--sf-line) transition outline-none focus:ring-2 focus:ring-(--sf-ink)"
         />
-        {busy && (
+        {/* A request cancelled by backspacing below 3 letters never clears
+            busy, so only show it while there is something to search. */}
+        {busy && query.length >= 3 && (
           <LoaderCircle className="absolute top-1/2 right-4 size-4 -translate-y-1/2 animate-spin text-(--sf-muted)" />
         )}
       </label>
