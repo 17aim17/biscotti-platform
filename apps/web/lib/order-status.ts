@@ -67,3 +67,24 @@ export const FINAL_STATUSES: Status[] = [
   "REJECTED",
   "CANCELLED",
 ]
+
+// How statuses read to staff (kitchen screen, dashboard): short, kitchen words.
+export const STAFF_STATUS_LABEL: Record<Status, string> = {
+  PENDING_PAYMENT: "Awaiting payment",
+  PLACED: "New",
+  ACCEPTED: "Accepted",
+  PREPARING: "Cooking",
+  READY: "Ready",
+  OUT_FOR_DELIVERY: "Out for delivery",
+  DELIVERED: "Delivered",
+  PICKED_UP: "Picked up",
+  REJECTED: "Rejected",
+  CANCELLED: "Cancelled",
+}
+
+// Payment statuses that mean the money arrived (whatever happened later).
+const PAID = ["captured", "needs_refund", "refunded"]
+
+export function isPaid(payments: { status: string }[]) {
+  return payments.some((p) => PAID.includes(p.status))
+}

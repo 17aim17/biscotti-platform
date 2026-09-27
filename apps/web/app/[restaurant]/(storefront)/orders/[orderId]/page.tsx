@@ -11,6 +11,7 @@ import { formatOrderTime } from "@/lib/dates"
 import { formatRupees } from "@/lib/money"
 import {
   FINAL_STATUSES,
+  isPaid,
   statusLabel,
   statusNote,
   statusSteps,
@@ -51,9 +52,7 @@ export default async function OrderPage({
   const { status, fulfillment } = order
   const stopped = status === "REJECTED" || status === "CANCELLED"
   const unpaid = status === "PENDING_PAYMENT"
-  const paid = order.payments.some((p) =>
-    ["captured", "needs_refund", "refunded"].includes(p.status)
-  )
+  const paid = isPaid(order.payments)
   const paymentFailed =
     unpaid && !paid && order.payments[0]?.status === "failed"
   const address = order.deliveryAddress as Address | null

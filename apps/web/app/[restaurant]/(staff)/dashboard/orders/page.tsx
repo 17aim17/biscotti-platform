@@ -8,6 +8,7 @@ import { eyebrow } from "@/components/styles"
 import { checkStaffAccess } from "@/lib/access"
 import { formatOrderTime } from "@/lib/dates"
 import { formatRupees } from "@/lib/money"
+import { isPaid, STAFF_STATUS_LABEL } from "@/lib/order-status"
 
 import { PageTitle } from "../_ui"
 import { RefundButton } from "./refund-button"
@@ -19,18 +20,6 @@ const FILTERS: { value: OrderFilter; label: string }[] = [
   { value: "active", label: "In progress" },
   { value: "all", label: "All" },
 ]
-
-const STATUS: Record<string, string> = {
-  PLACED: "New",
-  ACCEPTED: "Accepted",
-  PREPARING: "Cooking",
-  READY: "Ready",
-  OUT_FOR_DELIVERY: "Out for delivery",
-  DELIVERED: "Delivered",
-  PICKED_UP: "Picked up",
-  REJECTED: "Rejected",
-  CANCELLED: "Cancelled",
-}
 
 export default async function OrdersPage({
   params,
@@ -81,9 +70,7 @@ export default async function OrdersPage({
         <ul className="divide-y divide-(--sf-line)">
           {orders.map((o) => {
             const refund = o.payments.find((p) => p.status === "needs_refund")
-            const paid = o.payments.some((p) =>
-              ["captured", "needs_refund", "refunded"].includes(p.status)
-            )
+            const paid = isPaid(o.payments)
             const refunded = o.payments.some((p) => p.status === "refunded")
             return (
               <li
@@ -128,7 +115,7 @@ export default async function OrdersPage({
                           : "text-(--sf-muted)"
                       )}
                     >
-                      {STATUS[o.status]}
+                      {STAFF_STATUS_LABEL[o.status]}
                     </span>
                     <span className="font-display text-xl tabular-nums">
                       {formatRupees(o.totalPaise)}

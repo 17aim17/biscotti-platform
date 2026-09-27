@@ -8,6 +8,7 @@ import { useEffect, useRef, useState, useTransition } from "react"
 
 import { eyebrow, solidButton } from "@/components/styles"
 import { formatRupees } from "@/lib/money"
+import { STAFF_STATUS_LABEL } from "@/lib/order-status"
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser"
 import { callAction } from "@/lib/call-action"
 
@@ -37,19 +38,6 @@ const ACTION_LABEL: Partial<Record<Status, string>> = {
   PICKED_UP: "Picked up",
   REJECTED: "Reject",
   CANCELLED: "Cancel",
-}
-
-const STATUS_LABEL: Record<Status, string> = {
-  PENDING_PAYMENT: "Awaiting payment",
-  PLACED: "New",
-  ACCEPTED: "Accepted",
-  PREPARING: "Cooking",
-  READY: "Ready",
-  OUT_FOR_DELIVERY: "Out for delivery",
-  DELIVERED: "Delivered",
-  PICKED_UP: "Picked up",
-  REJECTED: "Rejected",
-  CANCELLED: "Cancelled",
 }
 
 // Moves that end an order ask for a reason (shown to the customer).
@@ -296,7 +284,7 @@ function OrderCard({
         </div>
         {compact ? (
           <span className={`${eyebrow} text-[0.6rem] text-(--sf-muted)`}>
-            {STATUS_LABEL[order.status]}
+            {STAFF_STATUS_LABEL[order.status]}
           </span>
         ) : (
           // New orders count from when they arrived in the kitchen (an
