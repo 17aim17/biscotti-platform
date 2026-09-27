@@ -21,5 +21,5 @@ Deferred on purpose to keep the MVP small. Roughly in priority order.
 17. Server-side geocoding of delivery addresses. The radius check currently trusts the map pin coordinates sent by the browser. Also: the checkout place search uses the free public Photon server (fair use only); move to a paid or self-hosted geocoder before real traffic.
 18. Per-restaurant order numbers (for example a daily counter per outlet). The current order number is one global sequence, so numbers skip and reveal overall volume.
 19. Cache the menu pages (Next.js "use cache" with tag revalidation when the menu is edited in the dashboard).
-20. Menu photos uploaded by restaurants (Supabase Storage) instead of the demo photos hosted on Unsplash.
+20. ~~Menu photos uploaded by restaurants (Supabase Storage).~~ Done in Phase 9 (dashboard uploads).
 21. Platform onboarding UI, custom domains, delivery partners, native apps, loyalty, POS integration, analytics.

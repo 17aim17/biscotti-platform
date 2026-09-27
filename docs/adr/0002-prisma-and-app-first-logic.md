@@ -17,6 +17,6 @@ App-first with Prisma. Business rules (pricing, order placement, status changes,
 ## Consequences
 
 - This is the common pattern in product teams: workflows are readable, reviewable TypeScript.
-- Prisma runs only on the server. Every query that touches restaurant data filters by `restaurant_id` through one helper.
+- Prisma runs only on the server. Every core function that touches restaurant data filters by `restaurant_id` itself and checks the caller's role with `requirePermission()`.
 - Row locks, when needed, use `$queryRaw` inside an interactive transaction.
 - Using RLS as a second guard on server queries is possible later without changing `core`.

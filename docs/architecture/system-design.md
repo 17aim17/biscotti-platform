@@ -64,25 +64,25 @@
 
 **Key decisions and trade-offs**
 
-| Decision                                                       | Why                                                                             | Trade-off                                                      |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| Path-based tenancy (`/<restaurant>/...`)                       | Works on a free `*.vercel.app` URL, one login cookie, simple routing            | Subdomains later via a `proxy.ts` rewrite, no page changes     |
-| One Next.js app (modular monolith)                             | One deploy, shared auth, fastest to build                                       | Storefront and dashboard scale together; split later if needed |
-| Supabase instead of Firebase                                   | Relational data, SQL, transactions, RLS; managed Auth/Storage/Realtime          | Some vendor features; data is plain Postgres                   |
-| Logic in TypeScript (`core`) + Prisma                          | Common industry pattern, easy to read and change                                | Database constraints still needed for integrity                |
-| RLS on every table, deny by default; Prisma only on the server | The public API exposes nothing (the old database was `if true`)                 | Tenant filtering in app code must be consistent → one helper   |
-| Cart in the browser, priced on the server                      | Simplest thing that fixes the old "client sets the price" flaw                  | No cross-device cart (backlog #1)                              |
-| Webhook + client callback both confirm payment                 | Either can arrive first or be lost; the guarded update makes the second a no-op | Manual refunds for edge cases in v1                            |
-| Best-effort SMS after commit                                   | Simple; SMS failure never blocks an order                                       | Lost SMS possible (outbox in backlog)                          |
-| No microservices, queues, Kubernetes                           | A few writes per second                                                         | Documented as a conscious choice                               |
+| Decision                                                       | Why                                                                             | Trade-off                                                                    |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Path-based tenancy (`/<restaurant>/...`)                       | Works on a free `*.vercel.app` URL, one login cookie, simple routing            | Subdomains later via a `proxy.ts` rewrite, no page changes                   |
+| One Next.js app (modular monolith)                             | One deploy, shared auth, fastest to build                                       | Storefront and dashboard scale together; split later if needed               |
+| Supabase instead of Firebase                                   | Relational data, SQL, transactions, RLS; managed Auth/Storage/Realtime          | Some vendor features; data is plain Postgres                                 |
+| Logic in TypeScript (`core`) + Prisma                          | Common industry pattern, easy to read and change                                | Database constraints still needed for integrity                              |
+| RLS on every table, deny by default; Prisma only on the server | The public API exposes nothing (the old database was `if true`)                 | Every core function must filter by `restaurant_id` and check the role itself |
+| Cart in the browser, priced on the server                      | Simplest thing that fixes the old "client sets the price" flaw                  | No cross-device cart (backlog #1)                                            |
+| Webhook + client callback both confirm payment                 | Either can arrive first or be lost; the guarded update makes the second a no-op | Manual refunds for edge cases in v1                                          |
+| Best-effort SMS after commit                                   | Simple; SMS failure never blocks an order                                       | Lost SMS possible (outbox in backlog)                                        |
+| No microservices, queues, Kubernetes                           | A few writes per second                                                         | Documented as a conscious choice                                             |
 
 **Checkout flow (the part to draw)**
 
 ```
 Customer              Next.js + core                    Postgres            Razorpay
   │ Place order ──▶ check user, validate input
-  │                 TX: check items, hours, distance; price from DB;
-  │                     insert order PENDING_PAYMENT + items (idempotency key) ──▶ commit
+  │                 check items, hours, distance; price from DB (same code as the live quote)
+  │                 insert order PENDING_PAYMENT + items, one statement (idempotency key) ──▶
   │                 create Razorpay order (after commit) ──────────────────────────▶
   │                 insert payments row ─────────────────────────▶
   │◀── Razorpay checkout
@@ -125,29 +125,30 @@ profiles ─< orders (as customer)
 **Security model:**
 
 - RLS enabled everywhere, no policies → the public API returns nothing.
-- Two read policies exist only for Realtime (staff: their restaurant's orders; customer: their own orders).
-- All other access goes through server code, filtered by `restaurant_id` and checked with `can()`.
+- Two read policies exist only for Realtime: customers read their own orders; staff read their restaurant's current orders (in progress, or finished in the last hour). A code review found the first version let staff read the whole history, phone numbers included; narrowed in a migration.
+- All other access goes through server code: every core function filters by `restaurant_id` and calls `requirePermission()` for staff actions.
 
 ---
 
 ## 4. Interfaces
 
-**Server Actions** (each: check user → validate with zod → `can()` if staff → call `core`)
+**Server Actions** (thin: sign-in check with `requireUserId()`, then a `core` function that validates with zod via `parseInput` and checks the role with `requirePermission()`; results are `{ ok, data }` or `{ ok: false, error }`)
 
-| Action                                                                                                      | Input → Output                                                                                                                               |
-| ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `placeOrder`                                                                                                | `{ locationId, fulfillment, address?, items: {menuItemId, qty}[], paymentMethod, idempotencyKey }` → `{ orderId, number, razorpayOrderId? }` |
-| `confirmPayment`                                                                                            | `{ razorpayOrderId, paymentId, signature }` → order status                                                                                   |
-| `retryPayment`                                                                                              | `{ orderId }` → `{ razorpayOrderId }`                                                                                                        |
-| `updateOrderStatus`                                                                                         | `{ orderId, to, reason? }` → order (staff; the status map decides what's allowed)                                                            |
-| `cancelOrder`                                                                                               | `{ orderId }` → order (customer, before accept)                                                                                              |
-| `saveMenuItem`, `archiveMenuItem`, `setItemAvailable`, `saveLocation`, `addStaff`, `saveRestaurantSettings` | owner/manager                                                                                                                                |
+| Action                                                                                                                                                                               | Input → Output                                                                                                                                                          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `quoteAction`                                                                                                                                                                        | `{ restaurantId, locationId, fulfillment, pin?, items }` → lines and totals (server prices)                                                                             |
+| `placeOrderAction`                                                                                                                                                                   | `{ restaurantId, locationId, fulfillment, paymentMethod, customerName, address?, items, idempotencyKey }` → `{ orderId, payment }` (Razorpay details for online orders) |
+| `startPaymentAction`                                                                                                                                                                 | `orderId` → a new Razorpay attempt ("Pay now")                                                                                                                          |
+| `confirmPaymentAction`                                                                                                                                                               | Razorpay's signed response → recorded payment                                                                                                                           |
+| `cancelOrderAction`                                                                                                                                                                  | `orderId` (customer, before the kitchen accepts)                                                                                                                        |
+| `moveOrderAction`                                                                                                                                                                    | `{ orderId, to, reason? }` (staff; the status map decides what is allowed)                                                                                              |
+| Dashboard: `markRefundedAction`, category and dish actions, `uploadImageAction`, `saveOutletAction`, `addStaffAction`, `changeRoleAction`, `removeStaffAction`, `saveSettingsAction` | managers and owners, per section                                                                                                                                        |
 
 **Route handler:** `POST /api/webhooks/razorpay`: HMAC over the raw body → `markPaid`.
 
 **Realtime:** kitchen subscribes to its restaurant's orders; the customer status page subscribes to their order.
 
-**Errors:** a few clear domain errors (`ItemUnavailable`, `LocationClosed`, `OutOfRange`, `InvalidStatusChange`, `PaymentMismatch`) shown as friendly messages.
+**Errors:** `DomainError` with a code (`ITEM_UNAVAILABLE`, `LOCATION_CLOSED`, `OUT_OF_RANGE`, `INVALID_STATUS_CHANGE`, `STATUS_CONFLICT`, `PAYMENT_MISMATCH`, ...) whose message is shown as is; anything else is logged and shown as a generic message.
 
 **Why Server Actions and not REST:** typed end to end, no separate API layer. When native apps come, add REST routes that call the same `core` functions.
 
@@ -157,7 +158,7 @@ profiles ─< orders (as customer)
 
 **Now:**
 
-- Menu pages cached and revalidated when the menu changes (reads far outnumber writes).
+- Menu pages are rendered per request for now; caching them with tag revalidation is backlog #19 (reads far outnumber writes).
 - `next/image` for menu photos.
 - Supabase connection pooler for serverless.
 - One Realtime subscription per kitchen screen.
