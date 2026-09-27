@@ -1,5 +1,5 @@
-// Class strings shared by storefront components. Values come from the
-// restaurant's theme variables (lib/brand.ts).
+// Class strings shared by the storefront, staff and platform pages. Values
+// come from the theme variables set by lib/brand.ts.
 
 // Lettering for buttons: letterspaced caps in "classic", plain in others.
 export const buttonText =
