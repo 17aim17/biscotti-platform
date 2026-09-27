@@ -13,14 +13,17 @@ import { LoginForm } from "./login-form"
 export const metadata: Metadata = { title: "Sign in" }
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
-  const { next } = await searchParams
+  const { next, expired } = await searchParams
   const returnTo = safeNextPath(
     typeof next === "string" ? next : undefined,
     "/account"
   )
 
-  // Already signed in: go straight on.
-  if (await getCurrentUser()) redirect(returnTo)
+  // Already signed in: go straight on. Not when the login was found stale
+  // (?expired=1, its account no longer exists): bouncing back would loop, and
+  // signing in again simply replaces the old session.
+  const isExpired = expired === "1"
+  if (!isExpired && (await getCurrentUser())) redirect(returnTo)
 
   // Coming from a restaurant (e.g. its checkout)? Sign in in its colours.
   const slug = returnTo.split("/")[1] ?? ""
@@ -53,6 +56,11 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         >
           <LoginForm
             returnTo={returnTo}
+            notice={
+              isExpired
+                ? "Your session has expired. Please sign in again."
+                : null
+            }
             context={
               restaurant
                 ? forStaff

@@ -22,9 +22,10 @@ export default async function CheckoutPage({
     getMenu(restaurant.id),
     getProfile(user.id),
   ])
-  // Signed in, but the account is gone: end that session and sign in again.
+  // Signed in, but the account no longer exists (deleted while the browser
+  // kept its login). Signing in again replaces the stale session.
   if (!profile) {
-    redirect(`/auth/sign-out?next=${encodeURIComponent(`/${slug}/checkout`)}`)
+    redirect(`/login?next=${encodeURIComponent(`/${slug}/checkout`)}&expired=1`)
   }
 
   return (

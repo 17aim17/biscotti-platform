@@ -17,10 +17,13 @@ function toE164(input: string): string | null {
 export function LoginForm({
   returnTo,
   context,
+  notice,
 }: {
   returnTo: string
   // Line above the heading, e.g. "Order from Casa Spezia".
   context: string
+  // Why they are here, e.g. an expired session.
+  notice: string | null
 }) {
   const router = useRouter()
   const [step, setStep] = useState<"phone" | "code">("phone")
@@ -75,6 +78,15 @@ export function LoginForm({
             : `Enter the code sent to ${phone}.`}
         </p>
       </div>
+
+      {notice && step === "phone" && (
+        <p
+          role="status"
+          className="rounded-(--sf-radius-control) bg-(--sf-soft) p-3 text-sm text-(--sf-ink)"
+        >
+          {notice}
+        </p>
+      )}
 
       {step === "phone" ? (
         <form onSubmit={sendCode} className="flex flex-col gap-5">
