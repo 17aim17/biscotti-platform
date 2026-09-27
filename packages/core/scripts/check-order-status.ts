@@ -13,7 +13,7 @@ const casa = await prisma.restaurant.findUniqueOrThrow({
 const user = (phone: string) =>
   prisma.profile.findFirstOrThrow({ where: { phone } })
 const [customer, staff, otherOwner] = await Promise.all(
-  ["919999900001", "919999900003", "919999900004"].map(user)
+  ["919999900001", "919999900002", "919999900004"].map(user)
 )
 const tikka = await prisma.menuItem.findFirstOrThrow({
   where: { restaurantId: casa.id, title: "Achari Paneer Tikka" },

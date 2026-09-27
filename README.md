@@ -41,22 +41,22 @@ Biscotti is a rebuild of the original app (a Firebase project I built as a stude
 
 **Live demo:** https://biscotti-sigma.vercel.app
 
-Sign in with one of the demo phone numbers below and the code **`098765`** (no SMS is sent; these are test numbers). Online payments run in Razorpay **test mode**: pay with the card `4100 2800 0000 1007`, any future expiry, any CVV, and any 4-10 digit OTP. No real money moves.
+Sign in with one of the demo phone numbers below and its code (no SMS is sent; these are test numbers). Online payments run in Razorpay **test mode**: pay with the card `4100 2800 0000 1007`, any future expiry, any CVV, and any 4-10 digit OTP. No real money moves.
 
-| Phone       | Role               | Try                                                                                                                                       |
-| ----------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| 99999 00001 | Customer           | Order from [Casa Spezia](https://biscotti-sigma.vercel.app/casa-spezia)                                                                   |
-| 99999 00002 | Casa Spezia owner  | [Kitchen](https://biscotti-sigma.vercel.app/casa-spezia/kitchen) and [dashboard](https://biscotti-sigma.vercel.app/casa-spezia/dashboard) |
-| 99999 00003 | Casa Spezia staff  | Kitchen only (the dashboard says "no access")                                                                                             |
-| 99999 00004 | Osteria Sole owner | A second restaurant that cannot see Casa Spezia's data                                                                                    |
+| Phone       | Role               | Code       | Try                                                                                                                                       |
+| ----------- | ------------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 99999 00001 | Customer           | `098765`   | Order from [Casa Spezia](https://biscotti-sigma.vercel.app/casa-spezia)                                                                   |
+| 99999 00002 | Casa Spezia staff  | `098765`   | [Kitchen](https://biscotti-sigma.vercel.app/casa-spezia/kitchen) only (the dashboard says "no access")                                    |
+| 99999 00003 | Casa Spezia owner  | not public | [Kitchen](https://biscotti-sigma.vercel.app/casa-spezia/kitchen) and [dashboard](https://biscotti-sigma.vercel.app/casa-spezia/dashboard) |
+| 99999 00004 | Osteria Sole owner | not public | A second restaurant that cannot see Casa Spezia's data                                                                                    |
 
 **A five-minute walkthrough:**
 
 1. Open [Casa Spezia](https://biscotti-sigma.vercel.app/casa-spezia), add a few dishes, open the cart and go to checkout.
 2. Sign in as the customer (`99999 00001`, code `098765`). Pick delivery (drop the pin inside the circle) or pickup, and pay online with the test card or choose cash.
-3. In a second browser or a private window, sign in as the owner (`99999 00002`) and open the **kitchen**. The order is there within a second; press Accept, then move it along.
+3. In a second browser or a private window, sign in as the kitchen staff (`99999 00002`, code `098765`) and open the **kitchen**. The order is there within a second; press Accept, then move it along.
 4. Watch the customer's order page update by itself.
-5. In the owner's **dashboard**, mark a dish sold out or change a price, and see the storefront change. Reject a paid order to see it appear under "Needs refund".
+5. The owner accounts (dashboard: menu, photos, outlets, staff, refunds) are not public, so the demo stays tidy. The [system design](docs/architecture/system-design.md) and [how it works](docs/architecture/how-it-works.md) describe what they can do.
 
 The demo data is shared by everyone who tries it, so it may look a little used.
 
@@ -99,14 +99,14 @@ pnpm dev          # http://localhost:3000
 
 ### Demo data
 
-`pnpm db:reset` seeds two restaurants and four users. Phone login uses fixed test numbers (set in `supabase/config.toml`) and sends no SMS. The code is `098765` for all of them, locally and on the live demo.
+`pnpm db:reset` seeds two restaurants and four users. Phone login uses fixed test numbers (set in `supabase/config.toml`) and sends no SMS. Locally, every code is in `supabase/config.toml`.
 
-| Phone           | User                               |
-| --------------- | ---------------------------------- |
-| +91 99999 00001 | Customer                           |
-| +91 99999 00002 | Casa Spezia owner                  |
-| +91 99999 00003 | Casa Spezia staff                  |
-| +91 99999 00004 | Osteria Sole owner (second tenant) |
+| Phone           | User                               | Code                       |
+| --------------- | ---------------------------------- | -------------------------- |
+| +91 99999 00001 | Customer                           | `098765`                   |
+| +91 99999 00002 | Casa Spezia staff                  | `098765`                   |
+| +91 99999 00003 | Casa Spezia owner                  | see `supabase/config.toml` |
+| +91 99999 00004 | Osteria Sole owner (second tenant) | see `supabase/config.toml` |
 
 ### Pages
 

@@ -1,5 +1,6 @@
 // Seeds a fresh local database: two demo restaurants, their outlets and menus,
-// and test users (phone numbers from supabase/config.toml, code 098765, same as the live demo).
+// and test users (phone numbers and codes from supabase/config.toml, same as
+// the live demo: 098765 for the customer and staff, 696969 for the owners).
 // Run through `pnpm db:reset`, which wipes the database first.
 import path from "node:path"
 
@@ -116,15 +117,15 @@ const users: {
   { phone: "+919999900001", name: "Test Customer" },
   {
     phone: "+919999900002",
-    name: "Casa Spezia Owner",
-    restaurant: "casa-spezia",
-    role: "owner",
-  },
-  {
-    phone: "+919999900003",
     name: "Casa Spezia Staff",
     restaurant: "casa-spezia",
     role: "staff",
+  },
+  {
+    phone: "+919999900003",
+    name: "Casa Spezia Owner",
+    restaurant: "casa-spezia",
+    role: "owner",
   },
   {
     phone: "+919999900004",
@@ -220,7 +221,7 @@ async function main() {
     const created = await seedRestaurant(r)
     ids.set(r.slug, created.id)
   }
-  console.log("Users (login code 098765, same as the live demo):")
+  console.log("Users (codes: 098765 customer and staff, 696969 owners):")
   await seedUsers(ids)
 }
 

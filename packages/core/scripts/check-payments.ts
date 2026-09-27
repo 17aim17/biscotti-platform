@@ -21,7 +21,7 @@ const customer = await prisma.profile.findFirstOrThrow({
   where: { phone: "919999900001" },
 })
 const staff = await prisma.profile.findFirstOrThrow({
-  where: { phone: "919999900003" },
+  where: { phone: "919999900002" },
 })
 const tikka = await prisma.menuItem.findFirstOrThrow({
   where: { restaurantId: casa.id, title: "Achari Paneer Tikka" },

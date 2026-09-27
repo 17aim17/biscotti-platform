@@ -143,7 +143,7 @@ profiles ──< memberships >── restaurants ──< locations
 | `categories`  | A menu section, in order                                                                                            | Appetizers (1st), Soups (2nd)               |
 | `menu_items`  | A dish: name, description, price, veg or not, photo, sold out today, signature dish                                 | Achari Paneer Tikka, ₹249, veg              |
 | `profiles`    | A person (customer or staff)                                                                                        | +91 99999 00001, "Test Customer"            |
-| `memberships` | A person's role at a restaurant                                                                                     | +91 99999 00003 is **staff** at Casa Spezia |
+| `memberships` | A person's role at a restaurant                                                                                     | +91 99999 00002 is **staff** at Casa Spezia |
 | `orders`      | An order: number, status, delivery or pickup, cash or online, copies of name/phone/address, all totals              | #2, `DELIVERED`, delivery, cash, ₹732.90    |
 | `order_items` | The dishes on an order, with the name and price **as they were** when ordered                                       | 1 × Achari Paneer Tikka at ₹249             |
 | `payments`    | One online payment attempt with Razorpay's ids and its outcome                                                      | `captured`, ₹313.95                         |
