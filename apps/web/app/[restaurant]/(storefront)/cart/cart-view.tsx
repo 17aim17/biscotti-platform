@@ -75,7 +75,7 @@ export function CartView({
         </h1>
       </div>
 
-      <div className="grid items-start gap-10 lg:grid-cols-[1fr_22rem] lg:gap-14">
+      <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-14">
         <section>
           <div className="flex items-baseline justify-between border-b border-(--sf-ink)/80 pb-3">
             <h2 className="font-display text-3xl font-medium">Dishes</h2>
@@ -85,10 +85,7 @@ export function CartView({
           </div>
           <ul className="divide-y divide-(--sf-line)">
             {lines.map(({ line, dish }) => (
-              <li
-                key={line.menuItemId}
-                className="flex items-center gap-4 py-5"
-              >
+              <li key={line.menuItemId} className="flex items-start gap-4 py-5">
                 <span className="relative size-18 shrink-0 overflow-hidden rounded-(--sf-radius-card) bg-(--sf-soft)">
                   {dish?.imageUrl && (
                     <Image
@@ -103,9 +100,9 @@ export function CartView({
                     />
                   )}
                 </span>
-                <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <div className="flex min-w-0 flex-1 flex-col gap-3">
                   {dish ? (
-                    <>
+                    <div className="flex flex-col gap-1">
                       <span className="flex items-center gap-2">
                         <DietMark isVeg={dish.isVeg} />
                         <span className="truncate font-display text-xl">
@@ -117,36 +114,35 @@ export function CartView({
                           ? `${formatRupees(dish.pricePaise)} each`
                           : "Sold out right now"}
                       </span>
-                    </>
+                    </div>
                   ) : (
                     <span className="text-sm text-(--sf-muted)">
                       This dish is no longer on the menu.
                     </span>
                   )}
+                  {dish?.isAvailable ? (
+                    <div className="flex items-center justify-between gap-3">
+                      <QuantityControl
+                        soldOut={false}
+                        qty={line.qty}
+                        title={dish.title}
+                        onAdd={() => add(line.menuItemId)}
+                        onRemove={() => decrement(line.menuItemId)}
+                      />
+                      <span className="font-display text-lg tabular-nums">
+                        {formatRupees(dish.pricePaise * line.qty)}
+                      </span>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setQty(line.menuItemId, 0)}
+                      className="inline-flex w-fit items-center gap-1.5 text-sm text-(--sf-muted) transition hover:text-(--brand)"
+                    >
+                      <X className="size-4" /> Remove
+                    </button>
+                  )}
                 </div>
-                {dish?.isAvailable ? (
-                  <div className="flex flex-col items-end gap-2">
-                    <QuantityControl
-                      soldOut={false}
-                      qty={line.qty}
-                      title={dish.title}
-                      onAdd={() => add(line.menuItemId)}
-                      onRemove={() => decrement(line.menuItemId)}
-                    />
-                    <span className="font-display text-lg tabular-nums">
-                      {formatRupees(dish.pricePaise * line.qty)}
-                    </span>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setQty(line.menuItemId, 0)}
-                    aria-label="Remove from cart"
-                    className="flex size-9 items-center justify-center rounded-full text-(--sf-muted) transition hover:text-(--brand)"
-                  >
-                    <X className="size-4" />
-                  </button>
-                )}
               </li>
             ))}
           </ul>
