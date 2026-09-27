@@ -26,7 +26,6 @@ export default async function StaffPage({
       <PageTitle title="Staff" />
       <StaffManager
         slug={slug}
-        currentUserId={user.id}
         members={members.map((m) => ({
           id: m.id,
           role: m.role,

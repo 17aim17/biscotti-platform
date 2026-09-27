@@ -20,7 +20,6 @@ export async function getRestaurantBySlug(slug: string, now = new Date()) {
       name: true,
       slug: true,
       theme: true,
-      logoPath: true,
       legal: true,
       gstin: true,
       fssaiLicense: true,

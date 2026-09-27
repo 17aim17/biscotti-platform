@@ -38,7 +38,6 @@ export function StaffManager({
   members,
 }: {
   slug: string
-  currentUserId: string
   members: Member[]
 }) {
   const router = useRouter()

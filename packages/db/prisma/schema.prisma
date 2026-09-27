@@ -18,9 +18,10 @@ model Restaurant {
   name         String
   // URL segment: /casa-spezia, /casa-spezia/kitchen, /casa-spezia/dashboard
   slug         String   @unique
-  // Brand colors, e.g. { "primary": "#8a2b0e" }
+  // Storefront look, e.g. { "preset": "classic", "primary": "#8a2c12",
+  //   "accent": "#b08d57", "tagline": "...", "heroImageUrl": "...", "logoUrl": null }
+  // Format checked in core (dashboard/settings.ts); styles in apps/web/lib/brand.ts.
   theme        Json     @default("{}")
-  logoPath     String?  @map("logo_path")
   // Legal pages: { "about": "...", "privacy": "...", "refund": "...", "terms": "..." }
   legal        Json     @default("{}")
   gstin        String?
