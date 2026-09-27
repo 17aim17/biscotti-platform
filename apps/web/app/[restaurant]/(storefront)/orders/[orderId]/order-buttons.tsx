@@ -7,7 +7,7 @@ import { useState } from "react"
 import { eyebrow, solidButton } from "@/components/styles"
 import { callAction } from "@/lib/call-action"
 import { cancelOrderAction, startPaymentAction } from "../actions"
-import { payAndConfirm } from "../pay"
+import { payAndConfirm } from "../../_components/pay"
 
 // "Pay now" for an order still waiting for payment: a new Razorpay attempt.
 export function PayNowButton({

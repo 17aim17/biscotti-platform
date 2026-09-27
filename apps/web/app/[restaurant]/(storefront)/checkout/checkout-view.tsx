@@ -11,7 +11,7 @@ import { useCart, type Fulfillment } from "@/lib/cart/store"
 import { formatRupees } from "@/lib/money"
 
 import { eyebrow, inputClass, solidButton } from "@/components/styles"
-import { payAndConfirm } from "../orders/pay"
+import { payAndConfirm } from "../_components/pay"
 import { placeOrderAction, quoteAction } from "./actions"
 import { DeliveryMap, type Pin } from "@/components/delivery-map"
 import { addressAt } from "./geocode"

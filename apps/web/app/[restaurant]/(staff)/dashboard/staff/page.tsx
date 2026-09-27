@@ -4,7 +4,7 @@ import type { Metadata } from "next"
 import { NoAccess } from "@/components/no-access"
 import { checkStaffAccess } from "@/lib/access"
 
-import { PageTitle } from "../_ui"
+import { PageTitle } from "../_components/ui"
 import { StaffManager } from "./staff-manager"
 
 export const metadata: Metadata = { title: "Staff" }

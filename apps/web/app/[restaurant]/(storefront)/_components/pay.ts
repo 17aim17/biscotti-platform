@@ -1,7 +1,7 @@
 import { callAction } from "@/lib/call-action"
 import { payWithRazorpay, type PaymentStart } from "@/lib/razorpay-checkout"
 
-import { confirmPaymentAction } from "./actions"
+import { confirmPaymentAction } from "../orders/actions"
 
 // Opens Razorpay and, if the customer pays, has the server verify and record
 // the payment. Used by checkout and by "Pay now" on the order page. Even if

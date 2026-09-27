@@ -7,7 +7,7 @@ import { useRef, useState } from "react"
 import { eyebrow } from "@/components/styles"
 import { callAction } from "@/lib/call-action"
 
-import { uploadImageAction } from "./actions"
+import { uploadImageAction } from "../actions"
 
 // Photo picker: uploads right away (through the server, which checks the
 // permission and the file) and hands back the public URL.

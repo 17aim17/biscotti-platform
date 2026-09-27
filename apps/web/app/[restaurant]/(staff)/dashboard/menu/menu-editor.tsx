@@ -13,7 +13,7 @@ import { formatRupees } from "@/lib/money"
 import type { ActionResult } from "@/lib/action-result"
 import { callAction } from "@/lib/call-action"
 
-import { outlineButton, PageTitle } from "../_ui"
+import { outlineButton, PageTitle } from "../_components/ui"
 import {
   archiveCategoryAction,
   createCategoryAction,

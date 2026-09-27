@@ -10,7 +10,7 @@ import { formatOrderTime } from "@/lib/dates"
 import { formatRupees } from "@/lib/money"
 import { isPaid, STAFF_STATUS_LABEL } from "@/lib/order-status"
 
-import { PageTitle } from "../_ui"
+import { PageTitle } from "../_components/ui"
 import { RefundButton } from "./refund-button"
 
 export const metadata: Metadata = { title: "Orders" }

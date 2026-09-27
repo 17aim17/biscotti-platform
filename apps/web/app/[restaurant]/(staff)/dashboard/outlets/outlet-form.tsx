@@ -10,7 +10,7 @@ import { DeliveryMap } from "@/components/delivery-map"
 import { eyebrow, inputClass, solidButton } from "@/components/styles"
 import { callAction } from "@/lib/call-action"
 
-import { FieldLabel } from "../_ui"
+import { FieldLabel } from "../_components/ui"
 import { saveOutletAction } from "../actions"
 
 const DAYS = [

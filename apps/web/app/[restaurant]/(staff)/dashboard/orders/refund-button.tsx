@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 import { callAction } from "@/lib/call-action"
 
-import { outlineButton } from "../_ui"
+import { outlineButton } from "../_components/ui"
 import { markRefundedAction } from "../actions"
 
 // After refunding in the Razorpay dashboard, record it here.

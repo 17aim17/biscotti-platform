@@ -8,8 +8,8 @@ import { useState, useTransition } from "react"
 import { inputClass, solidButton } from "@/components/styles"
 import { callAction } from "@/lib/call-action"
 
-import { ImageField } from "../_image-field"
-import { FieldLabel } from "../_ui"
+import { ImageField } from "../_components/image-field"
+import { FieldLabel } from "../_components/ui"
 import { saveSettingsAction } from "../actions"
 
 type Preset = string

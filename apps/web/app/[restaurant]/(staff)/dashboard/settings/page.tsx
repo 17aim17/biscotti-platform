@@ -7,7 +7,7 @@ import { eyebrow } from "@/components/styles"
 import { checkStaffAccess } from "@/lib/access"
 import { readBrand } from "@/lib/brand"
 
-import { PageTitle } from "../_ui"
+import { PageTitle } from "../_components/ui"
 import { SettingsForm } from "./settings-form"
 
 export const metadata: Metadata = { title: "Settings" }

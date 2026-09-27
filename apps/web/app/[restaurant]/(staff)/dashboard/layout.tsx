@@ -8,7 +8,7 @@ import {
 import { getCurrentUser } from "@/lib/auth"
 import { getRestaurantOr404 } from "@/lib/restaurant"
 
-import { DashboardNav, type Section } from "./_nav"
+import { DashboardNav, type Section } from "./_components/nav"
 
 const SECTIONS: { path: string; label: string; permission: Permission }[] = [
   { path: "orders", label: "Orders", permission: "orders:view" },

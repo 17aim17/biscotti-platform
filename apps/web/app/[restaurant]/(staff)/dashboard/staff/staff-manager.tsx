@@ -7,7 +7,7 @@ import { eyebrow, inputClass, solidButton } from "@/components/styles"
 import type { ActionResult } from "@/lib/action-result"
 import { callAction } from "@/lib/call-action"
 
-import { FieldLabel } from "../_ui"
+import { FieldLabel } from "../_components/ui"
 import { addStaffAction, changeRoleAction, removeStaffAction } from "../actions"
 
 type Role = "owner" | "manager" | "staff"

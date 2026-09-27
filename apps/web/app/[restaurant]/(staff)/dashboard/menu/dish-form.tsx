@@ -13,8 +13,8 @@ import { type CSSProperties, useState, useTransition } from "react"
 import { eyebrow, inputClass, solidButton } from "@/components/styles"
 import { callAction } from "@/lib/call-action"
 
-import { ImageField } from "../_image-field"
-import { FieldLabel } from "../_ui"
+import { ImageField } from "../_components/image-field"
+import { FieldLabel } from "../_components/ui"
 import { archiveDishAction, saveDishAction } from "../actions"
 
 type Props = {
