@@ -19,6 +19,7 @@ import { isWithinRadius } from "../locations/distance"
 import { isOpenAt, openingHoursSchema } from "../locations/hours"
 import { notifyOrderStatus } from "../notifications/order-status"
 import { calculateTotals, priceLines } from "../pricing"
+import { parseInput } from "../validation"
 
 const items = z
   .array(
@@ -81,14 +82,7 @@ export async function placeOrder(
   rawInput: unknown,
   now = new Date()
 ) {
-  const parsed = placeOrderInput.safeParse(rawInput)
-  if (!parsed.success) {
-    throw new DomainError(
-      "INVALID_INPUT",
-      parsed.error.issues[0]?.message ?? "Invalid order."
-    )
-  }
-  const input = parsed.data
+  const input = parseInput(placeOrderInput, rawInput)
 
   // Same checkout attempt submitted again (double click, network retry).
   const existing = await prisma.order.findUnique({
@@ -266,14 +260,8 @@ async function checkAndPrice(input: QuoteOrderInput, now: Date) {
 // (closed, outside the delivery area, sold out), so the page can show them
 // before the customer presses the button.
 export async function quoteOrder(rawInput: unknown, now = new Date()) {
-  const parsed = quoteOrderInput.safeParse(rawInput)
-  if (!parsed.success) {
-    throw new DomainError(
-      "INVALID_INPUT",
-      parsed.error.issues[0]?.message ?? "Invalid cart."
-    )
-  }
-  const { location, lines, totals } = await checkAndPrice(parsed.data, now)
+  const input = parseInput(quoteOrderInput, rawInput)
+  const { location, lines, totals } = await checkAndPrice(input, now)
   return {
     lines: lines.map(({ menuItemId, title, qty, lineTotalPaise }) => ({
       menuItemId,

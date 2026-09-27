@@ -1,5 +1,6 @@
 import "server-only"
 
+import { DomainError } from "@workspace/core"
 import { redirect } from "next/navigation"
 import { cache } from "react"
 
@@ -25,4 +26,12 @@ export async function requireUser(returnTo: string): Promise<CurrentUser> {
   const user = await getCurrentUser()
   if (!user) redirect(`/login?next=${encodeURIComponent(returnTo)}`)
   return user
+}
+
+// For Server Actions: the signed-in user's id, or an error the page shows.
+// (Actions return results instead of redirecting.)
+export async function requireUserId(): Promise<string> {
+  const user = await getCurrentUser()
+  if (!user) throw new DomainError("FORBIDDEN", "Please sign in again.")
+  return user.id
 }
