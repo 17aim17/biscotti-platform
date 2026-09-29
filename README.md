@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/17aim17/biscotti-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/17aim17/biscotti-platform/actions/workflows/ci.yml)
 
-Online ordering for restaurants. Each restaurant gets a branded storefront, a kitchen screen for live orders, and a dashboard for its menu, outlets and staff.
+Multi-tenant online ordering for restaurants. Each restaurant is a tenant with its own branded storefront, a kitchen screen for live orders, and a dashboard for its menu, outlets and staff, and its data is isolated from every other restaurant's.
 
 Biscotti is a rebuild of the original app (a Firebase project I built as a student in 2020). The goal is a small, correct MVP: prices computed on the server, payments verified, permissions checked on every staff action, and nothing in the database exposed by default.
 
